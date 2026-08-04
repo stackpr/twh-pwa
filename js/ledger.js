@@ -1,0 +1,185 @@
+// ledger.js — CSV records -> canonical ledger.
+//
+// SIGN CONVENTION, stated once: CREDIT POSITIVE, DEBIT NEGATIVE, on every leg.
+// Revenue funds are therefore positive and expense funds negative. Reports flip
+// the sign at presentation only, in exactly one place (reports.js:sectionSign).
+
+import { md5 } from './csv.js';
+
+export const REQUIRED_COLUMNS = [
+  'Transaction Type', 'Date', 'Amount',
+  'Debit Troop Account', 'Credit Troop Account',
+  'Debit Person', 'Credit Person',
+  'Debit Event', 'Credit Event',
+  'Debit Fund', 'Credit Fund',
+];
+
+const EVENT_DATE_RE = /\((\d{2})\/(\d{2})\/(\d{2})\)\s*$/;
+
+export function parseEventDate(name) {
+  if (!name) return null;
+  const m = EVENT_DATE_RE.exec(name);
+  if (!m) return null;
+  const [, mm, dd, yy] = m;
+  // TWH emits 2-digit years; the ledger starts in 2020, so 70..99 -> 19xx is safe.
+  const year = Number(yy) >= 70 ? 1900 + Number(yy) : 2000 + Number(yy);
+  return new Date(year, Number(mm) - 1, Number(dd));
+}
+
+function parseDate(s) {
+  if (!s) return null;
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  if (m) return new Date(Number(m[3]), Number(m[1]) - 1, Number(m[2]));
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+function parseAmount(s) {
+  if (s === null || s === undefined || s === '') return 0;
+  const v = Number(String(s).replace(/[$,\s]/g, ''));
+  return Number.isFinite(v) ? v : 0;
+}
+
+export const isPseudoAccount = name => !!name && name.startsWith('_');
+
+function hashPerson(name, salt) {
+  if (isPseudoAccount(name)) return name;   // troop-held fund, not a person
+  return 'scout:' + md5(salt + name).slice(0, 8);
+}
+
+/**
+ * Build the canonical ledger. Person names are hashed here and the originals
+ * are never retained past this function's stack frame.
+ */
+export function buildLedger(records, cfg) {
+  const errors = [], warnings = [];
+  const params = cfg.params;
+
+  const missing = REQUIRED_COLUMNS.filter(c => records.length && !(c in records[0]));
+  if (missing.length) {
+    errors.push(`Export is missing required column(s): ${missing.join(', ')}`);
+    return { errors, warnings, legs: [], txns: [], events: [] };
+  }
+
+  const legs = [];   // {i, date, kind, key, amount, event, fund, txnType}
+  const txns = [];
+  const eventNames = new Set();
+  const unknownFunds = new Set();
+  const unknownAccounts = new Set();
+
+  records.forEach((r, i) => {
+    const date = parseDate(r['Date']);
+    if (!date) { warnings.push(`Row ${i + 2}: unparseable date "${r['Date']}" — row skipped.`); return; }
+    const amount = parseAmount(r['Amount']);
+    const debitEvent = r['Debit Event'], creditEvent = r['Credit Event'];
+
+    // Event attribution: prefer the debit side; fall back to credit.
+    // When both are present they are always the same event in practice, so the
+    // transaction is attributed to it. (The legacy workbook blanked this case,
+    // silently dropping those rows from the by-event report.)
+    let event = debitEvent || creditEvent || null;
+    if (params.legacyMode && debitEvent && creditEvent && debitEvent === creditEvent) event = null;
+    if (event) eventNames.add(event);
+
+    const txn = {
+      i, date, amount, event,
+      type: r['Transaction Type'],
+      description: r['Description'] || null,
+      fiscalYear: r['Fiscal Year'] || null,
+    };
+    txns.push(txn);
+
+    const push = (kind, key, amt) => {
+      if (!key) return;
+      legs.push({ i, date, kind, key, amount: amt, event, txnType: txn.type });
+    };
+
+    // --- asset legs ---
+    push('asset', r['Credit Troop Account'],  amount);
+    push('asset', r['Debit Troop Account'],  -amount);
+    for (const a of [r['Credit Troop Account'], r['Debit Troop Account']]) {
+      if (a && !(a in cfg.accountClass)) unknownAccounts.add(a);
+    }
+
+    // --- person legs (hashed) ---
+    if (r['Credit Person']) push('person', hashPerson(r['Credit Person'], params.hashSalt),  amount);
+    if (r['Debit Person'])  push('person', hashPerson(r['Debit Person'],  params.hashSalt), -amount);
+
+    // --- fund legs ---
+    if (r['Credit Fund']) { push('fund', r['Credit Fund'],  amount); if (!(r['Credit Fund'] in cfg.fundCategories)) unknownFunds.add(r['Credit Fund']); }
+    if (r['Debit Fund'])  { push('fund', r['Debit Fund'],  -amount); if (!(r['Debit Fund']  in cfg.fundCategories)) unknownFunds.add(r['Debit Fund']); }
+  });
+
+  // Hard stops. A silently-dropped account or fund is the failure mode that made
+  // the legacy workbook untrustworthy; refuse to render rather than under-report.
+  if (unknownFunds.size)
+    errors.push(`Fund(s) not present in the category map: ${[...unknownFunds].join(', ')}. Add them under Configuration before the reports can be produced.`);
+  if (unknownAccounts.size)
+    errors.push(`Troop account(s) not classified: ${[...unknownAccounts].join(', ')}. Classify each as cash / noncash / liability under Configuration.`);
+
+  // Event catalogue
+  const events = [...eventNames].map(name => {
+    const date = parseEventDate(name);
+    if (!date) warnings.push(`Event "${name}" has no trailing (MM/DD/YY) date — it cannot be placed on the timeline and will fall into Other.`);
+    const fundLegs = legs.filter(l => l.kind === 'fund' && l.event === name);
+    let program = 0, fundraising = 0;
+    for (const l of fundLegs) {
+      const cat = cfg.fundCategories[l.key] || '';
+      if (cat.startsWith('Program')) program++;
+      else if (cat.startsWith('Fundraising')) fundraising++;
+    }
+    return {
+      name, date,
+      kind: program >= fundraising ? 'program' : 'fundraising',
+      allTimeNet: fundLegs.reduce((s, l) => s + l.amount, 0),
+    };
+  });
+
+  const latestTxn = txns.reduce((m, t) => (!m || t.date > m ? t.date : m), null);
+
+  return { errors, warnings, legs, txns, events, latestTxn };
+}
+
+/** min(latest transaction date, today) unless explicitly overridden. */
+export function resolveAsOf(ledger, params) {
+  if (params.asOf) return new Date(params.asOf + 'T00:00:00');
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return ledger.latestTxn && ledger.latestTxn < today ? ledger.latestTxn : today;
+}
+
+/**
+ * Reconciliation panel data, surfaced before any report renders.
+ *
+ * Note there is deliberately NO "all legs net to zero" assertion. TWH is not a
+ * strict double-entry system: "Credit Troop Account" and "Credit Person" both
+ * mean "money in", so an asset and a liability can both increase on the same
+ * transaction. Opening balances are also typically booked through a fund account
+ * with fiscal year "Opening", which inflates all-time fund totals. Both are why
+ * the reports use period-limited views rather than an all-time roll-forward.
+ */
+export function reconcile(ledger, cfg) {
+  const sum = pred => ledger.legs.filter(pred).reduce((s, l) => s + l.amount, 0);
+  const legCount = new Map();
+  for (const l of ledger.legs) legCount.set(l.i, (legCount.get(l.i) || 0) + 1);
+  const singleLeg = ledger.txns.filter(t => (legCount.get(t.i) || 0) < 2);
+
+  return {
+    rows: ledger.txns.length,
+    legs: ledger.legs.length,
+    assetTotal:  sum(l => l.kind === 'asset'),
+    personTotal: sum(l => l.kind === 'person'),
+    fundTotal:   sum(l => l.kind === 'fund'),
+    // Unbalanced entries are legitimate here (opening-balance imports and
+    // *-prefixed adjustment types), but the count should be stable month to
+    // month. A jump means someone posted something unusual.
+    singleLegCount: singleLeg.length,
+    singleLegTypes: [...new Set(singleLeg.map(t => t.type))].sort(),
+    accounts: [...new Set(ledger.legs.filter(l => l.kind === 'asset').map(l => l.key))].sort(),
+    fundsSeen: [...new Set(ledger.legs.filter(l => l.kind === 'fund').map(l => l.key))].sort(),
+    txnTypes: [...new Set(ledger.txns.map(t => t.type))].sort(),
+    eventCount: ledger.events.length,
+    undatedEvents: ledger.events.filter(e => !e.date).map(e => e.name),
+    scoutAccounts: new Set(ledger.legs.filter(l => l.kind === 'person' && !isPseudoAccount(l.key)).map(l => l.key)).size,
+    pseudoAccounts: [...new Set(ledger.legs.filter(l => l.kind === 'person' && isPseudoAccount(l.key)).map(l => l.key))].sort(),
+  };
+}

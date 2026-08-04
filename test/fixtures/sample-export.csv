@@ -1,0 +1,752 @@
+Transaction Type,Date,Deposit Date,Description,Ref,Amount,Debit Troop Account,Credit Troop Account,Debit Person,Credit Person,Debit Event,Credit Event,For Event,Debit Fund,Credit Fund,Fiscal Year,Budget Item Type,Budget,Group Transaction,Group,Reconcile Debit,Reconcile Credit,Added By User
+Deposit To Troop Account,12/31/2018,,Opening balance import,,41285.44,,Checking,,,,,,,Administrative Expenses,Opening,,,N,,,Imported History (12/31/2018),TREASURER1
+Deposit To Troop Account,12/31/2018,,Opening balance import,,12000.00,,CD,,,,,,,Administrative Expenses,Opening,,,N,,,Imported History (12/31/2018),TREASURER1
+Deposit To Troop Account,12/31/2018,,Opening inventory,,3910.00,,Merchandise Inventory,,,,,,,Administrative Expenses,Opening,,,N,,,Imported History (12/31/2018),TREASURER1
+Transfer Between Troop Accounts,12/31/2018,,Import clearing,,0.00,Imported History,Imported History,,,,,,,,Opening,,,N,,Imported History (12/31/2018),Imported History (12/31/2018),TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,61.00,,,,"Jarrow, Odalys (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,238.50,,,,"Vandermeer, Auberon (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,193.50,,,,"Fontaine, Finnegan (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,172.50,,,,"Stoddard, Odalys (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,73.00,,,,"Stoddard, Hollis (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,117.50,,,,"Whitlock, Jasper (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,129.50,,,,"Fairbourne, Tamsin (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,45.50,,,,"Jarrow, Hollis (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,71.00,,,,"Corrigan, Wendell ""Del"" (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,245.50,,,,"Ashcombe, Greta (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,90.00,,,,"Ravenhill, Zephyr (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,189.50,,,,"Lindquist, Elowen (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,231.00,,,,"Marchetti, Amara (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening scout balance,,256.50,,,,"Stoddard, Finnegan (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Popcorn to Scout Account,12/31/2018,,Opening popcorn credit,,134.00,,,,"Stoddard, Hollis (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Popcorn to Scout Account,12/31/2018,,Opening popcorn credit,,176.50,,,,"Whitlock, Jasper (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Popcorn to Scout Account,12/31/2018,,Opening popcorn credit,,166.00,,,,"Fairbourne, Tamsin (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Popcorn to Scout Account,12/31/2018,,Opening popcorn credit,,128.00,,,,"Jarrow, Hollis (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Popcorn to Scout Account,12/31/2018,,Opening popcorn credit,,63.00,,,,"Corrigan, Wendell ""Del"" (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Popcorn to Scout Account,12/31/2018,,Opening popcorn credit,,143.00,,,,"Ashcombe, Greta (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening campership fund,,1450.00,,,,"_UNIT, Campership (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening high adventure fund,,2200.00,,,,"_UNIT, High Adventure (Main)",,,,,,Opening,,,N,,,,TREASURER1
+*Add to Scout Account,12/31/2018,,Opening custom-order fund,,410.00,,,,"_UNIT, Custom Order (Main)",,,,,,Opening,,,N,,,,TREASURER1
+Deposit to Scout Account,08/30/2023,,Payment - Ironwood Fall Camporee (09/29/23),1004,25.00,,Checking,,"Corrigan, Verity (Main)",,,,,,2023,,,N,,,,TREASURER1
+Deposit to Scout Account,08/30/2023,,Payment - Ironwood Fall Camporee (09/29/23),1020,25.00,,Checking,,"Stoddard, Finnegan (Main)",,,,,,2023,,,N,,,,TREASURER1
+Deposit to Scout Account,08/31/2023,,Payment - Ironwood Fall Camporee (09/29/23),1022,25.00,,PayPal,,"Marchetti, Amara (Main)",,,,,,2023,,,N,,,,TREASURER1
+Deposit to Scout Account,09/01/2023,,Payment - Ironwood Fall Camporee (09/29/23),1002,25.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,09/01/2023,,Interest,1541,8.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/02/2023,,Payment - Ironwood Fall Camporee (09/29/23),1008,25.00,,Venmo,,"Whitlock, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/02/2023,,Payment - Ironwood Fall Camporee (09/29/23),1024,25.00,,Checking,,"Everly, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/02/2023,,Payment - Ironwood Fall Camporee (09/29/23),1032,25.00,,Checking,,"Fairbourne, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/05/2023,,Family payment,1546,88.00,,Checking,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/06/2023,,Payment - Ironwood Fall Camporee (09/29/23),1013,25.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/06/2023,,Payment - Ironwood Fall Camporee (09/29/23),1030,25.00,,Checking,,"Jarrow, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,09/07/2023,,Advancement supplies,1542,45.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/08/2023,,Payment - Ironwood Fall Camporee (09/29/23),1016,25.00,,Checking,,"Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/08/2023,,Payment - Ironwood Fall Camporee (09/29/23),1018,25.00,,Checking,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/08/2023,,Payment - Ironwood Fall Camporee (09/29/23),1043,25.00,,Checking,,"Ashcombe, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/08/2023,,Family payment,1548,98.50,,Checking,,"Everly, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/11/2023,,Payment - Ironwood Fall Camporee (09/29/23),1026,25.00,,Checking,,"Fontaine, Clementine ""Clem"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/11/2023,,Payment - Ironwood Fall Camporee (09/29/23),1036,25.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/11/2023,,Payment - Ironwood Fall Camporee (09/29/23),1039,25.00,,Checking,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/12/2023,,Payment - Ironwood Fall Camporee (09/29/23),1041,25.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,09/12/2023,,Troop admin,1543,65.50,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/14/2023,,Payment - Ironwood Fall Camporee (09/29/23),1006,25.00,,Checking,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,09/14/2023,,T-shirt order,1707,384.00,Checking,,,,,,,Equipment/Merch Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/16/2023,,Payment - Ironwood Fall Camporee (09/29/23),1028,25.00,,Checking,,"Stoddard, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/19/2023,,Payment - Ironwood Fall Camporee (09/29/23),1000,25.00,,Checking,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/19/2023,,Payment - Ironwood Fall Camporee (09/29/23),1011,25.00,,Checking,,"Lindquist, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/20/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1070,20.00,,Checking,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/21/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1072,20.00,,PayPal,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,09/23/2023,,Ironwood Fall Camporee (09/29/23) - site fee,1045,323.50,Checking,,,,Ironwood Fall Camporee (09/29/23),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,09/23/2023,,Ironwood Fall Camporee (09/29/23) - patrol grub,1046,142.50,,,,"Ashcombe, Xiomara (Main)",Ironwood Fall Camporee (09/29/23),,,Food Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/24/2023,,Payment - Ironwood Fall Camporee (09/29/23),1034,25.00,,Venmo,,"Fairbourne, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/24/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1068,20.00,,PayPal,,"Everly, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/25/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1076,20.00,,Checking,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/26/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1051,20.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,09/26/2023,,Venmo sweep,1544,273.50,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/26/2023,,Family payment,1547,100.50,,Checking,,"Whitlock, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/27/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1074,20.00,,Checking,,"Stoddard, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,09/27/2023,,PayPal sweep,1545,298.00,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1001,22.00,,,"Corrigan, Linus (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1003,22.00,,,"Vandermeer, Zephyr (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1005,22.00,,,"Corrigan, Verity (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1007,22.00,,,"Jarrow, Odalys (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1009,22.00,,,"Whitlock, Jasper (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1010,22.00,,,"Corrigan, Xiomara (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1012,22.00,,,"Lindquist, Jasper (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1014,22.00,,,"Fontaine, Finnegan (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1015,22.00,,,"Denwood, Auberon (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1017,22.00,,,"Denwood, Keziah (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1019,22.00,,,"Jarrow, Hollis (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1021,22.00,,,"Stoddard, Finnegan (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1023,22.00,,,"Marchetti, Amara (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1025,22.00,,,"Everly, Odalys (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1027,22.00,,,"Fontaine, Clementine ""Clem"" (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1029,22.00,,,"Stoddard, Hollis (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1031,22.00,,,"Jarrow, Zephyr (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1033,22.00,,,"Fairbourne, Linus (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1035,22.00,,,"Fairbourne, Tamsin (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1037,22.00,,,"Ashcombe, Greta (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1038,22.00,,,"Ashcombe, Marisol (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1040,22.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1042,22.00,,,"Stoddard, Odalys (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/29/2023,,Ironwood Fall Camporee (09/29/23) - Scout Participant,1044,22.00,,,"Ashcombe, Xiomara (Main)",,,Ironwood Fall Camporee (09/29/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/30/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1059,20.00,,Checking,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/01/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1062,20.00,,PayPal,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,10/01/2023,,Interest,1549,9.50,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,10/02/2023,,Ironwood Fall Camporee (09/29/23) - fuel,1047,58.00,,,,"Stoddard, Dashiell ""Dash"" (Main)",Ironwood Fall Camporee (09/29/23),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/02/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1066,20.00,,Checking,,"Corrigan, Verity (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,10/02/2023,,Council account funding,1712,4200.00,Checking,Council Account,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/03/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1053,20.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,10/07/2023,,Advancement supplies,1550,43.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/08/2023,,Family payment,1555,57.50,,Checking,,"Denwood, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/10/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1057,20.00,,Venmo,,"Lindquist, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/11/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1064,20.00,,PayPal,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,10/12/2023,,Troop admin,1551,69.50,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/13/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1048,20.00,,Checking,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/15/2023,,Family payment,1554,118.00,,Checking,,"Marchetti, Amara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/16/2023,,Payment - Hollow Creek Troop Campout (10/20/23),1055,20.00,,Checking,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,10/16/2023,,Hollow Creek Troop Campout (10/20/23) - site fee,1078,199.00,Checking,,,,Hollow Creek Troop Campout (10/20/23),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,10/16/2023,,Hollow Creek Troop Campout (10/20/23) - patrol grub,1079,62.50,,,,"Quintero, Linus (Main)",Hollow Creek Troop Campout (10/20/23),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,10/18/2023,,Court of Honor,1557,204.00,Checking,,,,,,,COH Expense,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1049,18.00,,,"Quintero, Linus (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1050,18.00,,,"Vandermeer, Zephyr (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1052,18.00,,,"Stoddard, Odalys (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1054,18.00,,,"Ashcombe, Greta (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1056,18.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1058,18.00,,,"Lindquist, Jasper (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1060,18.00,,,"Whitlock, Marisol (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1061,18.00,,,"Denwood, Auberon (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1063,18.00,,,"Fontaine, Finnegan (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1065,18.00,,,"Ravenhill, Zephyr (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1067,18.00,,,"Corrigan, Verity (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1069,18.00,,,"Everly, Odalys (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1071,18.00,,,"Jarrow, Greta (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1073,18.00,,,"Stoddard, Finnegan (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1075,18.00,,,"Stoddard, Hollis (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,10/20/2023,,Hollow Creek Troop Campout (10/20/23) - Scout Participant,1077,18.00,,,"Lindquist, Elowen (Main)",,,Hollow Creek Troop Campout (10/20/23),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,10/22/2023,,Family payment,1556,118.00,,Checking,,"Ellsworth, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,10/23/2023,,Hollow Creek Troop Campout (10/20/23) - fuel,1080,50.50,,,,"Quintero, Linus (Main)",Hollow Creek Troop Campout (10/20/23),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,10/26/2023,,Venmo sweep,1552,498.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,10/27/2023,,PayPal sweep,1553,266.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,10/28/2023,,Haunted trail supplies,1717,315.00,Checking,,,,,,,Troop-Hosted Event Expense,,2024,,,N,,,,TREASURER1
+Other Income,11/01/2023,,Interest,1558,12.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Deposit To Troop Account,11/02/2023,,Concessions Stand - Homecoming Game (10/07/23) - venue payment,1493,4532.50,,Checking,,,,Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (from Venue),2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1494,269.00,,,,"Lindquist, Elowen (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1495,252.00,,,,"Ashcombe, Greta (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1496,209.00,,,,"Pemberton, Greta (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1497,221.00,,,,"Marchetti, Yusuf (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1498,229.50,,,,"Fontaine, Finnegan (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1499,266.50,,,,"Whitlock, Jasper (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1500,268.50,,,,"Yarborough, Tamsin (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1501,247.00,,,,"Fairbourne, Linus (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1502,237.00,,,,"Lindquist, Jasper (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1503,254.00,,,,"Stoddard, Finnegan (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1504,225.50,,,,"Everly, Odalys (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1505,256.50,,,,"Jarrow, Odalys (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1506,265.50,,,,"Jarrow, Greta (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1507,248.00,,,,"Yarborough, Wendell ""Del"" (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1508,206.00,,,,"Denwood, Auberon (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),11/03/2023,,Concessions Stand - Homecoming Game (10/07/23) - scout share,1509,246.50,,,,"Whitlock, Marisol (Main)",Concessions Stand - Homecoming Game (10/07/23),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,11/04/2023,,Family payment,1565,55.50,,Venmo,,"Marchetti, Amara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,11/07/2023,,Advancement supplies,1559,189.50,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,11/09/2023,,Family payment,1566,65.50,,Checking,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,11/12/2023,,Troop admin,1560,15.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1567,85.00,Checking,,"Fontaine, Finnegan (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1568,85.00,Checking,,"Fairbourne, Linus (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1569,85.00,Checking,,"Vandermeer, Auberon (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1570,85.00,Checking,,"Whitlock, Jasper (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1571,85.00,Checking,,"Ashcombe, Greta (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1572,85.00,Checking,,"Corrigan, Linus (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1573,85.00,Checking,,"Lindquist, Jasper (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1574,85.00,Checking,,"Stoddard, Finnegan (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Membership/Recharter from Scout Account,11/15/2023,,Recharter,1575,85.00,Checking,,"Jarrow, Zephyr (Main)",,,,,Member Fees (Passthru),Member Fees (Passthru),2024,,,N,,,,TREASURER1
+Deposit To Troop Account,11/18/2023,,Popcorn commission,1661,1985.00,,Checking,,,,,,,Popcorn Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,11/20/2023,,Family payment,1564,58.00,,Checking,,"Jarrow, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1662,98.00,,,,"Ashcombe, Greta (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1663,172.00,,,,"Lindquist, Jasper (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1664,253.00,,,,"Yarborough, Tamsin (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1665,260.00,,,,"Jarrow, Zephyr (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1666,101.50,,,,"Ravenhill, Zephyr (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1667,178.00,,,,"Stoddard, Dashiell ""Dash"" (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1668,223.50,,,,"Corrigan, Verity (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1669,101.00,,,,"Marchetti, Amara (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1670,221.00,,,,"Stoddard, Odalys (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1671,155.00,,,,"Ashcombe, Marisol (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Popcorn to Scout Account,11/22/2023,,Popcorn share,1672,118.50,,,,"Fontaine, Clementine ""Clem"" (Main)",,,,Popcorn Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,11/23/2023,,Family payment,1563,95.50,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,11/26/2023,,Venmo sweep,1561,351.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,11/27/2023,,Lantern Hill Lock-in: Adult RSVP (12/01/23) - site fee,1081,0.00,Checking,,,,Lantern Hill Lock-in: Adult RSVP (12/01/23),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,11/27/2023,,PayPal sweep,1562,565.00,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,11/30/2023,,Payment - Blackpine Winter Trek (12/27/23),1082,145.00,,Checking,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,12/01/2023,,Interest,1576,9.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,12/07/2023,,Advancement supplies,1577,148.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/08/2023,,Payment - Blackpine Winter Trek (12/27/23),1091,145.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/09/2023,,Payment - Blackpine Winter Trek (12/27/23),1096,140.00,,Checking,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/11/2023,,Payment - Blackpine Winter Trek (12/27/23),1093,140.00,,Venmo,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/11/2023,,Payment - Blackpine Winter Trek (12/27/23),1103,145.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/12/2023,,Payment - Blackpine Winter Trek (12/27/23),1100,155.00,,Checking,,"Fairbourne, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,12/12/2023,,Troop admin,1578,43.50,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/14/2023,,Payment - Blackpine Winter Trek (12/27/23),1086,140.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/15/2023,,Payment - Blackpine Winter Trek (12/27/23),1089,145.00,,PayPal,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/18/2023,,Family payment,1581,95.00,,Checking,,"Vandermeer, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/21/2023,,Family payment,1582,80.50,,PayPal,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/22/2023,,Payment - Blackpine Winter Trek (12/27/23),1084,150.00,,Checking,,"Ashcombe, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,12/22/2023,,Payment - Blackpine Winter Trek (12/27/23),1098,145.00,,Checking,,"Fontaine, Clementine ""Clem"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,12/22/2023,,Blackpine Winter Trek (12/27/23) - site fee,1106,1419.00,Checking,,,,Blackpine Winter Trek (12/27/23),,,Camping (High Adventure) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,12/22/2023,,Blackpine Winter Trek (12/27/23) - patrol grub,1107,86.00,,,,"Jarrow, Odalys (Main)",Blackpine Winter Trek (12/27/23),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,12/22/2023,,Blackpine Winter Trek (12/27/23) - deposit,1109,425.00,Checking,,,,Blackpine Winter Trek (12/27/23),,,Camping (High Adventure) Expense,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,12/26/2023,,Venmo sweep,1579,608.50,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1083,145.00,,,"Jarrow, Hollis (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1085,145.00,,,"Ashcombe, Xiomara (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1087,145.00,,,"Vandermeer, Zephyr (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1088,145.00,,,"Pemberton, Greta (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1090,145.00,,,"Quintero, Linus (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1092,145.00,,,"Fontaine, Finnegan (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1094,145.00,,,"Ravenhill, Zephyr (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1095,145.00,,,"Fairbourne, Linus (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1097,145.00,,,"Jarrow, Odalys (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1099,145.00,,,"Fontaine, Clementine ""Clem"" (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1101,145.00,,,"Fairbourne, Tamsin (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1102,145.00,,,"Corrigan, Xiomara (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1104,145.00,,,"Stoddard, Odalys (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,12/27/2023,,Blackpine Winter Trek (12/27/23) - Scout Participant,1105,145.00,,,"Whitlock, Jasper (Main)",,,Blackpine Winter Trek (12/27/23),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,12/27/2023,,PayPal sweep,1580,287.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Non-Event) to Scout Account,12/28/2023,,Crew reservation fee,1691,148.00,,,,"Fontaine, Finnegan (Main)",,,,Crew Expense,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,12/28/2023,,Crew activity,1692,148.00,,,"_CREW, Venture Crew (Main)",,,,,,Crew Funds Utilized,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,12/30/2023,,Blackpine Winter Trek (12/27/23) - fuel,1108,23.50,,,,"Fontaine, Clementine ""Clem"" (Main)",Blackpine Winter Trek (12/27/23),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Other Income,01/01/2024,,Interest,1583,5.50,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,01/06/2024,,Troop t-shirt,1701,16.00,,,"Ashcombe, Marisol (Main)",,,,,,Merch Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/07/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1112,30.00,,PayPal,,"Marchetti, Amara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,01/07/2024,,Advancement supplies,1584,147.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/08/2024,,Family payment,1588,35.00,,Checking,,"Marchetti, Ulises (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/08/2024,,Family payment,1591,81.00,,Checking,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/09/2024,,Family payment,1589,63.00,,Venmo,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/09/2024,,Family payment,1590,95.50,,Checking,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,01/09/2024,,Crew shortfall,1693,9.25,,,"_CREW, Venture Crew (Main)",,,,,,Misc Revenue,2024,,,N,,,,TREASURER1
+Donation,01/10/2024,,Family donation,1673,353.00,,,"Denwood, Auberon (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/11/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1120,30.00,,Checking,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/12/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1114,30.00,,Checking,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/12/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1129,30.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/12/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1135,30.00,,Venmo,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,01/12/2024,,Troop admin,1585,48.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/15/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1110,30.00,,Checking,,"Yarborough, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/16/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1127,25.00,,PayPal,,"Fontaine, Clementine ""Clem"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/16/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1133,30.00,,Checking,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/17/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1125,30.00,,Venmo,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop from Scout Account,01/17/2024,,Merit badge fee,1721,30.00,Checking,,"Pemberton, Greta (Main)",,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Donation,01/18/2024,,Family donation,1681,357.50,,,"Vandermeer, Auberon (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/19/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1162,105.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/20/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1118,30.00,,Venmo,,"Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/20/2024,,Payment - Klondike - Curse of the Frozen Compass (01/26/24),1122,30.00,,Checking,,"Corrigan, Verity (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,01/20/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - site fee,1138,300.00,Checking,,,,Klondike - Curse of the Frozen Compass (01/26/24),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,01/20/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - patrol grub,1139,139.50,,,,"Quintero, Linus (Main)",Klondike - Curse of the Frozen Compass (01/26/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/21/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1145,100.00,,Checking,,"Fontaine, Clementine ""Clem"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,01/22/2024,,Adult leader training,1592,175.00,Checking,,,,,,,Adult Training Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/23/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1152,95.00,,Checking,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1111,26.00,,,"Yarborough, Tamsin (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1113,26.00,,,"Marchetti, Amara (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1115,26.00,,,"Whitlock, Marisol (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1116,26.00,,,"Denwood, Auberon (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1117,26.00,,,"Marchetti, Yusuf (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1119,26.00,,,"Denwood, Keziah (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1121,26.00,,,"Quintero, Linus (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1123,26.00,,,"Corrigan, Verity (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1124,26.00,,,"Corrigan, Xiomara (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1126,26.00,,,"Ravenhill, Zephyr (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1128,26.00,,,"Fontaine, Clementine ""Clem"" (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1130,26.00,,,"Fontaine, Finnegan (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1131,26.00,,,"Everly, Odalys (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1132,26.00,,,"Vandermeer, Auberon (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1134,26.00,,,"Stoddard, Finnegan (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1136,26.00,,,"Lindquist, Elowen (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,01/26/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - Scout Participant,1137,26.00,,,"Ellsworth, Hollis (Main)",,,Klondike - Curse of the Frozen Compass (01/26/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,01/26/2024,,Venmo sweep,1586,230.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,01/27/2024,,PayPal sweep,1587,315.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,01/29/2024,,Klondike - Curse of the Frozen Compass (01/26/24) - fuel,1140,45.50,,,,"Vandermeer, Auberon (Main)",Klondike - Curse of the Frozen Compass (01/26/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,01/30/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1141,95.00,,PayPal,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,02/01/2024,,Interest,1593,14.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,02/01/2024,,Council account top-up,1713,900.00,Checking,Council Account,,,,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,02/03/2024,,Council Merit Badge Midway,1491,15.00,,,"Lindquist, Elowen (Main)",,,Council Merit Badge Midway,,,Registration Revenue,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,02/03/2024,,Council Merit Badge Midway,1492,45.00,Checking,,,,Council Merit Badge Midway,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/03/2024,,Family payment,1599,94.00,,Checking,,"Corrigan, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,02/06/2024,,Troop t-shirt,1702,16.00,,,"Jarrow, Hollis (Main)",,,,,,Merch Revenue,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,02/07/2024,,Whitetail Ridge Ski Trip (02/16/24) - site fee,1165,937.50,Checking,,,,Whitetail Ridge Ski Trip (02/16/24),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,02/07/2024,,Whitetail Ridge Ski Trip (02/16/24) - patrol grub,1166,43.00,,,,"Ashcombe, Xiomara (Main)",Whitetail Ridge Ski Trip (02/16/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,02/07/2024,,Advancement supplies,1594,166.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/08/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1148,100.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/08/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1154,95.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/09/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1143,95.00,,Checking,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1150,95.00,,PayPal,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1158,100.00,,Venmo,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2024,,Payment - Whitetail Ridge Ski Trip (02/16/24),1160,100.00,,Checking,,"Ashcombe, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2024,,Family payment,1601,70.00,,Checking,,"Denwood, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Donation,02/11/2024,,Family donation,1674,115.00,,,"Whitlock, Marisol (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,02/12/2024,,Troop admin,1595,61.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Campership,02/14/2024,,Campership award,1682,178.00,,,"_UNIT, Campership (Main)","Yarborough, Wendell ""Del"" (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Campership,02/14/2024,,Campership award,1688,61.50,,,"_UNIT, Campership (Main)","Ashcombe, Greta (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1142,96.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1144,96.00,,,"Corrigan, Linus (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1146,96.00,,,"Fontaine, Clementine ""Clem"" (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1147,96.00,,,"Pemberton, Greta (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1149,96.00,,,"Fontaine, Finnegan (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1151,96.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1153,96.00,,,"Ravenhill, Zephyr (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1155,96.00,,,"Ashcombe, Greta (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1156,96.00,,,"Ashcombe, Marisol (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1157,96.00,,,"Whitlock, Marisol (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1159,96.00,,,"Stoddard, Odalys (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1161,96.00,,,"Ashcombe, Xiomara (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1163,96.00,,,"Vandermeer, Zephyr (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - Scout Participant,1164,96.00,,,"Ellsworth, Hollis (Main)",,,Whitetail Ridge Ski Trip (02/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/16/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1186,20.00,,Checking,,"Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (External Event) paid by Troop from Scout Account,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - lift ticket,1488,52.00,Checking,,"Jarrow, Greta (Main)",,Whitetail Ridge Ski Trip (02/16/24),Whitetail Ridge Ski Trip (02/16/24),,Camping (Weekend) Expense,Registration Revenue,2024,,,N,,,,TREASURER1
+Expense (External Event) paid by Troop from Scout Account,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - lift ticket,1489,65.00,Checking,,"Stoddard, Hollis (Main)",,Whitetail Ridge Ski Trip (02/16/24),Whitetail Ridge Ski Trip (02/16/24),,Camping (Weekend) Expense,Registration Revenue,2024,,,N,,,,TREASURER1
+Expense (External Event) paid by Troop from Scout Account,02/16/2024,,Whitetail Ridge Ski Trip (02/16/24) - lift ticket,1490,52.50,Checking,,"Corrigan, Linus (Main)",,Whitetail Ridge Ski Trip (02/16/24),Whitetail Ridge Ski Trip (02/16/24),,Camping (Weekend) Expense,Registration Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/17/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1188,20.00,,Checking,,"Yarborough, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/17/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1192,20.00,,Checking,,"Corrigan, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,02/19/2024,,Whitetail Ridge Ski Trip (02/16/24) - fuel,1167,71.50,,,,"Pemberton, Greta (Main)",Whitetail Ridge Ski Trip (02/16/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/21/2024,,Family payment,1600,41.50,,PayPal,,"Jarrow, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,02/21/2024,,High adventure savings,1694,205.50,,,"Fontaine, Finnegan (Main)","_UNIT, High Adventure (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/22/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1201,20.00,,Venmo,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/22/2024,,Family payment,1598,35.50,,PayPal,,"Fairbourne, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/23/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1173,20.00,,Venmo,,"Whitlock, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/24/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1183,20.00,,PayPal,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/25/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1180,20.00,,Checking,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,02/26/2024,,Venmo sweep,1596,530.50,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,02/27/2024,,PayPal sweep,1597,194.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/29/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1190,20.00,,Venmo,,"Fairbourne, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,02/29/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1208,20.00,,Checking,,"Lindquist, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,03/01/2024,,Interest,1602,6.50,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/03/2024,,Family payment,1608,114.50,,Checking,,"Marchetti, Ulises (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/04/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1196,20.00,,Checking,,"Marchetti, Amara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/04/2024,,Family payment,1609,82.00,,Checking,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit To Troop Account,03/04/2024,,General donation,1689,1200.00,,Checking,,,,,,,General Donation,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/05/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1206,20.00,,Checking,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/06/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1168,20.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,03/06/2024,,Troop t-shirt,1703,16.00,,,"Fontaine, Finnegan (Main)",,,,,,Merch Revenue,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,03/07/2024,,Copper Bluff Troop Campout (03/15/24) - site fee,1212,296.00,Checking,,,,Copper Bluff Troop Campout (03/15/24),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,03/07/2024,,Copper Bluff Troop Campout (03/15/24) - patrol grub,1213,84.00,,,,"Stoddard, Dashiell ""Dash"" (Main)",Copper Bluff Troop Campout (03/15/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,03/07/2024,,Advancement supplies,1603,63.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/08/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1176,20.00,,Checking,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/08/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1194,20.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/09/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1171,20.00,,Checking,,"Corrigan, Verity (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/09/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1210,20.00,,Checking,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/10/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1198,20.00,,Checking,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/10/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1203,20.00,,Checking,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/11/2024,,Payment - Copper Bluff Troop Campout (03/15/24),1178,20.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,03/12/2024,,Troop admin,1604,24.50,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/12/2024,,Family payment,1607,77.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Donation,03/12/2024,,Family donation,1675,229.00,,,"Stoddard, Dashiell ""Dash"" (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Campership,03/14/2024,,Campership award,1683,140.00,,,"_UNIT, Campership (Main)","Ashcombe, Xiomara (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1169,17.00,,,"Vandermeer, Zephyr (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1170,17.00,,,"Corrigan, Xiomara (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1172,17.00,,,"Corrigan, Verity (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1174,17.00,,,"Whitlock, Jasper (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1175,17.00,,,"Ellsworth, Xiomara (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1177,17.00,,,"Corrigan, Linus (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1179,17.00,,,"Ashcombe, Greta (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1181,17.00,,,"Ravenhill, Zephyr (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1182,17.00,,,"Denwood, Auberon (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1184,17.00,,,"Jarrow, Hollis (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1185,17.00,,,"Ellsworth, Hollis (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1187,17.00,,,"Denwood, Keziah (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1189,17.00,,,"Yarborough, Tamsin (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1191,17.00,,,"Fairbourne, Linus (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1193,17.00,,,"Corrigan, Wendell ""Del"" (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1195,17.00,,,"Fontaine, Finnegan (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1197,17.00,,,"Marchetti, Amara (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1199,17.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1200,17.00,,,"Ashcombe, Marisol (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1202,17.00,,,"Jarrow, Odalys (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1204,17.00,,,"Stoddard, Finnegan (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1205,17.00,,,"Quintero, Linus (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1207,17.00,,,"Whitlock, Marisol (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1209,17.00,,,"Lindquist, Jasper (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/15/2024,,Copper Bluff Troop Campout (03/15/24) - Scout Participant,1211,17.00,,,"Jarrow, Greta (Main)",,,Copper Bluff Troop Campout (03/15/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/16/2024,,Family payment,1610,84.50,,PayPal,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/17/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1238,30.00,,Checking,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,03/18/2024,,Copper Bluff Troop Campout (03/15/24) - fuel,1214,86.50,,,,"Whitlock, Marisol (Main)",Copper Bluff Troop Campout (03/15/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,03/18/2024,,Court of Honor,1611,107.00,Checking,,,,,,,COH Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/19/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1221,25.00,,Checking,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/19/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1247,25.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/20/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1229,25.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/20/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1240,25.00,,Checking,,"Corrigan, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,03/21/2024,,High adventure savings,1695,55.50,,,"Everly, Odalys (Main)","_UNIT, High Adventure (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/22/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1223,25.00,,Checking,,"Everly, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/23/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1215,25.00,,Checking,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/24/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1217,25.00,,Checking,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/26/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1253,25.00,,Checking,,"Fairbourne, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,03/26/2024,,Venmo sweep,1605,267.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,03/27/2024,,PayPal sweep,1606,455.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/28/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1236,30.00,,Checking,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Non-Event) to Scout as Payment,03/28/2024,,Advancement reimbursement,1720,128.40,Checking,,"Ellsworth, Xiomara (Main)","Fontaine, Clementine ""Clem"" (Main)",,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/29/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1227,25.00,,Checking,,"Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/30/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1233,25.00,,PayPal,,"Fairbourne, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,03/31/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1251,25.00,,Checking,,"Yarborough, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/01/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1249,25.00,,Checking,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,04/01/2024,,Interest,1612,9.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/02/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1225,30.00,,PayPal,,"Marchetti, Yusuf (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/02/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1242,25.00,,Venmo,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/02/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1245,25.00,,PayPal,,"Fontaine, Clementine ""Clem"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/04/2024,,Payment - Spring Camporee at Fort Vance (04/12/24),1231,25.00,,Venmo,,"Ashcombe, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,04/06/2024,,Spring Camporee at Fort Vance (04/12/24) - site fee,1255,322.50,Checking,,,,Spring Camporee at Fort Vance (04/12/24),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,04/06/2024,,Spring Camporee at Fort Vance (04/12/24) - patrol grub,1256,133.50,,,,"Ashcombe, Greta (Main)",Spring Camporee at Fort Vance (04/12/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,04/06/2024,,Troop t-shirt,1704,16.00,,,"Ashcombe, Greta (Main)",,,,,,Merch Revenue,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,04/07/2024,,Advancement supplies,1613,110.50,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,04/09/2024,,Council FOS gift,1690,350.00,Checking,,,,,,,Donations by Troop,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1216,24.00,,,"Quintero, Linus (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1218,24.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1219,24.00,,,"Jarrow, Zephyr (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1220,24.00,,,"Denwood, Auberon (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1222,24.00,,,"Jarrow, Hollis (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1224,24.00,,,"Everly, Odalys (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1226,24.00,,,"Marchetti, Yusuf (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1228,24.00,,,"Denwood, Keziah (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1230,24.00,,,"Ashcombe, Greta (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1232,24.00,,,"Ashcombe, Xiomara (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1234,24.00,,,"Fairbourne, Tamsin (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1235,24.00,,,"Ellsworth, Xiomara (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1237,24.00,,,"Whitlock, Marisol (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1239,24.00,,,"Lindquist, Elowen (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1241,24.00,,,"Corrigan, Wendell ""Del"" (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1243,24.00,,,"Jarrow, Greta (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1244,24.00,,,"Pemberton, Greta (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1246,24.00,,,"Fontaine, Clementine ""Clem"" (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1248,24.00,,,"Vandermeer, Zephyr (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1250,24.00,,,"Stoddard, Finnegan (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1252,24.00,,,"Yarborough, Tamsin (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,04/12/2024,,Spring Camporee at Fort Vance (04/12/24) - Scout Participant,1254,24.00,,,"Fairbourne, Linus (Main)",,,Spring Camporee at Fort Vance (04/12/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,04/12/2024,,Troop admin,1614,59.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/12/2024,,Family payment,1617,94.50,,Checking,,"Corrigan, Verity (Main)",,,,,,2024,,,N,,,,TREASURER1
+Donation,04/13/2024,,Family donation,1676,292.00,,,"Everly, Odalys (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Campership,04/14/2024,,Campership award,1684,87.00,,,"_UNIT, Campership (Main)","Marchetti, Ulises (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,04/15/2024,,Spring Camporee at Fort Vance (04/12/24) - fuel,1257,74.00,,,,"Yarborough, Tamsin (Main)",Spring Camporee at Fort Vance (04/12/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/18/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1271,35.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/20/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1273,35.00,,Checking,,"Fairbourne, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/20/2024,,Family payment,1619,41.50,,Checking,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/21/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1267,30.00,,Venmo,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/21/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1283,35.00,,PayPal,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,04/21/2024,,High adventure savings,1696,190.50,,,"Marchetti, Amara (Main)","_UNIT, High Adventure (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/23/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1279,35.00,,PayPal,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/23/2024,,Family payment,1618,83.00,,Checking,,"Fairbourne, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,04/26/2024,,Venmo sweep,1615,598.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,04/27/2024,,PayPal sweep,1616,557.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/28/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1277,35.00,,Checking,,"Stoddard, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,04/30/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1262,35.00,,Checking,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Funds,04/30/2024,,Reclassify equipment purchase,1711,96.00,,,,,,,,Misc Program Expense,Equipment/Merch Expense,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/01/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1275,35.00,,PayPal,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,05/01/2024,,Interest,1620,8.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Refund Fee (Non-Event) to Scout Account,05/02/2024,,Shirt refund,1708,16.00,,,,"Stoddard, Dashiell ""Dash"" (Main)",,,,Merch Revenue,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/03/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1269,35.00,,Checking,,"Everly, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/03/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1286,35.00,,PayPal,,"Marchetti, Yusuf (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/05/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1288,35.00,,Checking,,"Vandermeer, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/06/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1281,35.00,,Checking,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,05/06/2024,,Troop t-shirt,1705,16.00,,,"Ashcombe, Marisol (Main)",,,,,,Merch Revenue,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,05/07/2024,,Marlowe Museum & Zoo Campout (05/17/24) - site fee,1292,287.00,Checking,,,,Marlowe Museum & Zoo Campout (05/17/24),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,05/07/2024,,Marlowe Museum & Zoo Campout (05/17/24) - patrol grub,1293,96.50,,,,"Ashcombe, Xiomara (Main)",Marlowe Museum & Zoo Campout (05/17/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,05/07/2024,,Advancement supplies,1621,83.50,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/08/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1258,35.00,,PayPal,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/09/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1265,35.00,,Venmo,,"Ashcombe, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/09/2024,,Payment - Marlowe Museum & Zoo Campout (05/17/24),1290,35.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,05/09/2024,,Custom order item,1628,55.00,,,"Whitlock, Marisol (Main)",,,,,,Custom Order (Passthru),2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,05/09/2024,,Custom order item,1629,55.00,,,"Corrigan, Xiomara (Main)",,,,,,Custom Order (Passthru),2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,05/09/2024,,Custom order item,1630,55.00,,,"Vandermeer, Auberon (Main)",,,,,,Custom Order (Passthru),2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,05/09/2024,,Custom order item,1631,55.00,,,"Corrigan, Wendell ""Del"" (Main)",,,,,,Custom Order (Passthru),2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,05/12/2024,,Troop admin,1622,29.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Donation,05/14/2024,,Family donation,1677,360.50,,,"Yarborough, Wendell ""Del"" (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Campership,05/14/2024,,Campership award,1685,70.00,,,"_UNIT, Campership (Main)","Fontaine, Finnegan (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/15/2024,,Family payment,1625,87.00,,PayPal,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit To Troop Account,05/16/2024,,Concessions Stand - Spring Classic (04/20/24) - venue payment,1510,5194.50,,Checking,,,,Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (from Venue),2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/16/2024,,Family payment,1626,74.00,,Checking,,"Pemberton, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1259,31.00,,,"Jarrow, Hollis (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1260,31.00,,,"Ashcombe, Marisol (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1261,31.00,,,"Corrigan, Xiomara (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1263,31.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1264,31.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1266,31.00,,,"Ashcombe, Xiomara (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1268,31.00,,,"Quintero, Linus (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1270,31.00,,,"Everly, Odalys (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1272,31.00,,,"Fontaine, Finnegan (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1274,31.00,,,"Fairbourne, Tamsin (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1276,31.00,,,"Corrigan, Linus (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1278,31.00,,,"Stoddard, Hollis (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1280,31.00,,,"Lindquist, Elowen (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1282,31.00,,,"Ravenhill, Zephyr (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1284,31.00,,,"Stoddard, Finnegan (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1285,31.00,,,"Denwood, Auberon (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1287,31.00,,,"Marchetti, Yusuf (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1289,31.00,,,"Vandermeer, Auberon (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,05/17/2024,,Marlowe Museum & Zoo Campout (05/17/24) - Scout Participant,1291,31.00,,,"Vandermeer, Zephyr (Main)",,,Marlowe Museum & Zoo Campout (05/17/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1511,369.50,,,,"Vandermeer, Auberon (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1512,398.50,,,,"Fontaine, Clementine ""Clem"" (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1513,384.00,,,,"Stoddard, Finnegan (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1514,373.00,,,,"Yarborough, Wendell ""Del"" (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1515,392.00,,,,"Ashcombe, Xiomara (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1516,377.50,,,,"Whitlock, Marisol (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1517,363.50,,,,"Everly, Odalys (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1518,330.50,,,,"Ashcombe, Greta (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1519,311.00,,,,"Stoddard, Dashiell ""Dash"" (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1520,319.50,,,,"Stoddard, Odalys (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1521,317.50,,,,"Ravenhill, Zephyr (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),05/17/2024,,Concessions Stand - Spring Classic (04/20/24) - scout share,1522,395.00,,,,"Marchetti, Amara (Main)",Concessions Stand - Spring Classic (04/20/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/18/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1304,310.00,,PayPal,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/19/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1299,305.00,,Checking,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/19/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1321,305.00,,Checking,,"Ashcombe, Xiomara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/19/2024,,Family payment,1627,81.50,,Checking,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,05/20/2024,,Marlowe Museum & Zoo Campout (05/17/24) - fuel,1294,36.00,,,,"Corrigan, Linus (Main)",Marlowe Museum & Zoo Campout (05/17/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,05/20/2024,,Custom order placed,1632,220.00,Checking,,,,,,,Custom Order (Passthru),,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,05/21/2024,,High adventure savings,1697,169.00,,,"Pemberton, Greta (Main)","_UNIT, High Adventure (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/22/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1306,315.00,,Venmo,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,05/26/2024,,Venmo sweep,1623,221.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/27/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1297,325.00,,PayPal,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,05/27/2024,,PayPal sweep,1624,424.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/28/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1331,320.00,,PayPal,,"Everly, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income to Scout Account,05/28/2024,,Scout rebate,1715,40.00,,Checking,,"Ashcombe, Marisol (Main)",,,,,Misc Revenue,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/29/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1315,325.00,,Venmo,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/29/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1329,330.00,,Checking,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/31/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1311,305.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,05/31/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1325,320.00,,Checking,,"Marchetti, Ulises (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,06/01/2024,,Interest,1633,8.50,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,06/01/2024,,Wanderoak trek deposit,1699,900.00,,,"Ashcombe, Marisol (Main)","_UNIT, Wanderoak 2026 (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/02/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1302,330.00,,PayPal,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/03/2024,,Family payment,1640,99.00,,Venmo,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,06/03/2024,,Summer camp payment,1714,2600.00,Council Account,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/05/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1319,310.00,,Checking,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/05/2024,,Family payment,1638,51.00,,Venmo,,"Marchetti, Amara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout a Non-Event Fee,06/06/2024,,Troop t-shirt,1706,16.00,,,"Yarborough, Wendell ""Del"" (Main)",,,,,,Merch Revenue,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,06/07/2024,,Advancement supplies,1634,117.00,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/08/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1323,335.00,,Checking,,"Marchetti, Amara (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/08/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1337,420.00,,Venmo,,"Quintero, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/08/2024,,Family payment,1639,52.00,,Venmo,,"Vandermeer, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/09/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1317,335.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/09/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1353,395.00,,Venmo,,"Fontaine, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/10/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1309,300.00,,Checking,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/10/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1361,420.00,,Venmo,,"Jarrow, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Cash given to Scoutmaster,06/10/2024,,Trip petty cash,1710,120.00,,,"Stoddard, Finnegan (Main)","Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/11/2024,,Payment - Camp Wanderoak Summer Camp (06/16/24),1327,305.00,,Checking,,"Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,06/12/2024,,Troop admin,1635,84.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,06/13/2024,,Camp Wanderoak Summer Camp (06/16/24) - site fee,1333,4234.00,Checking,,,,Camp Wanderoak Summer Camp (06/16/24),,,Camping (Summer Camp) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,06/13/2024,,Camp Wanderoak Summer Camp (06/16/24) - patrol grub,1334,107.50,,,,"Marchetti, Ulises (Main)",Camp Wanderoak Summer Camp (06/16/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,06/13/2024,,Camp Wanderoak Summer Camp (06/16/24) - deposit,1336,543.00,Checking,,,,Camp Wanderoak Summer Camp (06/16/24),,,Camping (Summer Camp) Expense,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,06/13/2024,,Summer Product Sale 2024 (07/04/24) - inventory purchase,1538,13905.50,Checking,,,,Summer Product Sale 2024 (07/04/24),,,Product Sale Expense,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,06/13/2024,,Purchased inventory into stock,1539,13905.50,Checking,Merchandise Inventory,,,,,,,,2024,,,N,,,,TREASURER1
+Campership,06/14/2024,,Campership award,1686,75.00,,,"_UNIT, Campership (Main)","Yarborough, Wendell ""Del"" (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Donation,06/15/2024,,Family donation,1678,62.50,,,"Fairbourne, Tamsin (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1295,315.00,,,"Ellsworth, Hollis (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1296,315.00,,,"Whitlock, Jasper (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1298,315.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1300,315.00,,,"Jarrow, Greta (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1301,315.00,,,"Lindquist, Jasper (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1303,315.00,,,"Fontaine, Finnegan (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1305,315.00,,,"Jarrow, Odalys (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1307,315.00,,,"Whitlock, Marisol (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1308,315.00,,,"Pemberton, Greta (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1310,315.00,,,"Lindquist, Elowen (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1312,315.00,,,"Ashcombe, Greta (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1313,315.00,,,"Ellsworth, Xiomara (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1314,315.00,,,"Denwood, Auberon (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1316,315.00,,,"Ravenhill, Zephyr (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1318,315.00,,,"Stoddard, Odalys (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1320,315.00,,,"Quintero, Linus (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1322,315.00,,,"Ashcombe, Xiomara (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1324,315.00,,,"Marchetti, Amara (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1326,315.00,,,"Marchetti, Ulises (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1328,315.00,,,"Denwood, Keziah (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1330,315.00,,,"Stoddard, Finnegan (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,06/16/2024,,Camp Wanderoak Summer Camp (06/16/24) - Scout Participant,1332,315.00,,,"Everly, Odalys (Main)",,,Camp Wanderoak Summer Camp (06/16/24),,,Registration (Summer Camp) Revenue,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop from Scout Account,06/18/2024,,Camp trading post advance,1722,55.00,Checking,,"Marchetti, Ulises (Main)",,Camp Wanderoak Summer Camp (06/16/24),,,Camping (Summer Camp) Expense,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,06/19/2024,,Camp Wanderoak Summer Camp (06/16/24) - fuel,1335,25.00,,,,"Denwood, Auberon (Main)",Camp Wanderoak Summer Camp (06/16/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/20/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1339,415.00,,Checking,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/20/2024,,Family payment,1642,79.50,,Venmo,,"Marchetti, Yusuf (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,06/21/2024,,High adventure savings,1698,174.50,,,"Whitlock, Marisol (Main)","_UNIT, High Adventure (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/22/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1341,405.00,,Venmo,,"Corrigan, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/22/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1349,420.00,,Venmo,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/24/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1343,400.00,,Venmo,,"Vandermeer, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/24/2024,,Family payment,1641,62.00,,Checking,,"Pemberton, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,06/26/2024,,Venmo sweep,1636,380.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,06/27/2024,,PayPal sweep,1637,283.00,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/29/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1351,415.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/30/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1347,400.00,,Checking,,"Jarrow, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,06/30/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1359,415.00,,Checking,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/01/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1345,410.00,,Checking,,"Whitlock, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/01/2024,,Payment - Northern Waters Canoe Trek (07/07/24),1357,405.00,,Checking,,"Marchetti, Yusuf (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,07/01/2024,,Northern Waters Canoe Trek (07/07/24) - site fee,1363,3874.50,Checking,,,,Northern Waters Canoe Trek (07/07/24),,,Camping (High Adventure) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,07/01/2024,,Northern Waters Canoe Trek (07/07/24) - patrol grub,1364,141.50,,,,"Lindquist, Elowen (Main)",Northern Waters Canoe Trek (07/07/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,07/01/2024,,Northern Waters Canoe Trek (07/07/24) - deposit,1366,1028.50,Checking,,,,Northern Waters Canoe Trek (07/07/24),,,Camping (High Adventure) Expense,,2024,,,N,,,,TREASURER1
+Other Income,07/01/2024,,Interest,1643,10.50,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Deposit To Troop Account,07/04/2024,,Summer Product Sale 2024 (07/04/24) - stand receipts,1537,18430.00,,Product Sale Cash,,,,Summer Product Sale 2024 (07/04/24),,,Product Sale Revenue,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,07/06/2024,,Inventory sold at stand,1540,12890.00,Merchandise Inventory,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/06/2024,,Family payment,1649,94.50,,Checking,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1338,410.00,,,"Quintero, Linus (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1340,410.00,,,"Lindquist, Elowen (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1342,410.00,,,"Corrigan, Wendell ""Del"" (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1344,410.00,,,"Vandermeer, Auberon (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1346,410.00,,,"Whitlock, Jasper (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1348,410.00,,,"Jarrow, Hollis (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1350,410.00,,,"Jarrow, Greta (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1352,410.00,,,"Stoddard, Odalys (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1354,410.00,,,"Fontaine, Finnegan (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1355,410.00,,,"Corrigan, Xiomara (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1356,410.00,,,"Denwood, Auberon (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1358,410.00,,,"Marchetti, Yusuf (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1360,410.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,07/07/2024,,Northern Waters Canoe Trek (07/07/24) - Scout Participant,1362,410.00,,,"Jarrow, Zephyr (Main)",,,Northern Waters Canoe Trek (07/07/24),,,Registration (High Adventure) Revenue,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,07/07/2024,,Advancement supplies,1644,174.50,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,07/10/2024,,Northern Waters Canoe Trek (07/07/24) - fuel,1365,39.00,,,,"Corrigan, Wendell ""Del"" (Main)",Northern Waters Canoe Trek (07/07/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/10/2024,,Family payment,1650,55.50,,Venmo,,"Ashcombe, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,07/12/2024,,Troop admin,1645,88.00,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Transfer Between Scout Accounts,07/12/2024,,Wanderoak trek release,1700,900.00,,,"_UNIT, Wanderoak 2026 (Main)","Fairbourne, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Campership,07/14/2024,,Campership award,1687,278.50,,,"_UNIT, Campership (Main)","Pemberton, Greta (Main)",,,,Campership Expense,,2024,,,N,,,,TREASURER1
+Donation,07/16/2024,,Family donation,1679,168.50,,,"Corrigan, Wendell ""Del"" (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/17/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1373,20.00,,Checking,,"Jarrow, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/17/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1382,20.00,,Checking,,"Fairbourne, Tamsin (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/18/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1392,20.00,,Venmo,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit To Troop Account,07/18/2024,,Concessions Stand - Riverfest (06/22/24) - venue payment,1523,3343.00,,Checking,,,,Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (from Venue),2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1524,239.50,,,,"Ashcombe, Marisol (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1525,231.00,,,,"Yarborough, Wendell ""Del"" (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1526,212.00,,,,"Quintero, Linus (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1527,193.50,,,,"Jarrow, Hollis (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1528,242.50,,,,"Ravenhill, Zephyr (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1529,200.00,,,,"Stoddard, Dashiell ""Dash"" (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1530,203.50,,,,"Lindquist, Elowen (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1531,239.50,,,,"Vandermeer, Zephyr (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1532,187.50,,,,"Corrigan, Xiomara (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1533,236.00,,,,"Ashcombe, Greta (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1534,210.50,,,,"Ellsworth, Hollis (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1535,205.50,,,,"Lindquist, Jasper (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Individual Fundraising (Event),07/19/2024,,Concessions Stand - Riverfest (06/22/24) - scout share,1536,224.50,,,,"Jarrow, Odalys (Main)",Concessions Stand - Riverfest (06/22/24),,,Concessions Fundraising (to Scout),,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/20/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1371,20.00,,Venmo,,"Whitlock, Marisol (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/20/2024,,Family payment,1648,98.50,,Checking,,"Stoddard, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/21/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1375,20.00,,Checking,,"Stoddard, Odalys (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/22/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1384,20.00,,Checking,,"Stoddard, Hollis (Main)",,,,,,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout as Payment,07/22/2024,,Trek shuttle reimbursement,1719,310.00,Checking,,"Marchetti, Yusuf (Main)","Everly, Odalys (Main)",Northern Waters Canoe Trek (07/07/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/24/2024,,Family payment,1651,34.00,,PayPal,,"Jarrow, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/25/2024,,Catch-up payment,1723,255.50,,Checking,,"Denwood, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,07/26/2024,,Venmo sweep,1646,486.00,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,07/26/2024,,Camp gear on card,1718,642.75,Credit Card,,,,,,,Equipment/Merch Expense,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,07/27/2024,,PayPal sweep,1647,427.50,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/28/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1377,20.00,,Checking,,"Jarrow, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,07/28/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1390,20.00,,Checking,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Return money to Scout from Scout Account,07/30/2024,,Eagle-out refund,1709,212.50,Checking,,"Stoddard, Odalys (Main)",,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/01/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1388,20.00,,Checking,,"Denwood, Keziah (Main)",,,,,,2024,,,N,,,,TREASURER1
+Other Income,08/01/2024,,Interest,1652,9.00,,CD,,,,,,,Interest and Dividends,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,08/01/2024,,Troop-funded new-scout kit,1716,268.00,Checking,,,,,,,Troop-Funded Program Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/02/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1367,20.00,,Venmo,,"Stoddard, Finnegan (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/03/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1397,20.00,,Checking,,"Lindquist, Elowen (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/06/2024,,Family payment,1658,108.50,,Checking,,"Lindquist, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,08/07/2024,,Advancement supplies,1653,179.50,Checking,,,,,,,Advancement Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/07/2024,,Family payment,1659,32.50,,Checking,,"Corrigan, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/08/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1369,20.00,,Checking,,"Vandermeer, Auberon (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,08/08/2024,,Cedar Gap Biking Campout (08/16/24) - site fee,1399,215.00,Checking,,,,Cedar Gap Biking Campout (08/16/24),,,Camping (Weekend) Expense,,2024,,,N,,,,TREASURER1
+Grubmaster,08/08/2024,,Cedar Gap Biking Campout (08/16/24) - patrol grub,1400,105.50,,,,"Ellsworth, Xiomara (Main)",Cedar Gap Biking Campout (08/16/24),,,Food Expense,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/09/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1379,20.00,,Checking,,"Whitlock, Jasper (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/11/2024,,Payment - Cedar Gap Biking Campout (08/16/24),1386,20.00,,Checking,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2024,,,N,,,,TREASURER1
+Expense (Non-Event) paid by Troop,08/12/2024,,Troop admin,1654,83.50,Checking,,,,,,,Administrative Expenses,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/15/2024,,Family payment,1660,60.50,,Checking,,"Pemberton, Greta (Main)",,,,,,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1368,19.00,,,"Stoddard, Finnegan (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1370,19.00,,,"Vandermeer, Auberon (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1372,19.00,,,"Whitlock, Marisol (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1374,19.00,,,"Jarrow, Odalys (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1376,19.00,,,"Stoddard, Odalys (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1378,19.00,,,"Jarrow, Zephyr (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1380,19.00,,,"Whitlock, Jasper (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1381,19.00,,,"Ellsworth, Hollis (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1383,19.00,,,"Fairbourne, Tamsin (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1385,19.00,,,"Stoddard, Hollis (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1387,19.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1389,19.00,,,"Denwood, Keziah (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1391,19.00,,,"Corrigan, Linus (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1393,19.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1394,19.00,,,"Marchetti, Ulises (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1395,19.00,,,"Ellsworth, Xiomara (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1396,19.00,,,"Corrigan, Xiomara (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Charge Scout an Event Fee,08/16/2024,,Cedar Gap Biking Campout (08/16/24) - Scout Participant,1398,19.00,,,"Lindquist, Elowen (Main)",,,Cedar Gap Biking Campout (08/16/24),,,Registration Revenue,2024,,,N,,,,TREASURER1
+Donation,08/17/2024,,Family donation,1680,73.50,,,"Stoddard, Finnegan (Main)","_UNIT, Campership (Main)",,,,,Campership Donation,2024,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,08/19/2024,,Cedar Gap Biking Campout (08/16/24) - fuel,1401,50.50,,,,"Ellsworth, Hollis (Main)",Cedar Gap Biking Campout (08/16/24),,,Transportation Expense,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,08/26/2024,,Venmo sweep,1655,519.50,Venmo,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Transfer Between Troop Accounts,08/27/2024,,PayPal sweep,1656,556.00,PayPal,Checking,,,,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/27/2024,,Family payment,1657,39.00,,Checking,,"Fairbourne, Linus (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,08/30/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1422,20.00,,Checking,,"Ravenhill, Zephyr (Main)",,,,,,2024,,,N,,,,TREASURER1
+Deposit to Scout Account,09/01/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1413,20.00,,Checking,,"Corrigan, Verity (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/01/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1431,20.00,,Checking,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/02/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1405,20.00,,Checking,,"Yarborough, Tamsin (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/03/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1411,20.00,,Checking,,"Corrigan, Wendell ""Del"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/03/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1427,20.00,,PayPal,,"Ashcombe, Greta (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/04/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1407,20.00,,Checking,,"Jarrow, Hollis (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/04/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1429,20.00,,Checking,,"Denwood, Keziah (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/06/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1402,20.00,,Venmo,,"Stoddard, Finnegan (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/10/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1419,20.00,,Checking,,"Whitlock, Marisol (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/11/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1417,20.00,,Checking,,"Vandermeer, Auberon (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/19/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1409,20.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/21/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1425,20.00,,Venmo,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,09/22/2024,,"Payment - ""Try Backpacking"" Troop Campout (09/27/24)",1415,20.00,,PayPal,,"Stoddard, Hollis (Main)",,,,,,2025,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,09/23/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - site fee",1434,194.00,Checking,,,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Camping (Weekend) Expense,,2025,,,N,,,,TREASURER1
+Grubmaster,09/23/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - patrol grub",1435,88.50,,,,"Corrigan, Wendell ""Del"" (Main)","""Try Backpacking"" Troop Campout (09/27/24)",,,Food Expense,,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1403,17.00,,,"Stoddard, Finnegan (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1404,17.00,,,"Ellsworth, Hollis (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1406,17.00,,,"Yarborough, Tamsin (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1408,17.00,,,"Jarrow, Hollis (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1410,17.00,,,"Fontaine, Finnegan (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1412,17.00,,,"Corrigan, Wendell ""Del"" (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1414,17.00,,,"Corrigan, Verity (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1416,17.00,,,"Stoddard, Hollis (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1418,17.00,,,"Vandermeer, Auberon (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1420,17.00,,,"Whitlock, Marisol (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1421,17.00,,,"Ellsworth, Xiomara (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1423,17.00,,,"Ravenhill, Zephyr (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1424,17.00,,,"Pemberton, Greta (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1426,17.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1428,17.00,,,"Ashcombe, Greta (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1430,17.00,,,"Denwood, Keziah (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1432,17.00,,,"Yarborough, Wendell ""Del"" (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,09/27/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - Scout Participant",1433,17.00,,,"Marchetti, Amara (Main)",,,"""Try Backpacking"" Troop Campout (09/27/24)",,,Registration Revenue,2025,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,09/30/2024,,"""Try Backpacking"" Troop Campout (09/27/24) - fuel",1436,86.00,,,,"Yarborough, Tamsin (Main)","""Try Backpacking"" Troop Campout (09/27/24)",,,Transportation Expense,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/04/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1437,635.00,,Venmo,,"Ravenhill, Zephyr (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/04/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1446,655.00,,Venmo,,"Yarborough, Wendell ""Del"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/04/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1459,610.00,,PayPal,,"Ashcombe, Xiomara (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/04/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1473,590.00,,Checking,,"Fontaine, Clementine ""Clem"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/06/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1461,640.00,,PayPal,,"Jarrow, Greta (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/08/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1444,640.00,,PayPal,,"Marchetti, Amara (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/08/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1455,625.00,,Checking,,"Fontaine, Finnegan (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/08/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1463,630.00,,Checking,,"Vandermeer, Zephyr (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/09/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1453,605.00,,PayPal,,"Lindquist, Jasper (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1457,610.00,,Checking,,"Stoddard, Dashiell ""Dash"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1477,630.00,,Checking,,"Ashcombe, Greta (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/10/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1479,595.00,,Checking,,"Everly, Odalys (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/11/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1448,595.00,,Checking,,"Marchetti, Ulises (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/12/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1467,590.00,,Checking,,"Stoddard, Hollis (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/14/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1469,640.00,,Checking,,"Quintero, Linus (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/17/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1439,595.00,,Checking,,"Corrigan, Wendell ""Del"" (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/19/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1441,625.00,,Checking,,"Yarborough, Tamsin (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/20/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1450,620.00,,Checking,,"Lindquist, Elowen (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/25/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1471,640.00,,Checking,,"Whitlock, Jasper (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/25/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1482,660.00,,Checking,,"Jarrow, Odalys (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/26/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1465,610.00,,Checking,,"Jarrow, Hollis (Main)",,,,,,2025,,,N,,,,TREASURER1
+Deposit to Scout Account,02/26/2025,,Payment - Coral Key Scuba Adventure (03/05/25),1475,585.00,,PayPal,,"Stoddard, Finnegan (Main)",,,,,,2025,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,02/27/2025,,Coral Key Scuba Adventure (03/05/25) - site fee,1484,9676.50,Checking,,,,Coral Key Scuba Adventure (03/05/25),,,Camping (High Adventure) Expense,,2025,,,N,,,,TREASURER1
+Grubmaster,02/27/2025,,Coral Key Scuba Adventure (03/05/25) - patrol grub,1485,156.00,,,,"Jarrow, Greta (Main)",Coral Key Scuba Adventure (03/05/25),,,Food Expense,,2025,,,N,,,,TREASURER1
+Expense (Event) paid by Troop,02/27/2025,,Coral Key Scuba Adventure (03/05/25) - deposit,1487,662.00,Checking,,,,Coral Key Scuba Adventure (03/05/25),,,Camping (High Adventure) Expense,,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1438,620.00,,,"Ravenhill, Zephyr (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1440,620.00,,,"Corrigan, Wendell ""Del"" (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1442,620.00,,,"Yarborough, Tamsin (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1443,620.00,,,"Ellsworth, Hollis (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1445,620.00,,,"Marchetti, Amara (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1447,620.00,,,"Yarborough, Wendell ""Del"" (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1449,620.00,,,"Marchetti, Ulises (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1451,620.00,,,"Lindquist, Elowen (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1452,620.00,,,"Corrigan, Verity (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1454,620.00,,,"Lindquist, Jasper (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1456,620.00,,,"Fontaine, Finnegan (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1458,620.00,,,"Stoddard, Dashiell ""Dash"" (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1460,620.00,,,"Ashcombe, Xiomara (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1462,620.00,,,"Jarrow, Greta (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1464,620.00,,,"Vandermeer, Zephyr (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1466,620.00,,,"Jarrow, Hollis (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1468,620.00,,,"Stoddard, Hollis (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1470,620.00,,,"Quintero, Linus (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1472,620.00,,,"Whitlock, Jasper (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1474,620.00,,,"Fontaine, Clementine ""Clem"" (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1476,620.00,,,"Stoddard, Finnegan (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1478,620.00,,,"Ashcombe, Greta (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1480,620.00,,,"Everly, Odalys (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1481,620.00,,,"Pemberton, Greta (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Charge Scout an Event Fee,03/05/2025,,Coral Key Scuba Adventure (03/05/25) - Scout Participant,1483,620.00,,,"Jarrow, Odalys (Main)",,,Coral Key Scuba Adventure (03/05/25),,,Registration (High Adventure) Revenue,2025,,,N,,,,TREASURER1
+Reimburse Expense (Event) to Scout Account,03/08/2025,,Coral Key Scuba Adventure (03/05/25) - fuel,1486,24.50,,,,"Jarrow, Odalys (Main)",Coral Key Scuba Adventure (03/05/25),,,Transportation Expense,,2025,,,N,,,,TREASURER1

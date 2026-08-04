@@ -1,0 +1,272 @@
+// render.js — DOM rendering. Produces the printable tables.
+
+import { fmtMoney, fmtInt, fmtDate } from './snapshots.js';
+import { CATEGORY_NAMES } from './config.js';
+
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (v !== null && v !== undefined) n.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid != null) n.append(kid);
+  return n;
+};
+
+const td = (v, cls = '') => el('td', { class: cls, text: v });
+const num = (v, cls = '') => el('td', { class: 'num ' + cls + (v < -0.005 ? ' neg' : ''), text: fmtMoney(v) });
+const th = (v, cls = '', scope = 'col') => el('th', { class: cls, scope, text: v });
+
+/* ------------------------------------------------------------------ */
+
+const rptHead = (title, sub, troopName) => el('header', { class: 'rpt-head' },
+  troopName ? el('p', { class: 'org', text: troopName }) : null,
+  el('h2', { text: title }),
+  el('p', { class: 'sub', text: sub }));
+
+export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
+  mount.replaceChildren();
+  const snapDates = Object.keys(snapshots).sort().reverse();
+
+  mount.append(rptHead('Balance Sheet', fmtDate(bs.asOf), troopName));
+
+  const table = el('table', { class: 'rpt' });
+  const cols = ['Current', ...snapDates];
+  table.append(el('thead', {}, el('tr', {},
+    th('', 'label'), ...cols.map(c => th(c, 'num')))));
+
+  const body = el('tbody');
+  const row = (label, values, cls = '') => {
+    body.append(el('tr', { class: cls },
+      el('th', { class: 'label', scope: 'row', text: label }),
+      ...values.map(v => (v === null ? td('', 'num') : num(v)))));
+  };
+  const snapVal = key => snapDates.map(d => (snapshots[d][key] ?? null));
+  const section = label => body.append(el('tr', { class: 'section' },
+    el('th', { class: 'label', scope: 'row', colspan: cols.length + 1, text: label })));
+
+  const noncashNames = new Set(bs.noncash.map(([k]) => k));
+  section('Assets');
+  for (const [name, v] of bs.assets) {
+    row(name + (noncashNames.has(name) ? ' \u2020' : ''), [v, ...snapDates.map(() => null)], 'detail');
+  }
+  row('Total Assets', [bs.totalAssets, ...snapVal('total_assets')], 'subtotal');
+
+  section('Scout Balances');
+  row('Scout Accounts (Prepaid Fees)', [bs.prepaid, ...snapVal('scout_prepaid')], 'detail');
+  body.append(el('tr', { class: 'detail' },
+    el('th', { class: 'label', scope: 'row', text: `Scouts in Arrears (${fmtInt(bs.arrearsCount)})` }),
+    num(bs.arrearsTotal),
+    ...snapDates.map(d => (snapshots[d].scout_arrears_total === undefined ? td('', 'num') : num(snapshots[d].scout_arrears_total)))));
+  row('Net Scout Balances', [bs.netScout, ...snapVal('scout_net')], 'subtotal');
+
+  section('Liabilities');
+  for (const [name, v] of bs.liabilityAccounts) row(name, [v, ...snapDates.map(() => null)], 'detail');
+  row('Other Future Events (Net)', [bs.otherFutureEventsNet, ...snapVal('other_future_events')], 'detail');
+  for (const [name, v] of bs.pseudo) row(prettyPseudo(name), [v, ...snapDates.map(() => null)], 'detail');
+  row('Total Liabilities', [bs.totalLiabilities, ...snapVal('total_liabilities')], 'subtotal');
+
+  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols.length + 1 })));
+  row('Unrestricted Net Assets', [bs.unrestricted, ...snapVal('unrestricted_net_assets')], 'total');
+  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols.length + 1 })));
+  row('Assets reported in TWH (for comparison)', [bs.twhComparison, ...snapVal('twh_comparison')], 'detail');
+
+  table.append(body);
+  mount.append(table);
+
+  mount.append(el('footer', { class: 'notes' },
+    el('p', { text: 'TWH ignores future events and arrears; the comparison line adds both back.' }),
+    bs.noncash.length ? el('p', { text: '\u2020 Non-cash. Included in Total Assets but deducted from Unrestricted Net Assets, since it cannot be spent. Inventory carrying values are maintained manually in TroopWebHost and are not derived from the ledger.' }) : null,
+    bs.futureEventNames.length
+      ? el('p', { text: 'Other Future Events (Net) is the all-time net position of events that have not yet occurred: ' + bs.futureEventNames.join('; ') + '.' })
+      : null,
+    snapDates.length ? el('p', { text: 'Snapshot columns are figures as published on those dates. Blank cells were not captured in that snapshot. Only the balance sheet is snapshotted; the income statements are always recomputed and will move if back-dated entries are added.' }) : null));
+}
+
+// Troop-held accounts are named "_<PREFIX>, Label (Main)" by convention; strip
+// the machinery for display without assuming any particular prefix.
+const prettyPseudo = name => name.replace(/^_[^,]*,\s*/, '').replace(/\s*\(Main\)$/, '');
+
+/* ------------------------------------------------------------------ */
+
+export function renderEventIncome(ei, mount, troopName = '') {
+  mount.replaceChildren();
+  mount.append(rptHead('Income Statement \u2014 by Event',
+    `${fmtDate(ei.asOf)} \u00b7 activity since ${fmtDate(ei.since)}`, troopName));
+
+  const table = el('table', { class: 'rpt compact' });
+  const nCols = ei.columns.length;
+
+  const head = el('thead');
+  head.append(el('tr', { class: 'grouphead' },
+    th('', 'label'), th('Excl. Future', 'num'), th('Total', 'num'), th('Other / Non-Event', 'num'),
+    th('Future Events', 'num group'),
+    ...(ei.futureCount ? [el('th', { class: 'group', colspan: ei.futureCount, text: 'Future' })] : []),
+    ...(nCols - ei.futureCount ? [el('th', { class: 'group', colspan: nCols - ei.futureCount, text: 'Past' })] : [])));
+  head.append(el('tr', {},
+    th('', 'label'), th('', 'num'), th('', 'num'), th('', 'num'), th('', 'num'),
+    ...ei.columns.map(e => el('th', { class: 'evt', scope: 'col' }, el('span', { text: e.name })))));
+  table.append(head);
+
+  const body = el('tbody');
+  const dataRow = (label, r, cls) => body.append(el('tr', { class: cls },
+    el('th', { class: 'label', scope: 'row', text: label }),
+    num(r.exclFuture ?? (r.total - futureSum(r, ei))),
+    num(r.total), num(r.other),
+    num(futureSum(r, ei)),
+    ...r.cols.map(v => num(v))));
+
+  body.append(el('tr', { class: 'detail' },
+    el('th', { class: 'label', scope: 'row', text: 'Prior Period Net Income' }),
+    td('', 'num'), td('', 'num'), td('', 'num'), td('', 'num'),
+    ...ei.priorPeriod.map(v => num(v))));
+
+  for (const sec of ei.sections) {
+    if (!sec.funds.length) continue;
+    body.append(el('tr', { class: 'section' },
+      el('th', { class: 'label', scope: 'row', colspan: 5 + nCols, text: sec.key })));
+    for (const f of sec.funds) dataRow(f.label, f, 'detail');
+    dataRow('Total', sec.subtotal, 'subtotal');
+  }
+
+  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: 5 + nCols })));
+  dataRow('Net Income \u2014 Scouting Program', ei.netProgram, 'total');
+  dataRow('Net Income \u2014 Fundraising', ei.netFundraising, 'total');
+  dataRow('Net Income \u2014 Other', ei.netOther, 'total');
+  dataRow('Net Income \u2014 Total', ei.netTotal, 'total grand');
+
+  table.append(body);
+  mount.append(table);
+
+  mount.append(el('footer', { class: 'notes' },
+    el('p', { text: 'Event columns are program events only; fundraising events are classified by fund category and roll into Other. Per-event figures count activity on or after the "activity since" date; earlier activity appears in Prior Period Net Income.' }),
+    ei.pastOmitted > 0
+      ? el('p', { text: `${ei.pastOmitted} older past event${ei.pastOmitted === 1 ? '' : 's'} not shown as columns; their activity is included in Other, so totals are unaffected by the column limit.` })
+      : null));
+}
+
+function futureSum(r, ei) {
+  return r.cols.slice(0, ei.futureCount).reduce((s, v) => s + v, 0);
+}
+
+/* ------------------------------------------------------------------ */
+
+export function renderMonthlyIncome(mi, mount, troopName = '') {
+  mount.replaceChildren();
+  mount.append(rptHead('Income Statement \u2014 Monthly', fmtDate(mi.asOf), troopName));
+
+  const table = el('table', { class: 'rpt compact' });
+  table.append(el('thead', {}, el('tr', {},
+    th('', 'label'), ...mi.months.map(m => th(m.label, 'num')), th('Total', 'num'))));
+
+  const body = el('tbody');
+  const dataRow = (label, r, cls) => body.append(el('tr', { class: cls },
+    el('th', { class: 'label', scope: 'row', text: label }),
+    ...r.cols.map(v => num(v)), num(r.total)));
+
+  for (const sec of mi.sections) {
+    if (!sec.funds.length) continue;
+    body.append(el('tr', { class: 'section' },
+      el('th', { class: 'label', scope: 'row', colspan: mi.months.length + 2, text: sec.key })));
+    for (const f of sec.funds) dataRow(f.label, f, 'detail');
+    dataRow('Total', sec.subtotal, 'subtotal');
+  }
+
+  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: mi.months.length + 2 })));
+  dataRow('Net Income \u2014 Scouting Program', mi.netProgram, 'total');
+  dataRow('Net Income \u2014 Fundraising', mi.netFundraising, 'total');
+  dataRow('Net Income \u2014 Other', mi.netOther, 'total');
+  dataRow('Net Income \u2014 Total', mi.netTotal, 'total grand');
+
+  table.append(body);
+  mount.append(table);
+
+  const diff = mi.allTimeNet - mi.netTotal.total;
+  mount.append(el('footer', { class: 'notes' },
+    el('p', { text: `Total column sums the ${mi.months.length} months shown, not all time.` +
+      (Math.abs(diff) > 0.005
+        ? ` All-time net income differs by ${fmtMoney(diff)}, being activity dated outside this window (including transactions posted to future events and the opening-balance import).`
+        : '') })));
+}
+
+/* ------------------------------------------------------------------ */
+
+export function renderReconciliation(rec, ledger, mount) {
+  mount.replaceChildren();
+  const dl = el('dl', { class: 'recon' });
+  const add = (k, v) => { dl.append(el('dt', { text: k }), el('dd', { text: v })); };
+
+  add('Transactions', fmtInt(rec.rows));
+  add('Ledger legs', fmtInt(rec.legs));
+  add('Transaction types', fmtInt(rec.txnTypes.length));
+  add('Troop accounts', `${rec.accounts.length} \u2014 all classified`);
+  add('Funds in data', `${rec.fundsSeen.length} \u2014 all mapped`);
+  add('Events', fmtInt(rec.eventCount));
+  add('Scout accounts', fmtInt(rec.scoutAccounts));
+  add('Troop-held (pseudo) accounts', rec.pseudoAccounts.length
+    ? rec.pseudoAccounts.map(p => prettyPseudo(p)).join(', ') : 'none');
+  add('Asset legs net', fmtMoney(rec.assetTotal));
+  add('Person legs net', fmtMoney(rec.personTotal));
+  add('Single-leg entries', `${fmtInt(rec.singleLegCount)}${rec.singleLegCount ? ' \u2014 ' + rec.singleLegTypes.join(', ') : ''}`);
+
+  mount.append(dl);
+
+  if (rec.undatedEvents.length) {
+    mount.append(el('p', { class: 'warn' },
+      'Events without a trailing (MM/DD/YY) date, which cannot be placed on the timeline: ' + rec.undatedEvents.join('; ')));
+  }
+  if (ledger.warnings.length) {
+    mount.append(el('details', { class: 'warn' },
+      el('summary', { text: `${ledger.warnings.length} warning(s)` }),
+      el('ul', {}, ledger.warnings.map(w => el('li', { text: w })))));
+  }
+}
+
+export function renderErrors(errors, mount) {
+  mount.replaceChildren();
+  if (!errors.length) { mount.hidden = true; return; }
+  mount.hidden = false;
+  mount.append(el('h3', { text: 'Load halted' }),
+    el('ul', {}, errors.map(e => el('li', { text: e }))));
+}
+
+/* ------------------------------------------------------------------ */
+
+export function renderConfig(cfg, mount, onChange) {
+  mount.replaceChildren();
+
+  const accounts = el('table', { class: 'cfg' });
+  accounts.append(el('thead', {}, el('tr', {}, th('Troop account', 'label'), th('Classification'))));
+  const abody = el('tbody');
+  for (const name of Object.keys(cfg.accountClass).sort()) {
+    const sel = el('select');
+    for (const opt of ['cash', 'noncash', 'liability']) {
+      sel.append(el('option', { value: opt, text: opt, ...(cfg.accountClass[name] === opt ? { selected: '' } : {}) }));
+    }
+    sel.addEventListener('change', () => { cfg.accountClass[name] = sel.value; onChange(); });
+    abody.append(el('tr', {}, el('th', { class: 'label', scope: 'row', text: name }), el('td', {}, sel)));
+  }
+  accounts.append(abody);
+
+  const funds = el('table', { class: 'cfg' });
+  funds.append(el('thead', {}, el('tr', {}, th('Fund', 'label'), th('Category'))));
+  const fbody = el('tbody');
+  for (const name of Object.keys(cfg.fundCategories).sort()) {
+    const sel = el('select');
+    for (const opt of CATEGORY_NAMES) {
+      sel.append(el('option', { value: opt, text: opt, ...(cfg.fundCategories[name] === opt ? { selected: '' } : {}) }));
+    }
+    sel.addEventListener('change', () => { cfg.fundCategories[name] = sel.value; onChange(); });
+    fbody.append(el('tr', {}, el('th', { class: 'label', scope: 'row', text: name }), el('td', {}, sel)));
+  }
+  funds.append(fbody);
+
+  mount.append(
+    el('h3', { text: 'Troop account classification' }),
+    el('p', { class: 'hint', text: 'Cash and non-cash accounts both count toward Total Assets; non-cash is additionally deducted from Unrestricted Net Assets, since it cannot be spent. Liability is displayed under Liabilities with the sign inverted. An account in the export that is missing here halts the load.' }),
+    accounts,
+    el('h3', { text: 'Fund categories' }),
+    el('p', { class: 'hint', text: 'Drives both the income-statement section and whether an event counts as program or fundraising activity. A fund in the export that is missing here halts the load. To adopt a different chart of accounts wholesale, load a settings file.' }),
+    funds);
+}

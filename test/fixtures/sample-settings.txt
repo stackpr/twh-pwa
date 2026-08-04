@@ -1,0 +1,170 @@
+# ---------------------------------------------------------------------
+# Troop Finance Reports — settings
+#
+# Edit this file in any plain text editor (Notepad, TextEdit, Notepad++).
+# Keep the two-space indentation. Do not use tabs. Lines starting with #
+# are comments and are ignored.
+#
+# This file plus a fresh TroopWebHost transaction export is everything
+# needed to produce the reports. It contains no scout names, no individual
+# balances, and no transactions — only settings and whole-troop totals, so
+# it is safe to hand to a successor. A transaction export is NOT.
+# ---------------------------------------------------------------------
+
+version: 1
+
+# Printed above each report. Leave empty for none.
+troop:
+  name: Example Troop
+
+# Report parameters.
+#
+#   activitySince           start of the reporting period (YYYY-MM-DD).
+#                           Activity before this date is reported on the
+#                           Prior Period line rather than in the totals.
+#   pastEventsShown         how many past events get a column on the event
+#                           income statement. Purely a page-fit control —
+#                           totals never change with it.
+#   monthsShown             months in the monthly income statement.
+#   asOf                    report date (YYYY-MM-DD), or null for today.
+#   legacyMode              reproduce spreadsheet-era defects, for comparing
+#                           against an old workbook during a migration.
+#   legacyDeductedAccounts  under legacyMode only: the troop-held accounts an
+#                           old spreadsheet deducted by hand.
+#   hashSalt                changes the anonymised scout identifiers. Leave
+#                           empty unless you have a reason.
+parameters:
+  activitySince: 2023-09-01
+  pastEventsShown: 8
+  monthsShown: 12
+  asOf: 2024-08-03
+  legacyMode: false
+  legacyDeductedAccounts:
+    - _UNIT, Campership (Main)
+    - _UNIT, High Adventure (Main)
+    - _CREW, Venture Crew (Main)
+  hashSalt: ""
+
+# Troop accounts, and where each belongs on the balance sheet.
+#
+#   cash       counts toward Total Assets
+#   noncash    counts toward Total Assets, but is deducted from Unrestricted
+#              Net Assets because it cannot be spent (e.g. inventory)
+#   liability  shown under Liabilities, sign inverted (e.g. a credit card)
+#
+# Every account appearing in the export must be listed here, or the reports
+# will refuse to run. That is deliberate: an unlisted account would silently
+# vanish from the balance sheet.
+accounts:
+  CD: cash
+  Checking: cash
+  Council Account: cash
+  Credit Card: liability
+  High Adventure Checking: cash
+  Imported History: cash
+  Merchandise Inventory: noncash
+  PayPal: cash
+  Product Sale Cash: cash
+  Trailer Fund: cash
+  Venmo: cash
+
+# Your chart of accounts: each TroopWebHost fund and its category.
+#
+# Allowed categories (these six names are fixed):
+#   Program Revenue
+#   Program Expenses
+#   Fundraising Revenue
+#   Fundraising Expenses
+#   Other Income
+#   Other Expenses
+#
+# This also decides which events get a column on the event income statement.
+# An event whose activity is mostly Program-category is a program event; one
+# that is mostly Fundraising-category is not, and rolls into Other.
+#
+# Every fund appearing in the export must be listed here, or the reports will
+# refuse to run.
+funds:
+  Administrative Expenses: Other Expenses
+  Adult Training Expense: Other Expenses
+  Advancement Expense: Program Expenses
+  COH Expense: Program Expenses
+  Campership Donation: Fundraising Revenue
+  Campership Expense: Other Expenses
+  Camping (High Adventure) Expense: Program Expenses
+  Camping (Summer Camp) Expense: Program Expenses
+  Camping (Weekend) Expense: Program Expenses
+  Concessions Fundraising (from Venue): Fundraising Revenue
+  Concessions Fundraising (to Scout): Fundraising Expenses
+  Crew Expense: Program Expenses
+  Crew Funds Utilized: Program Revenue
+  Crew Revenue (from Scout): Program Revenue
+  Custom Order (Passthru): Other Expenses
+  Donations by Troop: Other Expenses
+  Equipment/Merch Expense: Program Expenses
+  Food Expense: Program Expenses
+  General Donation: Fundraising Revenue
+  Interest and Dividends: Other Income
+  Member Fees (Passthru): Other Expenses
+  Merch Revenue: Program Revenue
+  Misc Program Expense: Program Expenses
+  Misc Revenue: Program Revenue
+  Popcorn Expense: Fundraising Expenses
+  Popcorn Revenue: Fundraising Revenue
+  Product Sale Expense: Fundraising Expenses
+  Product Sale Revenue: Fundraising Revenue
+  Registration (High Adventure) Revenue: Program Revenue
+  Registration (Summer Camp) Revenue: Program Revenue
+  Registration Revenue: Program Revenue
+  Transportation Expense: Program Expenses
+  Troop-Funded Program Expense: Program Expenses
+  Troop-Hosted Event Expense: Program Expenses
+
+# Balance sheet figures as published, frozen by date. These are not
+# recalculated — they are the record of what was actually reported, so a
+# back-dated correction shows up as drift instead of quietly rewriting
+# history. Only the balance sheet is snapshotted; the income statements are
+# period reports and are always recomputed.
+#
+# Added by the app when you capture a snapshot. Safe to edit or delete a
+# whole date, but there is rarely a reason to.
+snapshots:
+  2024-03-01:
+    total_assets: 79904.54
+    total_noncash_assets: 4925.50
+    scout_prepaid: 16118.40
+    scout_arrears_count: 8
+    scout_arrears_total: -3871.40
+    scout_net: 12247.00
+    liability_accounts: 642.75
+    other_future_events: 13232.50
+    pseudo_accounts: 5819.25
+    total_liabilities: 19694.50
+    unrestricted_net_assets: 43037.54
+    twh_comparison: 52398.64
+  2024-06-01:
+    total_assets: 79904.54
+    total_noncash_assets: 4925.50
+    scout_prepaid: 16118.40
+    scout_arrears_count: 8
+    scout_arrears_total: -3871.40
+    scout_net: 12247.00
+    liability_accounts: 642.75
+    other_future_events: 12243.50
+    pseudo_accounts: 5819.25
+    total_liabilities: 18705.50
+    unrestricted_net_assets: 44026.54
+    twh_comparison: 52398.64
+  2024-08-03:
+    total_assets: 79904.54
+    total_noncash_assets: 4925.50
+    scout_prepaid: 16118.40
+    scout_arrears_count: 8
+    scout_arrears_total: -3871.40
+    scout_net: 12247.00
+    liability_accounts: 642.75
+    other_future_events: 4889.50
+    pseudo_accounts: 5819.25
+    total_liabilities: 11351.50
+    unrestricted_net_assets: 51380.54
+    twh_comparison: 52398.64

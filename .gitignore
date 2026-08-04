@@ -1,0 +1,16 @@
+.DS_Store
+node_modules/
+
+# Real troop data must NEVER be committed. TWH exports carry scout names and
+# per-family balances. Every CSV is ignored by default; the synthetic fixture is
+# the single explicit exception.
+*.csv
+*.CSV
+*.xlsx
+*.xls
+!test/fixtures/sample-export.csv
+
+# The settings file carries no personal data, but a treasurer's working copy is
+# still theirs. The two generated ones are committed; downloads are not.
+troop-settings*.txt
+

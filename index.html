@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Troop Finance Reports</title>
+<meta name="description" content="Offline reporting for TroopWebHost transaction exports. All processing happens in your browser.">
+<meta name="theme-color" content="#1b3a2f">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./app.css">
+<!-- No external requests. Any CDN reference here would put a third party in the
+     same origin as parsed scout data; that is the one thing this app must not do. -->
+</head>
+<body>
+
+<header class="app-head no-print">
+  <h1>Troop Finance Reports</h1>
+  <p class="tagline">Drop a TroopWebHost transaction export. Everything is computed in this browser; nothing is uploaded.</p>
+  <p class="install-row">
+    <button id="install" hidden>Install for offline use</button>
+    <span id="install-status" class="hint"></span>
+  </p>
+</header>
+
+<main>
+
+  <section class="no-print">
+    <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose or drop the TroopWebHost CSV export">
+      <strong>Drop the CSV export here</strong>
+      <span class="hint">or press to choose a file &mdash; <code>Export_All_Transactions_to_Excel_*.CSV</code></span>
+      <span id="filename" class="filename"></span>
+    </div>
+    <input type="file" id="file" accept=".csv,text/csv" hidden>
+    <div id="errors" class="errors" hidden></div>
+  </section>
+
+  <div id="reports" hidden>
+
+    <section class="no-print params">
+      <h2>Parameters</h2>
+      <div class="grid">
+        <label>Troop name (optional)
+          <input type="text" id="troopName" placeholder="e.g. Troop 000" maxlength="60">
+          <span class="hint">Printed above each report. Stored in this browser only.</span>
+        </label>
+        <label>As of
+          <input type="date" id="asOf">
+          <span class="hint">Blank uses the later of today and the last transaction.</span>
+        </label>
+        <label>Activity since
+          <input type="date" id="activitySince">
+          <span class="hint">Splits current-period from prior-period on Event Income.</span>
+        </label>
+        <label>Past events shown
+          <input type="number" id="pastEvents" min="0" max="30" step="1">
+          <span class="hint">Column limit for one-page fit. Totals do not change.</span>
+        </label>
+        <label>Months shown
+          <input type="number" id="months" min="1" max="24" step="1">
+        </label>
+        <label class="check">
+          <input type="checkbox" id="legacyMode">
+          Legacy mode
+          <span class="hint">Reproduces the spreadsheet&rsquo;s defects verbatim, for diffing.</span>
+        </label>
+      </div>
+      <p id="legacy-note" class="warn" hidden>
+        Legacy mode is on. Figures reproduce a spreadsheet-era workbook&rsquo;s defects:
+        arrears double-counted, and troop-held accounts missing from the hand-maintained
+        deduction list. Turn it off before publishing.
+      </p>
+    </section>
+
+    <section class="no-print">
+      <h2>Reconciliation</h2>
+      <div id="reconciliation"></div>
+      <div id="drift" hidden></div>
+    </section>
+
+    <section class="report" data-report="balance">
+      <div class="no-print rpt-actions">
+        <button data-print="balance">Print balance sheet</button>
+        <button id="snap-capture">Capture snapshot at this date</button>
+      </div>
+      <div id="report-balance"></div>
+    </section>
+
+    <section class="report" data-report="event">
+      <div class="no-print rpt-actions">
+        <button data-print="event">Print event income</button>
+      </div>
+      <div id="report-event"></div>
+    </section>
+
+    <section class="report" data-report="monthly">
+      <div class="no-print rpt-actions">
+        <button data-print="monthly">Print monthly income</button>
+      </div>
+      <div id="report-monthly"></div>
+    </section>
+
+    <section class="no-print">
+      <h2>Settings file</h2>
+      <p class="hint">
+        One plain-text file holding the troop name, report parameters, the chart of
+        accounts, and the balance-sheet snapshots. Open it in Notepad or TextEdit to edit.
+        It contains no scout names and no transactions, so it is safe to hand to a successor
+        &mdash; this file plus a fresh TroopWebHost export is everything they need.
+      </p>
+      <p class="actions">
+        <button id="settings-export">Download settings file</button>
+        <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".txt,.yml,.yaml,text/plain" hidden></label>
+        <button id="snap-clear" class="danger">Clear snapshots</button>
+      </p>
+    </section>
+
+  </div>
+
+  <section class="no-print">
+    <h2>Configuration</h2>
+    <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; edit below for one-off changes, or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
+    <p class="actions">
+      <button id="cfg-reset" class="danger">Reset to shipped defaults</button>
+      <button id="app-reset" class="danger">Purge offline cache</button>
+    </p>
+    <p id="config-note" class="hint"></p>
+    <div id="config"></div>
+  </section>
+
+</main>
+
+<footer class="app-foot no-print">
+  <p>Scout names are hashed at parse time and the originals are discarded before anything else reads them.
+     No transaction data is written to storage or sent anywhere, by any code path. See the README for conventions.</p>
+</footer>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

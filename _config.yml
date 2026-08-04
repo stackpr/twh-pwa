@@ -1,0 +1,15 @@
+# GitHub Pages build settings.
+#
+# The site is plain static files — no Jekyll templating, no front matter — so
+# this config exists only to keep repo-only files out of the published site.
+# Everything not excluded here is copied to the domain root as-is.
+#
+# There is deliberately NO .nojekyll file: it would disable the build and with
+# it every exclusion below, publishing the developer documentation and the test
+# fixtures alongside the app.
+exclude:
+  - README.md        # domain conventions, for contributors
+  - CLAUDE.md        # working notes for Claude Code sessions
+  - tools/           # regenerate the two committed generated files
+  - test/            # test suite and synthetic fixtures — repo-only
+  - js/package.json  # marks js/ as ES modules for Node; the browser ignores it

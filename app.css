@@ -1,0 +1,157 @@
+/* app.css — screen + print. No web fonts; system stack only. */
+
+:root {
+  --ink: #17201c;
+  --muted: #5d6b63;
+  --line: #d3dad5;
+  --bg: #f7f9f8;
+  --panel: #fff;
+  --accent: #1b3a2f;
+  --warn: #8a4b00;
+  --warn-bg: #fdf3e3;
+  --err: #8c1d1d;
+  --err-bg: #fdeceb;
+  --ok: #1b5e3a;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+main { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+.app-head {
+  background: var(--accent); color: #fff;
+  padding: 1.5rem 1.25rem 1.25rem;
+}
+.app-head > * { max-width: 1200px; margin-inline: auto; }
+.app-head h1 { margin: 0 0 .25rem; font-size: 1.35rem; letter-spacing: -.01em; }
+.tagline { margin: 0; color: #c8d8d0; font-size: .9rem; }
+.install-row { margin: .9rem 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.app-head .hint { color: #b7cbc2; }
+
+section { margin: 2rem 0; }
+h2 { font-size: 1.05rem; margin: 0 0 .6rem; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); }
+h3 { font-size: .95rem; margin: 1.4rem 0 .4rem; }
+
+.hint { color: var(--muted); font-size: .82rem; margin: .2rem 0; }
+
+button, .filebtn {
+  font: inherit; font-size: .88rem;
+  padding: .45rem .85rem;
+  border: 1px solid var(--line); border-radius: 5px;
+  background: var(--panel); color: var(--ink);
+  cursor: pointer;
+}
+button:hover, .filebtn:hover { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+button.danger { color: var(--err); }
+#install { background: #2e6f57; border-color: #2e6f57; color: #fff; }
+
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+
+/* drop zone */
+.drop {
+  display: flex; flex-direction: column; gap: .3rem; align-items: center;
+  padding: 2.25rem 1rem;
+  border: 2px dashed var(--line); border-radius: 8px;
+  background: var(--panel); cursor: pointer; text-align: center;
+}
+.drop:hover, .drop.over, .drop:focus-visible { border-color: var(--accent); background: #eef5f1; outline: none; }
+.filename { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+
+.errors { margin-top: 1rem; padding: .9rem 1.1rem; background: var(--err-bg); border-left: 4px solid var(--err); border-radius: 4px; }
+.errors h3 { margin-top: 0; color: var(--err); }
+.warn { padding: .7rem .9rem; background: var(--warn-bg); border-left: 4px solid var(--warn); border-radius: 4px; font-size: .87rem; }
+.ok { padding: .7rem .9rem; background: #eef6f1; border-left: 4px solid var(--ok); border-radius: 4px; font-size: .87rem; }
+
+/* params */
+.params .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.params label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; font-weight: 600; }
+.params label.check { flex-direction: row; align-items: center; gap: .45rem; flex-wrap: wrap; }
+.params input[type=date], .params input[type=number], .params input[type=text] {
+  font: inherit; padding: .35rem .5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel);
+}
+.params .hint { font-weight: 400; }
+
+/* reconciliation */
+.recon { display: grid; grid-template-columns: max-content 1fr; gap: .2rem 1.2rem; margin: 0; font-size: .85rem; }
+.recon dt { color: var(--muted); }
+.recon dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+/* reports */
+.report { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; }
+.rpt-actions { display: flex; gap: .5rem; margin-bottom: .9rem; flex-wrap: wrap; }
+.rpt-head .org { margin: 0 0 .1rem; font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.rpt-head h2 { text-transform: none; font-size: 1.1rem; color: var(--ink); margin-bottom: .1rem; }
+.rpt-head .sub { margin: 0 0 .9rem; color: var(--muted); font-size: .85rem; }
+
+table.rpt { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .87rem; }
+table.rpt.compact { font-size: .78rem; }
+table.rpt th, table.rpt td { padding: .22rem .45rem; text-align: left; }
+table.rpt thead th { border-bottom: 1.5px solid var(--ink); font-size: .78rem; vertical-align: bottom; }
+table.rpt th.num, table.rpt td.num { text-align: right; }
+table.rpt .label { font-weight: 400; }
+table.rpt tr.detail .label { padding-left: 1.2rem; }
+table.rpt tr.section th { font-weight: 700; padding-top: .6rem; border-bottom: 1px solid var(--line); }
+table.rpt tr.subtotal { font-weight: 600; }
+table.rpt tr.subtotal td, table.rpt tr.subtotal th { border-top: 1px solid var(--line); }
+table.rpt tr.total { font-weight: 700; }
+table.rpt tr.total td, table.rpt tr.total th { border-top: 1px solid var(--ink); }
+table.rpt tr.grand td, table.rpt tr.grand th { border-bottom: 3px double var(--ink); }
+table.rpt tr.spacer td { height: .5rem; padding: 0; }
+table.rpt td.neg { color: var(--err); }
+table.rpt th.group { text-align: center; border-bottom: 1px solid var(--line); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+table.rpt th.evt { max-width: 5.5rem; font-size: .68rem; font-weight: 600; line-height: 1.15; vertical-align: bottom; }
+table.rpt th.evt span { display: block; }
+table.rpt tbody tr:hover { background: #f2f7f4; }
+
+.notes { margin-top: .9rem; color: var(--muted); font-size: .74rem; }
+.notes p { margin: .25rem 0; }
+
+table.cfg { border-collapse: collapse; font-size: .85rem; margin-bottom: 1rem; }
+table.cfg th, table.cfg td { padding: .2rem .6rem; text-align: left; border-bottom: 1px solid var(--line); }
+table.cfg thead th { border-bottom: 1.5px solid var(--ink); }
+table.cfg select { font: inherit; font-size: .82rem; }
+
+.app-foot { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------------------------ */
+/* Print: exactly one report per sheet, chosen by the button pressed.  */
+/* ------------------------------------------------------------------ */
+
+@media print {
+  @page { margin: 12mm 10mm; }
+
+  body { background: #fff; font-size: 9pt; }
+  main { max-width: none; padding: 0; }
+  .no-print, .app-head, .app-foot { display: none !important; }
+  section { margin: 0; }
+
+  .report { border: none; border-radius: 0; padding: 0; page-break-after: always; }
+  .report:last-of-type { page-break-after: auto; }
+
+  /* When a specific report was requested, suppress the others entirely.
+     This is an allow-list: a new section is hidden until named here. */
+  body[data-print-target] .report { display: none; }
+  body[data-print-target="balance"] .report[data-report="balance"],
+  body[data-print-target="event"]   .report[data-report="event"],
+  body[data-print-target="monthly"] .report[data-report="monthly"] { display: block; page-break-after: auto; }
+
+  table.rpt { font-size: 8.5pt; }
+  table.rpt.compact { font-size: 7pt; }
+  table.rpt th, table.rpt td { padding: .08rem .25rem; }
+  table.rpt tbody tr:hover { background: none; }
+  table.rpt td.neg { color: #000; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  .notes { font-size: 6.5pt; }
+}
+
+@page balance { size: Letter portrait; }
