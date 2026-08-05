@@ -1,8 +1,8 @@
-// emit-defaults.mjs — regenerate defaults.txt from js/config.js.
+// emit-defaults.mjs — regenerate defaults.yaml from js/config.js.
 //
-//   node tools/emit-defaults.mjs > defaults.txt
+//   node tools/emit-defaults.mjs > defaults.yaml
 //
-// defaults.txt is the settings file a troop starts from: the example chart of
+// defaults.yaml is the settings file a troop starts from: the example chart of
 // accounts, ready to edit. It is generated rather than hand-maintained so it
 // cannot drift from the shipped defaults; the test suite fails if it has.
 

@@ -21,7 +21,7 @@ That includes places it is easy to let one slip:
   classification, and every name in it is invented and generic on purpose
   (`Product Sale Revenue`, `Merchandise Inventory`, `Credit Card`) rather than
   copied from a real unit's TroopWebHost setup. It is a default, not a schema. A
-  troop adopts their own through Configuration → Import config CSV, with no code
+  troop adopts their own through Settings → Load settings file, with no code
   change. Never write a report that assumes a specific fund, account, or
   pseudo-account name exists — derive from what the export contains, or halt with
   a named error.
@@ -93,6 +93,11 @@ alternative rather than implementing it quietly.
    `reports.js`. Do not introduce a second convention.
 5. **Print is an allow-list.** `@media print` in `app.css` names each printable
    report explicitly. A new section stays hidden until named. Do not invert this.
+6. **Tabs never touch the URL.** The tab strip in `index.html` shows one panel
+   and hides the others, and that is all it does: no hash, no `history.pushState`,
+   no query string, no router. Rule 2 forbids fragment state, and the same
+   reasoning covers a tab name. The active tab is remembered in `sessionStorage`
+   (`troopfin.tab`), which holds a panel name and nothing else.
 
 ## Architecture
 
@@ -122,7 +127,8 @@ Module boundaries, in dependency order — keep it acyclic:
 - `snapshots.js` — snapshot shape, drift comparison, number formatting.
 - `render.js` — DOM only. No arithmetic beyond summing what it was handed.
 - `install.js` — PWA lifecycle, independent of everything else.
-- `main.js` — wiring. The only module that touches `document` events.
+- `main.js` — wiring. The only module that touches `document` events, the tab
+  strip included.
 
 `reports.js` must stay DOM-free so the test harness can import it under Node.
 
@@ -148,15 +154,32 @@ Load-bearing assertions: `Other + all columns == Total` on Event Income, totals
 independent of `pastEventsShown`, Total Assets unaffected by the as-of date, the
 settings-file round-trip, and the two generated-file freshness checks.
 
-`defaults.txt` and `test/fixtures/sample-settings.txt` are generated. Never edit
+`defaults.yaml` and `test/fixtures/sample-settings.yaml` are generated. Never edit
 them by hand — change the source and rerun:
 
 ```
-node tools/emit-defaults.mjs        > defaults.txt
-node tools/emit-sample-settings.mjs > test/fixtures/sample-settings.txt
+node tools/emit-defaults.mjs        > defaults.yaml
+node tools/emit-sample-settings.mjs > test/fixtures/sample-settings.yaml
 ```
 
 ## Deployment
+
+**Branching: commit straight to `gh-pages`.** That is the branch Pages serves
+and the branch this repo develops on; there is no separate default branch to
+merge back into, and no long-lived feature branches. Work directly on it unless
+the change is large enough that the owner asks for a branch.
+
+Because the branch is the live site, a push *is* a deployment. Before pushing:
+
+- run `node test/reconcile.test.mjs` and see it green,
+- bump `CACHE_VERSION` in `sw.js`,
+- regenerate `defaults.yaml` and `test/fixtures/sample-settings.yaml` if
+  anything they derive from moved.
+
+If a push to `gh-pages` is rejected — branch protection, or a permission the
+session does not have — do not silently leave the work on a side branch. Push
+the branch, open a pull request against `gh-pages`, and offer to merge it as the
+closing step of the task rather than treating the PR as the finish line.
 
 Static, no build step of our own. GitHub Pages serves the repo root of whichever
 branch Pages is configured for, through its Jekyll build. All paths are relative

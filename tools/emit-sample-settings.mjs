@@ -1,6 +1,6 @@
 // emit-sample-settings.mjs — regenerate the sample settings file.
 //
-//   node tools/emit-sample-settings.mjs > test/fixtures/sample-settings.txt
+//   node tools/emit-sample-settings.mjs > test/fixtures/sample-settings.yaml
 //
 // Pairs with test/fixtures/sample-export.csv. Load both into the app and every
 // report renders immediately, snapshots included — the fastest way to see what

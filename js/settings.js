@@ -5,10 +5,13 @@
 // snapshots. This file plus a fresh TroopWebHost export is enough to get a new
 // treasurer running from nothing.
 //
-// It is YAML, written with a .txt extension. The extension is deliberate: on
-// Windows a .yml opens in whatever happens to be registered, or in nothing,
-// while .txt reliably opens in Notepad. The people inheriting this file are
-// volunteers, not developers.
+// It is YAML. The app offers it under two extensions holding byte-identical
+// content: .yaml, which says what the file is and gets syntax highlighting in
+// anything that knows the format, and .txt, which on Windows reliably opens in
+// Notepad where a .yaml may open in whatever happens to be registered, or in
+// nothing. The people inheriting this file are volunteers, not developers, so
+// both routes stay open. Loading accepts either, and the extension is never
+// read — the content decides.
 //
 // It contains NO personal data — no scout names, no per-account balances, no
 // transactions. Only configuration and whole-troop totals. It is safe to email
@@ -19,7 +22,14 @@ import { CATEGORY_NAMES, DEFAULT_PARAMS } from './config.js';
 import { BS_ROW_KEYS } from './snapshots.js';
 
 export const SETTINGS_VERSION = 1;
-export const SETTINGS_FILENAME = 'troop-settings.txt';
+export const SETTINGS_BASENAME = 'troop-settings';
+
+/** Extension -> { filename, mime }. `yaml` is the default offered. */
+export const SETTINGS_FORMATS = {
+  yaml: { filename: `${SETTINGS_BASENAME}.yaml`, mime: 'application/yaml' },
+  txt:  { filename: `${SETTINGS_BASENAME}.txt`,  mime: 'text/plain' },
+};
+export const SETTINGS_FILENAME = SETTINGS_FORMATS.yaml.filename;
 
 const ACCOUNT_CLASSES = ['cash', 'noncash', 'liability'];
 
@@ -42,9 +52,10 @@ export function settingsToText(cfg, snapshots = {}) {
     '# ---------------------------------------------------------------------',
     '# Troop Finance Reports — settings',
     '#',
-    '# Edit this file in any plain text editor (Notepad, TextEdit, Notepad++).',
-    '# Keep the two-space indentation. Do not use tabs. Lines starting with #',
-    '# are comments and are ignored.',
+    '# This is a YAML file. It may be named .yaml or .txt — the app reads',
+    '# either, and the contents are the same. Edit it in any plain text editor',
+    '# (Notepad, TextEdit, Notepad++). Keep the two-space indentation. Do not',
+    '# use tabs. Lines starting with # are comments and are ignored.',
     '#',
     '# This file plus a fresh TroopWebHost transaction export is everything',
     '# needed to produce the reports. It contains no scout names, no individual',

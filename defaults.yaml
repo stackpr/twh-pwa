@@ -1,9 +1,10 @@
 # ---------------------------------------------------------------------
 # Troop Finance Reports — settings
 #
-# Edit this file in any plain text editor (Notepad, TextEdit, Notepad++).
-# Keep the two-space indentation. Do not use tabs. Lines starting with #
-# are comments and are ignored.
+# This is a YAML file. It may be named .yaml or .txt — the app reads
+# either, and the contents are the same. Edit it in any plain text editor
+# (Notepad, TextEdit, Notepad++). Keep the two-space indentation. Do not
+# use tabs. Lines starting with # are comments and are ignored.
 #
 # This file plus a fresh TroopWebHost transaction export is everything
 # needed to produce the reports. It contains no scout names, no individual
@@ -15,7 +16,7 @@ version: 1
 
 # Printed above each report. Leave empty for none.
 troop:
-  name: Example Troop
+  name: ""
 
 # Report parameters.
 #
@@ -34,15 +35,12 @@ troop:
 #   hashSalt                changes the anonymised scout identifiers. Leave
 #                           empty unless you have a reason.
 parameters:
-  activitySince: 2023-09-01
+  activitySince: 2025-09-01
   pastEventsShown: 8
   monthsShown: 12
-  asOf: 2024-08-03
+  asOf: null
   legacyMode: false
-  legacyDeductedAccounts:
-    - _UNIT, Campership (Main)
-    - _UNIT, High Adventure (Main)
-    - _CREW, Venture Crew (Main)
+  legacyDeductedAccounts: []
   hashSalt: ""
 
 # Troop accounts, and where each belongs on the balance sheet.
@@ -128,43 +126,4 @@ funds:
 #
 # Added by the app when you capture a snapshot. Safe to edit or delete a
 # whole date, but there is rarely a reason to.
-snapshots:
-  2024-03-01:
-    total_assets: 79904.54
-    total_noncash_assets: 4925.50
-    scout_prepaid: 16118.40
-    scout_arrears_count: 8
-    scout_arrears_total: -3871.40
-    scout_net: 12247.00
-    liability_accounts: 642.75
-    other_future_events: 13232.50
-    pseudo_accounts: 5819.25
-    total_liabilities: 19694.50
-    unrestricted_net_assets: 43037.54
-    twh_comparison: 52398.64
-  2024-06-01:
-    total_assets: 79904.54
-    total_noncash_assets: 4925.50
-    scout_prepaid: 16118.40
-    scout_arrears_count: 8
-    scout_arrears_total: -3871.40
-    scout_net: 12247.00
-    liability_accounts: 642.75
-    other_future_events: 12243.50
-    pseudo_accounts: 5819.25
-    total_liabilities: 18705.50
-    unrestricted_net_assets: 44026.54
-    twh_comparison: 52398.64
-  2024-08-03:
-    total_assets: 79904.54
-    total_noncash_assets: 4925.50
-    scout_prepaid: 16118.40
-    scout_arrears_count: 8
-    scout_arrears_total: -3871.40
-    scout_net: 12247.00
-    liability_accounts: 642.75
-    other_future_events: 4889.50
-    pseudo_accounts: 5819.25
-    total_liabilities: 11351.50
-    unrestricted_net_assets: 51380.54
-    twh_comparison: 52398.64
+snapshots: {}

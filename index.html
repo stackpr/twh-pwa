@@ -26,6 +26,17 @@
 
 <main>
 
+  <!-- Tabs are a view switch, not navigation: pressing one changes nothing in
+       the address bar and adds no history entry. See the note in js/main.js. -->
+  <div class="tablist no-print" role="tablist" aria-label="Sections">
+    <button type="button" class="tab" role="tab" id="tab-reports"
+            data-tab="reports" aria-controls="panel-reports" aria-selected="true">Reports</button>
+    <button type="button" class="tab" role="tab" id="tab-settings"
+            data-tab="settings" aria-controls="panel-settings" aria-selected="false" tabindex="-1">Settings</button>
+  </div>
+
+  <div class="panel" id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" tabindex="0">
+
   <section class="no-print">
     <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose or drop the TroopWebHost CSV export">
       <strong>Drop the CSV export here</strong>
@@ -101,33 +112,46 @@
       <div id="report-monthly"></div>
     </section>
 
-    <section class="no-print">
+  </div>
+
+  </div><!-- /panel-reports -->
+
+  <div class="panel no-print" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" tabindex="0" hidden>
+
+    <section>
       <h2>Settings file</h2>
       <p class="hint">
-        One plain-text file holding the troop name, report parameters, the chart of
-        accounts, and the balance-sheet snapshots. Open it in Notepad or TextEdit to edit.
+        One YAML file holding the troop name, report parameters, the chart of
+        accounts, and the balance-sheet snapshots. Open it in any plain text editor
+        &mdash; Notepad, TextEdit, Notepad++ &mdash; to edit.
         It contains no scout names and no transactions, so it is safe to hand to a successor
         &mdash; this file plus a fresh TroopWebHost export is everything they need.
       </p>
       <p class="actions">
-        <button id="settings-export">Download settings file</button>
-        <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".txt,.yml,.yaml,text/plain" hidden></label>
+        <button id="settings-export">Download settings file (.yaml)</button>
+        <button id="settings-export-txt">Download as .txt</button>
+        <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".yaml,.yml,.txt,text/yaml,application/yaml,text/plain" hidden></label>
         <button id="snap-clear" class="danger">Clear snapshots</button>
+      </p>
+      <p class="hint">
+        Both downloads hold identical YAML; only the extension differs. Use <code>.txt</code>
+        if double-clicking a <code>.yaml</code> file on your computer opens nothing useful.
+        Either extension loads back in.
       </p>
     </section>
 
-  </div>
+    <section>
+      <h2>Configuration</h2>
+      <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; edit below for one-off changes, or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
+      <p class="actions">
+        <button id="cfg-reset" class="danger">Reset to shipped defaults</button>
+        <button id="app-reset" class="danger">Purge offline cache</button>
+      </p>
+      <p id="config-note" class="hint"></p>
+      <div id="config"></div>
+    </section>
 
-  <section class="no-print">
-    <h2>Configuration</h2>
-    <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; edit below for one-off changes, or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
-    <p class="actions">
-      <button id="cfg-reset" class="danger">Reset to shipped defaults</button>
-      <button id="app-reset" class="danger">Purge offline cache</button>
-    </p>
-    <p id="config-note" class="hint"></p>
-    <div id="config"></div>
-  </section>
+  </div><!-- /panel-settings -->
 
 </main>
 

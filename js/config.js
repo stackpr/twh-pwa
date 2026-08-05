@@ -7,8 +7,8 @@ const LS_KEY = 'troopfin.config.v1';
 //
 // These are defaults, not a schema. Every troop's TroopWebHost fund list is
 // different. Replace this map with your own — either by editing this file, or
-// at runtime through Configuration → Import config CSV, which is the intended
-// route and requires no code change. The six category names on the right ARE
+// at runtime through Settings → Load settings file, which is the intended route
+// and requires no code change. The six category names on the right ARE
 // fixed: they drive the income-statement sections and the program/fundraising
 // split for event columns.
 export const FUND_CATEGORIES = {

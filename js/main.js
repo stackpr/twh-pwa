@@ -8,7 +8,7 @@ import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
   driftReport, isoDate, fmtMoney, download,
 } from './snapshots.js';
-import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
+import { settingsToText, settingsFromText, SETTINGS_FORMATS } from './settings.js';
 import {
   renderBalanceSheet, renderEventIncome, renderMonthlyIncome,
   renderReconciliation, renderErrors, renderConfig,
@@ -96,6 +96,48 @@ function renderDrift(bs) {
   }), ul);
 }
 
+/* ---- tabs -------------------------------------------------------- */
+
+// A tab shows one panel and hides the others. That is the whole mechanism: no
+// hash, no history entry, no address-bar change. Fragment state leaks through
+// history and referrers, which is why this app has none — and a treasurer who
+// bookmarks the page should land where they started, not in whatever section
+// happened to be open. The choice is remembered for the browser tab's lifetime
+// only, in sessionStorage, and holds nothing but a panel name.
+const TAB_KEY = 'troopfin.tab';
+const tabButtons = () => [...document.querySelectorAll('[role="tab"]')];
+
+function showTab(name) {
+  const tabs = tabButtons();
+  const target = tabs.find(t => t.dataset.tab === name) || tabs[0];
+  if (!target) return;
+  for (const t of tabs) {
+    const on = t === target;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+    $(`#${t.getAttribute('aria-controls')}`).hidden = !on;
+  }
+  try { sessionStorage.setItem(TAB_KEY, target.dataset.tab); } catch { /* private mode */ }
+}
+
+function bindTabs() {
+  const tabs = tabButtons();
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => showTab(tab.dataset.tab));
+    tab.addEventListener('keydown', e => {
+      const step = { ArrowRight: 1, ArrowLeft: -1, Home: -i, End: tabs.length - 1 - i }[e.key];
+      if (step === undefined) return;
+      e.preventDefault();
+      const next = tabs[(i + step + tabs.length) % tabs.length];
+      showTab(next.dataset.tab);
+      next.focus();
+    });
+  });
+  let saved = null;
+  try { saved = sessionStorage.getItem(TAB_KEY); } catch { /* private mode */ }
+  showTab(saved || 'reports');
+}
+
 /* ---- controls ---------------------------------------------------- */
 
 function bind() {
@@ -155,10 +197,14 @@ function bind() {
     rerender();
   });
 
-  // settings file — one document carrying config and snapshots together
-  $('#settings-export').addEventListener('click', () => {
-    download(SETTINGS_FILENAME, settingsToText(state.cfg, state.snapshots), 'text/plain');
-  });
+  // settings file — one document carrying config and snapshots together.
+  // Identical YAML under either extension; only the filename differs.
+  const exportSettings = fmt => () => {
+    const { filename, mime } = SETTINGS_FORMATS[fmt];
+    download(filename, settingsToText(state.cfg, state.snapshots), mime);
+  };
+  $('#settings-export').addEventListener('click', exportSettings('yaml'));
+  $('#settings-export-txt').addEventListener('click', exportSettings('txt'));
   $('#settings-import').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
     e.target.value = '';
@@ -178,6 +224,7 @@ function bind() {
     alert(`Settings loaded: ${counts}.`
       + (warnings.length ? `\n\nNotes:\n${warnings.slice(0, 8).join('\n')}` : '')
       + '\n\nDrop the transaction export to produce the reports.');
+    showTab('reports'); // the export is dropped there, and the reload lands on it
     location.reload();
   });
   $('#snap-clear').addEventListener('click', () => {
@@ -203,6 +250,7 @@ function bind() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  bindTabs();
   bind();
   renderConfig(state.cfg, $('#config'), () => { saveConfig(state.cfg); reloadFromLedger(); });
 });
