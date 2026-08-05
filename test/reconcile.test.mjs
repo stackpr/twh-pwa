@@ -24,12 +24,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseCSV } from '../js/csv.js';
-import { FUND_CATEGORIES, DEFAULT_ACCOUNT_CLASS, DEFAULT_PARAMS, CATEGORY_NAMES } from '../js/config.js';
+import {
+  FUND_CATEGORIES, DEFAULT_ACCOUNT_CLASS, DEFAULT_PARAMS, CATEGORY_NAMES,
+  guessFundCategory, guessAccountClass,
+} from '../js/config.js';
 import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
 import { snapshotFromReport } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
-import { buildLedger, reconcile, resolveAsOf, isPseudoAccount } from '../js/ledger.js';
+import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents } from '../js/ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from '../js/reports.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -141,6 +144,113 @@ console.log('== INVARIANTS ==');
   eq('Total Assets unaffected by as-of date', bsLater.totalAssets, bs.totalAssets);
   ok('Future-event liability shrinks as events pass',
      bsLater.otherFutureEventsNet <= bs.otherFutureEventsNet + 0.005);
+}
+
+console.log('\n== CHART REVIEW (new and unused names) ==');
+{
+  // A chart of accounts missing one fund and one account, and carrying two
+  // entries the export never mentions — the state a real settings file drifts
+  // into as TroopWebHost gains funds and loses others.
+  const full = mk({});
+  const firstFund = Object.keys(full.fundCategories).find(f =>
+    parseCSV(fs.readFileSync(FIXTURE, 'utf8')).records.some(r => r['Credit Fund'] === f || r['Debit Fund'] === f));
+  const partial = {
+    fundCategories: { ...full.fundCategories, 'Stale Fund Expense': 'Program Expenses' },
+    accountClass: { ...full.accountClass, 'Stale Account': 'cash' },
+    params: { ...full.params },
+  };
+  delete partial.fundCategories[firstFund];
+  delete partial.accountClass['Checking'];
+
+  const led = buildLedger(records, partial);
+  ok('unclassified names still halt the load', led.errors.length > 0);
+  ok('the ledger names them structurally',
+     led.unknownFunds.includes(firstFund) && led.unknownAccounts.includes('Checking'));
+
+  const review = chartReview(led, partial);
+  eq('review finds the new fund', review.newFunds.length, 1);
+  eq('review finds the new account', review.newAccounts.length, 1);
+  ok('new fund carries its evidence',
+     review.newFunds[0].name === firstFund && review.newFunds[0].legs > 0);
+  ok('new fund carries a guess', CATEGORY_NAMES.includes(review.newFunds[0].guess));
+  ok('review finds the unused fund', review.unusedFunds.includes('Stale Fund Expense'));
+  ok('review finds the unused account', review.unusedAccounts.includes('Stale Account'));
+  ok('a fund with activity is never called unused', !review.unusedFunds.includes(firstFund));
+
+  // Adopting the guesses is what lets the load proceed. It must not move a
+  // figure that has nothing to do with classification.
+  const adopted = {
+    fundCategories: { ...partial.fundCategories, [firstFund]: review.newFunds[0].guess },
+    accountClass: { ...partial.accountClass, Checking: review.newAccounts[0].guess },
+    params: { ...partial.params },
+  };
+  const ledB = buildLedger(records, adopted);
+  ok('adopting the guesses clears the halt', ledB.errors.length === 0);
+  const bsFull = balanceSheet(...(() => { const b = build({}); return [b.ledger, b.cfg, b.asOf]; })());
+  const bsAdopted = balanceSheet(ledB, adopted, resolveAsOf(ledB, adopted.params));
+  eq('guessing a fund category does not move Total Assets', bsAdopted.totalAssets, bsFull.totalAssets);
+
+  // Removing unused names is presented as tidying, so it must be exactly that.
+  const tidied = { ...adopted, fundCategories: { ...adopted.fundCategories }, accountClass: { ...adopted.accountClass } };
+  delete tidied.fundCategories['Stale Fund Expense'];
+  delete tidied.accountClass['Stale Account'];
+  const ledC = buildLedger(records, tidied);
+  ok('removing unused names does not halt the load', ledC.errors.length === 0);
+  const bsTidied = balanceSheet(ledC, tidied, resolveAsOf(ledC, tidied.params));
+  eq('removing unused names moves no figure', bsTidied.unrestricted, bsAdopted.unrestricted);
+}
+
+console.log('\n== CLASSIFICATION GUESSES ==');
+{
+  const g = (name, net = 0) => guessFundCategory(name, net);
+  ok('"Expense" in the name means an expense', g('Camping (Weekend) Expense', 500) === 'Program Expenses');
+  ok('"Revenue" in the name means revenue', g('Registration Revenue', -20) === 'Program Revenue');
+  ok('a fundraiser word picks the fundraising section', g('Popcorn Revenue') === 'Fundraising Revenue');
+  ok('fundraising expense too', g('Popcorn Expense') === 'Fundraising Expenses');
+  ok('administrative words pick Other', g('Administrative Expenses') === 'Other Expenses');
+  ok('interest is Other Income', g('Interest and Dividends', 12) === 'Other Income');
+  // With no word to go on, the sign of the fund's net in the export decides.
+  ok('unnamed positive net guesses revenue', g('Something New', 250) === 'Program Revenue');
+  ok('unnamed negative net guesses an expense', g('Something New', -250) === 'Program Expenses');
+  // A section word must not be read as a side word. Money donated by the troop
+  // and money donated to it share the noun and point opposite ways.
+  ok('a donation received is revenue', g('General Donation', 400) === 'Fundraising Revenue');
+  ok('a donation made is an expense', g('Donations by Troop', -400) === 'Fundraising Expenses');
+
+  ok('a card is a liability', guessAccountClass('Credit Card') === 'liability');
+  ok('inventory is non-cash', guessAccountClass('Merchandise Inventory') === 'noncash');
+  ok('anything else is cash', guessAccountClass('Checking') === 'cash');
+
+  // Every guess must be a value the settings file will accept back.
+  const names = ['Anything', 'Fund Expense', 'Popcorn', 'Bank Interest', 'Misc'];
+  ok('every fund guess is a real category',
+     names.every(n => CATEGORY_NAMES.includes(g(n)) && CATEGORY_NAMES.includes(g(n, -1))));
+  ok('every account guess is a real class',
+     names.every(n => ['cash', 'noncash', 'liability'].includes(guessAccountClass(n))));
+
+  // The shipped example chart is the closest thing to a labelled set: the guess
+  // should agree with most of it. Pinned low — this is a heuristic, not a rule.
+  const shipped = Object.entries(FUND_CATEGORIES);
+  const agree = shipped.filter(([n, c]) => g(n, c.includes('Expense') ? -100 : 100) === c).length;
+  ok(`guess agrees with ${agree}/${shipped.length} of the shipped example chart`,
+     agree >= shipped.length * 0.75);
+}
+
+console.log('\n== EVENT RECLASSIFICATION ==');
+{
+  // A category change must not require re-reading the export. Reclassifying in
+  // place has to land exactly where a fresh build would.
+  const { ledger, cfg } = build({});
+  const moved = {
+    ...cfg,
+    fundCategories: Object.fromEntries(Object.entries(cfg.fundCategories)
+      .map(([f, c]) => [f, c === 'Program Revenue' ? 'Fundraising Revenue' : c])),
+  };
+  const fresh = buildLedger(records, moved);
+  classifyEvents(ledger, moved);
+  const kinds = l => l.events.map(e => `${e.name}:${e.kind}`).sort().join('|');
+  ok('reclassify in place == a fresh build', kinds(ledger) === kinds(fresh));
+  ok('the change actually moved something', kinds(fresh) !== kinds(buildLedger(records, cfg)));
 }
 
 console.log('\n== YAML SUBSET ==');

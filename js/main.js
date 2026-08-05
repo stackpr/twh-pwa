@@ -2,7 +2,7 @@
 
 import { parseCSV } from './csv.js';
 import { loadConfig, saveConfig, clearConfig } from './config.js';
-import { buildLedger, reconcile, resolveAsOf } from './ledger.js';
+import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents } from './ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from './reports.js';
 import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
@@ -11,7 +11,7 @@ import {
 import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
   renderBalanceSheet, renderEventIncome, renderMonthlyIncome,
-  renderReconciliation, renderErrors, renderConfig,
+  renderReconciliation, renderErrors, renderConfig, renderChartReview,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
 
@@ -22,6 +22,7 @@ const state = {
   snapshots: loadSnapshots(),
   ledger: null,
   asOf: null,
+  review: null,   // what the last import added to, or found stale in, the chart
 };
 
 /* ---- file intake ------------------------------------------------- */
@@ -40,13 +41,30 @@ function setReportsShown(on) {
 }
 
 function loadRecords(records) {
-  const ledger = buildLedger(records, state.cfg);
-  renderErrors(ledger.errors, $('#errors'));
+  let ledger = buildLedger(records, state.cfg);
   $('#import-done').hidden = true;
+
+  // A name the chart of accounts has never seen is added with a guess rather
+  // than turned away — see adoptNewNames. The rebuild is what makes the guess
+  // take effect; it happens here, while the export is still in this function's
+  // stack frame, because it is never retained beyond it.
+  state.review = chartReview(ledger, state.cfg);
+  if (adoptNewNames(state.review)) {
+    saveConfig(state.cfg);
+    ledger = buildLedger(records, state.cfg);
+  }
+
+  renderErrors(ledger.errors, $('#errors'));
   if (ledger.errors.length) {
     // Errors are rendered on the Import tab, next to the file that caused them.
+    // The review is dropped rather than shown: a halted load produces no legs —
+    // a missing column halts before the first row is read — and against no legs
+    // every name in the chart of accounts looks unused. Offering to delete the
+    // whole chart because the export was malformed is not a tidy-up.
     state.ledger = null;
+    state.review = null;
     setReportsShown(false);
+    renderReview();
     return;
   }
   state.ledger = ledger;
@@ -56,9 +74,104 @@ function loadRecords(records) {
   $('#import-done').textContent =
     `Loaded ${records.length} transactions. The reports are on the Reports tab.`;
   $('#import-done').hidden = false;
-  showTab('reports');
   renderReconciliation(reconcile(ledger, state.cfg), ledger, $('#reconciliation'));
   rerender();
+  renderReview();
+  // A review is the one thing worth reading before the figures. With nothing to
+  // review the reports are what was asked for, so go straight there.
+  if (!hasReview()) showTab('reports');
+}
+
+/* ---- chart of accounts review ------------------------------------ */
+
+const hasReview = () => {
+  const r = state.review;
+  return !!r && (r.newFunds.length + r.newAccounts.length
+    + r.unusedFunds.length + r.unusedAccounts.length > 0);
+};
+
+/**
+ * Take the guesses into the settings, so the load can proceed.
+ *
+ * This is the one place the app assigns a classification nobody chose, and it is
+ * deliberately not silent: every guessed name is listed on the Import tab, and
+ * the reports carry a warning naming the count until the treasurer has been
+ * through them. The alternative — halting on a fund TroopWebHost added last
+ * week — sent a volunteer to hand-edit a settings file to see any figure at all.
+ */
+function adoptNewNames(review) {
+  for (const f of review.newFunds) state.cfg.fundCategories[f.name] = f.guess;
+  for (const a of review.newAccounts) state.cfg.accountClass[a.name] = a.guess;
+  return review.newFunds.length + review.newAccounts.length > 0;
+}
+
+function renderReview() {
+  const section = $('#import-review-section');
+  section.hidden = !hasReview();
+  renderChartReview(state.review || { newFunds: [], newAccounts: [], unusedFunds: [], unusedAccounts: [] },
+    $('#import-review'), {
+      // The review row holds the classification currently in force, seeded from
+      // the guess; correcting one edits the settings and the row together, so a
+      // later re-render shows what the treasurer chose rather than the guess.
+      onFundChange: (name, cat) => {
+        state.cfg.fundCategories[name] = cat;
+        state.review.newFunds.find(f => f.name === name).guess = cat;
+        afterChartEdit();
+      },
+      onAccountChange: (name, cls) => {
+        state.cfg.accountClass[name] = cls;
+        state.review.newAccounts.find(a => a.name === name).guess = cls;
+        afterChartEdit();
+      },
+      onRemoveUnused: () => {
+        const { unusedFunds, unusedAccounts } = state.review;
+        const n = unusedFunds.length + unusedAccounts.length;
+        if (!confirm(`Remove ${n} unused name${n === 1 ? '' : 's'} from the settings?\n\n`
+          + `${n === 1 ? 'It has' : 'They have'} no activity in this export, so no figure `
+          + 'changes. Download the settings file first if you want to keep them.')) return;
+        for (const name of unusedFunds) delete state.cfg.fundCategories[name];
+        for (const name of unusedAccounts) delete state.cfg.accountClass[name];
+        state.review = { ...state.review, unusedFunds: [], unusedAccounts: [] };
+        afterChartEdit();
+        renderReview();   // the removed names leave the panel
+      },
+      onDone: () => showTab('reports'),
+    });
+  renderGuessNote();
+}
+
+/** Guessed classifications follow the reports until someone has looked at them. */
+function renderGuessNote() {
+  const note = $('#guess-note');
+  const n = state.review ? state.review.newFunds.length + state.review.newAccounts.length : 0;
+  note.replaceChildren();
+  note.hidden = !n;
+  if (!n) return;
+  const link = document.createElement('button');
+  link.type = 'button';
+  link.className = 'linkish';
+  link.textContent = 'Import tab';
+  link.addEventListener('click', () => showTab('import'));
+  note.append(
+    `${n} name${n === 1 ? '' : 's'} in this export ${n === 1 ? 'was' : 'were'} classified by guess `
+    + `when it loaded. Check ${n === 1 ? 'it' : 'them'} on the `,
+    link,
+    ' before publishing these figures.');
+}
+
+/**
+ * A chart-of-accounts change needs no re-read of the export: the only part of
+ * the ledger that depends on the chart is each event's program/fundraising kind,
+ * and that is recomputed from the legs already in memory.
+ */
+function afterChartEdit() {
+  saveConfig(state.cfg);
+  if (state.ledger) {
+    classifyEvents(state.ledger, state.cfg);
+    renderReconciliation(reconcile(state.ledger, state.cfg), state.ledger, $('#reconciliation'));
+  }
+  rerender();
+  renderGuessNote();
 }
 
 function rerender() {
@@ -73,14 +186,22 @@ function rerender() {
   renderMonthlyIncome(monthlyIncome(state.ledger, cfg, state.asOf), $('#report-monthly'), org);
 
   renderDrift(bs);
-  renderConfig(cfg, $('#config'), () => { saveConfig(cfg); reloadFromLedger(); });
+  renderConfig(cfg, $('#config'), onConfigEdit);
+}
+
+function onConfigEdit() {
+  afterChartEdit();
+  $('#config-note').textContent = state.ledger
+    ? 'Configuration saved, and the reports have been recomputed.'
+    : 'Configuration saved. It applies to the next export you import.';
 }
 
 function reloadFromLedger() {
-  // Config changes alter classification, so the ledger must be rebuilt. The
-  // source records are not retained, so ask for the file again.
+  // Some parameters — legacy mode, the hash salt — change how the ledger itself
+  // is built, and the export is not retained, so those need the file again.
+  // A chart-of-accounts change does not: see afterChartEdit.
   $('#config-note').textContent =
-    'Configuration saved. Re-drop the export to apply it — transaction data is never kept in memory between loads.';
+    'Saved. Re-drop the export to apply it — transaction data is never kept in memory between loads.';
 }
 
 function renderDrift(bs) {
@@ -286,5 +407,5 @@ function bind() {
 document.addEventListener('DOMContentLoaded', () => {
   bindTabs();
   bind();
-  renderConfig(state.cfg, $('#config'), () => { saveConfig(state.cfg); reloadFromLedger(); });
+  renderConfig(state.cfg, $('#config'), onConfigEdit);
 });

@@ -163,6 +163,17 @@ table.rpt tbody tr:hover { background: #f2f7f4; }
 .notes { margin-top: .9rem; color: var(--muted); font-size: .74rem; }
 .notes p { margin: .25rem 0; }
 
+/* import review */
+.namelist { margin: .2rem 0 1rem; padding-left: 1.2rem; color: var(--muted); font-size: .82rem; }
+.namelist li { margin: .1rem 0; break-inside: avoid; }
+/* Only a collapsed list is long enough to want columns; a two-item list in two
+   columns reads as two unrelated lists. */
+details .namelist { columns: 2 14rem; }
+#import-review details { margin: .2rem 0 1rem; color: var(--muted); font-size: .82rem; }
+#import-review summary { cursor: pointer; }
+#import-review .namelist { margin-top: .4rem; }
+#import-review table.cfg { margin-top: .3rem; }
+
 table.cfg { border-collapse: collapse; font-size: .85rem; margin-bottom: 1rem; }
 table.cfg th, table.cfg td { padding: .2rem .6rem; text-align: left; border-bottom: 1px solid var(--line); }
 table.cfg thead th { border-bottom: 1.5px solid var(--ink); }

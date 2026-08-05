@@ -84,10 +84,22 @@ alternative rather than implementing it quietly.
 
 ## Other invariants
 
-3. **Unclassified funds and accounts halt the load.** `ledger.js` pushes to
-   `errors` and no report renders. Do not default an unknown fund to a category
-   or skip an unclassified account — silent under-reporting is the specific
-   failure that makes spreadsheet-era tooling untrustworthy.
+3. **No fund or account is ever classified silently.** `ledger.js` still refuses
+   to build a report from a name it cannot classify: unknown names go to
+   `errors`, and nothing renders. What changed is what happens *before* that
+   halt. `main.js` adopts each unknown name into the chart of accounts with a
+   guess from `guessFundCategory` / `guessAccountClass`, saves it, and rebuilds —
+   so a fund TroopWebHost added last week costs a glance, not a hand-edited
+   settings file. The guess is then impossible to miss: every guessed name is
+   listed with its evidence on the Import tab, and a warning naming the count
+   rides above the reports.
+
+   The invariant is the *silence*, not the halt. An unknown name may be guessed;
+   it may never be dropped, defaulted without saying so, or counted as zero. If
+   you add a path that classifies, it must also surface what it classified, and
+   the halt in `ledger.js` must stay as the backstop for any path that does not.
+   Skipping an unclassified account is still the specific failure that makes
+   spreadsheet-era tooling untrustworthy.
 4. **One sign convention.** Credit positive, debit negative, on every leg, set in
    `ledger.js`. The only place the sign flips for display is `sectionSign()` in
    `reports.js`. Do not introduce a second convention.
@@ -131,14 +143,22 @@ CSV → parseCSV() → buildLedger() → { legs, txns, events } → reports → 
 Module boundaries, in dependency order — keep it acyclic:
 
 - `csv.js` — parser and MD5. No app knowledge.
-- `config.js` — chart of accounts, parameters, localStorage persistence.
+- `config.js` — chart of accounts, parameters, localStorage persistence, and the
+  name heuristics behind an import-time guess. A saved chart is authoritative:
+  `loadConfig` does not merge the shipped example back in, or a removal would
+  undo itself on the next visit.
 - `yaml.js` — a small strict YAML subset. No app knowledge. Do not grow it into a
   general YAML implementation; if a feature is missing, ask whether the settings
   file really needs it.
 - `settings.js` — the settings file: config plus snapshots in one document.
   Section comments are hand-written instructions for a human editor; keep them
   current when you add a parameter.
-- `ledger.js` — imports `csv.js`. Ingest, hashing, validation.
+- `ledger.js` — imports `csv.js` and `config.js`. Ingest, hashing, validation,
+  and the import-time comparison of the chart of accounts against the export
+  (`chartReview`). `classifyEvents` is split out of `buildLedger` because each
+  event's program/fundraising kind is the only part of the ledger that depends
+  on the chart — which is what lets a classification be corrected without
+  re-reading the export.
 - `reports.js` — imports `config.js`, `ledger.js`. Pure computation, no DOM.
 - `snapshots.js` — snapshot shape, drift comparison, number formatting.
 - `render.js` — DOM only. No arithmetic beyond summing what it was handed.

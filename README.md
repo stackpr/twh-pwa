@@ -48,13 +48,16 @@ Screen; Safari never fires the install event.
 
 1. TroopWebHost → **Export All Transactions to Excel** (it emits CSV despite the name).
 2. Open the app, drop the file on the target on the **Import** tab. It switches to
-   **Reports** once the file loads.
-3. Read the **Reconciliation** panel. Account count, fund count and transaction-type
+   **Reports** once the file loads, unless there is something to review.
+3. Work through the **import review**, if there is one: confirm the classification
+   guessed for any new fund or account, and take the offer to remove anything the
+   export never mentioned.
+4. Read the **Reconciliation** panel. Account count, fund count and transaction-type
    count should match last month. A jump in *single-leg entries* means someone
    posted something unusual.
-4. Set **Past events shown** so Event Income fits one page.
-5. Print each report. Browser print → Save as PDF.
-6. **Capture snapshot at this date**, then, on the **Settings** tab, **Download
+5. Set **Past events shown** so Event Income fits one page.
+6. Print each report. Browser print → Save as PDF.
+7. **Capture snapshot at this date**, then, on the **Settings** tab, **Download
    settings file** and keep it with the PDFs. That file is the handover artefact.
 
 ---
@@ -92,9 +95,11 @@ Fundraising-category (a concessions shift, a product sale) is excluded from the
 columns and rolls into *Other*. In practice the split is unambiguous: an event
 mixes categories rarely, and when it does the majority decides.
 
-**A fund in the export that is missing from the map halts the load.** It does not
-silently contribute zero — silently contributing zero is how a spreadsheet loses
-a renamed event without anyone noticing.
+**A fund in the export that is missing from the map is never silently ignored.**
+Import adds it with a guessed category and names it in the review (below); the
+ledger still refuses to build a report from a fund it cannot classify, as the
+backstop. What it must never do is contribute zero — silently contributing zero
+is how a spreadsheet loses a renamed event without anyone noticing.
 
 Three funds are deliberate pass-throughs whose revenue and expense should cancel
 over a full cycle: `Member Fees (Passthru)`, `Custom Order (Passthru)`, and the
@@ -116,10 +121,12 @@ classification (editable in the app, defaults in `js/config.js`):
 | `noncash` | Included in Total Assets, deducted from unrestricted net assets — inventory, for example, whose carrying value is a manual judgement maintained in TWH. |
 | `liability` | Shown under Liabilities with the sign inverted — a credit card, for example. |
 
-**An account in the export that is not classified halts the load.** The failure
-this prevents is a spreadsheet row whose hand-typed label no longer matches any
+**An account in the export that is not classified is added on import as `cash`,
+unless its name says otherwise, and listed for confirmation.** The failure being
+prevented is a spreadsheet row whose hand-typed label no longer matches any
 account name: it contributes zero regardless of the account's true balance, and
-nothing tells you.
+nothing tells you. A guess is the opposite of that only while it is visible —
+hence the review, and the warning that sits above the reports until it is done.
 
 ### Person accounts and the `_` prefix
 
@@ -220,6 +227,49 @@ Snapshots live in the settings file (below). When one exists for the current
 as-of date, the app compares it against the recomputed figures and reports any
 **drift** — a back-dated correction that landed after publication. Surfacing that
 is the point; a spreadsheet buries it.
+
+## The import review
+
+Every import compares the chart of accounts against what the export actually
+contains, in both directions, and shows the result on the Import tab before the
+reports.
+
+**Names the export has and the settings don't** are added automatically with a
+guessed classification, so a fund added in TroopWebHost last week does not send
+a volunteer to hand-edit a settings file to see any figure at all. The guess:
+
+- The **section** comes from words in the name — fundraising terms
+  (`fundrais…`, `sponsor`, `raffle`, a named product sale) pick Fundraising,
+  bookkeeping terms (`admin…`, `interest`, `charter`, `passthru`) pick Other,
+  and everything else is Program, which is where most troop activity lives.
+- The **side** — revenue or expense — comes from an explicit word in the name if
+  there is one, so a fund called `… Expense` stays an expense in a month when
+  refunds made it net positive. With no such word the sign of the fund's net in
+  the export decides, credit-positive meaning revenue. A word that names a
+  section but not a side (`donation` — received or made?) is left to the sign.
+- **Troop accounts** are `cash` unless the name says `inventory`/`merchandise`
+  (→ `noncash`) or `credit card`/`loan`/`payable` (→ `liability`).
+
+Against the shipped example chart the guess gets 31 of 34 fund categories, and
+the revenue/expense side right on 33 of 34 — the remaining one being a
+pass-through, which is genuinely ambiguous. It is a heuristic and it is presented
+as one: each row shows the fund's net and leg count as evidence, changing a
+dropdown re-files it immediately, and a warning sits above the reports naming
+how many names were guessed.
+
+**Names the settings have and the export doesn't** are the opposite problem —
+last year's chart of accounts accumulating entries nobody removed. They are
+listed (short lists inline, long ones collapsed) with an offer to delete. Nothing
+in the reports refers to them, so removing them moves no figure; if one turns up
+in a later export it comes back, guessed like any other new name. This is offered
+only, never done automatically, and never at all when the load failed — a
+malformed export produces no legs, against which the whole chart would look
+unused.
+
+Correcting a classification does **not** require re-importing. Each event's
+program-or-fundraising kind is the only part of the ledger that depends on the
+chart of accounts, and it is recomputed in place from the legs already in memory
+(`classifyEvents`). The export itself is still never retained.
 
 ## The settings file
 
@@ -351,10 +401,12 @@ Notes that matter for reading the reports:
 
 **Affects the export and therefore the reports:**
 
-- **Fund list.** Every fund must exist in `js/config.js`. Adding a fund in TWH
-  without adding it here halts the load — deliberately.
-- **Troop account list.** Same, for `accountClass`. Classify new accounts as
-  cash / noncash / liability before the next export.
+- **Fund list.** A fund added in TWH arrives in the next export with a guessed
+  category and a row in the import review. Confirm it there; the guess reads the
+  name and the fund's net, and it will sometimes be wrong.
+- **Troop account list.** Same, for `accountClass` — guessed `cash` unless the
+  name says inventory or card. This one is worth checking every time: the
+  difference between `cash` and `liability` is the sign of the balance.
 - **Event names.** Keep the trailing `(MM/DD/YY)`. TWH generates it; don't edit it out.
 - **Pseudo-accounts.** Troop-held funds held as person accounts must keep the
   leading `_`. Without it they are treated as a scout, land in prepaid fees, and
@@ -464,8 +516,8 @@ sw.js                 app-shell service worker
 _config.yml           Pages build: keeps repo-only files unpublished
 CNAME                 custom domain for the published site
 js/csv.js             RFC 4180 parser, MD5
-js/config.js          fund map, account classification, parameters
-js/ledger.js          hashing, canonical leg ledger, validation
+js/config.js          fund map, account classification, parameters, guesses
+js/ledger.js          hashing, canonical leg ledger, validation, import review
 js/reports.js         the three reports
 js/snapshots.js       snapshot round-trip, drift, formatting
 js/render.js          DOM rendering

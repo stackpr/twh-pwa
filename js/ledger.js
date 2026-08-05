@@ -5,6 +5,7 @@
 // the sign at presentation only, in exactly one place (reports.js:sectionSign).
 
 import { md5 } from './csv.js';
+import { guessFundCategory, guessAccountClass } from './config.js';
 
 export const REQUIRED_COLUMNS = [
   'Transaction Type', 'Date', 'Amount',
@@ -58,7 +59,9 @@ export function buildLedger(records, cfg) {
   const missing = REQUIRED_COLUMNS.filter(c => records.length && !(c in records[0]));
   if (missing.length) {
     errors.push(`Export is missing required column(s): ${missing.join(', ')}`);
-    return { errors, warnings, legs: [], txns: [], events: [] };
+    // Same shape as a successful build, so callers never have to test for this
+    // early return. An empty ledger says nothing about the chart of accounts.
+    return { errors, warnings, legs: [], txns: [], events: [], latestTxn: null, unknownFunds: [], unknownAccounts: [] };
   }
 
   const legs = [];   // {i, date, kind, key, amount, event, fund, txnType}
@@ -122,22 +125,87 @@ export function buildLedger(records, cfg) {
     const date = parseEventDate(name);
     if (!date) warnings.push(`Event "${name}" has no trailing (MM/DD/YY) date — it cannot be placed on the timeline and will fall into Other.`);
     const fundLegs = legs.filter(l => l.kind === 'fund' && l.event === name);
-    let program = 0, fundraising = 0;
-    for (const l of fundLegs) {
-      const cat = cfg.fundCategories[l.key] || '';
-      if (cat.startsWith('Program')) program++;
-      else if (cat.startsWith('Fundraising')) fundraising++;
-    }
     return {
       name, date,
-      kind: program >= fundraising ? 'program' : 'fundraising',
+      kind: 'program',   // set by classifyEvents below
       allTimeNet: fundLegs.reduce((s, l) => s + l.amount, 0),
     };
   });
 
   const latestTxn = txns.reduce((m, t) => (!m || t.date > m ? t.date : m), null);
 
-  return { errors, warnings, legs, txns, events, latestTxn };
+  const ledger = {
+    errors, warnings, legs, txns, events, latestTxn,
+    unknownFunds: [...unknownFunds].sort(),
+    unknownAccounts: [...unknownAccounts].sort(),
+  };
+  classifyEvents(ledger, cfg);
+  return ledger;
+}
+
+/**
+ * Decide program vs fundraising for each event, by majority of its fund legs.
+ *
+ * Split out of buildLedger because it is the ONLY part of the ledger that
+ * depends on the chart of accounts. Everything else — legs, amounts, hashed
+ * person keys, dates — is a function of the export alone. That is what lets a
+ * classification be corrected without re-reading the file: the ledger stays,
+ * this runs again. The export itself is never retained, so a change that needed
+ * the raw rows would cost the treasurer another trip to TroopWebHost.
+ */
+export function classifyEvents(ledger, cfg) {
+  for (const e of ledger.events) {
+    let program = 0, fundraising = 0;
+    for (const l of ledger.legs) {
+      if (l.kind !== 'fund' || l.event !== e.name) continue;
+      const cat = cfg.fundCategories[l.key] || '';
+      if (cat.startsWith('Program')) program++;
+      else if (cat.startsWith('Fundraising')) fundraising++;
+    }
+    e.kind = program >= fundraising ? 'program' : 'fundraising';
+  }
+  return ledger;
+}
+
+/**
+ * Compare the chart of accounts against what this export actually contains.
+ *
+ * Two directions, both worth knowing at import time. Names in the export that
+ * the settings do not classify would otherwise halt the load, so each comes with
+ * a guessed classification and the evidence behind it — the fund's net and how
+ * many legs it appears on — for a treasurer to confirm or correct. Names in the
+ * settings with no activity in the export are the opposite problem: last year's
+ * chart accumulating entries nobody removed.
+ *
+ * Only the second direction is destructive, and it is only ever offered, never
+ * applied. An export covering a short period would list most of the chart as
+ * unused; the TroopWebHost export this app expects covers all transactions.
+ */
+export function chartReview(ledger, cfg) {
+  const fundNet = new Map(), fundLegCount = new Map(), accountsSeen = new Set();
+  for (const l of ledger.legs) {
+    if (l.kind === 'fund') {
+      fundNet.set(l.key, (fundNet.get(l.key) || 0) + l.amount);
+      fundLegCount.set(l.key, (fundLegCount.get(l.key) || 0) + 1);
+    } else if (l.kind === 'asset') {
+      accountsSeen.add(l.key);
+    }
+  }
+
+  return {
+    newFunds: ledger.unknownFunds.map(name => ({
+      name,
+      net: fundNet.get(name) || 0,
+      legs: fundLegCount.get(name) || 0,
+      guess: guessFundCategory(name, fundNet.get(name) || 0),
+    })),
+    newAccounts: ledger.unknownAccounts.map(name => ({
+      name,
+      guess: guessAccountClass(name),
+    })),
+    unusedFunds: Object.keys(cfg.fundCategories).filter(n => !fundNet.has(n)).sort(),
+    unusedAccounts: Object.keys(cfg.accountClass).filter(n => !accountsSeen.has(n)).sort(),
+  };
 }
 
 /** min(latest transaction date, today) unless explicitly overridden. */

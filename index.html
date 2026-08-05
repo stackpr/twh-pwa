@@ -64,6 +64,11 @@
       <p id="import-done" class="ok" hidden></p>
     </section>
 
+    <section id="import-review-section" hidden>
+      <h2>Chart of accounts review</h2>
+      <div id="import-review"></div>
+    </section>
+
   </div><!-- /panel-import -->
 
   <div class="panel" id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" tabindex="0" hidden>
@@ -78,6 +83,8 @@
   </section>
 
   <div id="reports" hidden>
+
+    <p id="guess-note" class="warn no-print" hidden></p>
 
     <section class="no-print params">
       <h2>Parameters</h2>
@@ -166,7 +173,7 @@
 
     <section>
       <h2>Configuration</h2>
-      <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; edit below for one-off changes, or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
+      <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; importing an export adds anything missing from it with a guessed classification. Edit below for one-off changes &mdash; the reports recompute as you do &mdash; or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
       <p class="hint">To discard any of this &mdash; the chart of accounts, the snapshots, the offline copy of the app &mdash; see the <button type="button" class="linkish" data-goto="cache">Cache</button> tab.</p>
       <p id="config-note" class="hint"></p>
       <div id="config"></div>
@@ -253,11 +260,17 @@
       <h3>First run, and handover</h3>
       <p class="hint">
         The app ships with an <em>example</em> chart of accounts, which will not match your
-        troop. Adopt your own by editing the settings file &mdash; the
-        <code>accounts:</code> and <code>funds:</code> sections &mdash; and loading it back
-        on the Settings tab. Any fund or account in the export that the settings file does
-        not classify halts the load with a named error rather than quietly leaving money
-        out of a report.
+        troop. You do not have to build yours by hand: import your export and every fund
+        and troop account it contains is added for you, each with a guessed classification
+        that the Import tab then asks you to confirm. Correct anything wrong there &mdash;
+        the reports update as you do &mdash; and download the settings file to keep the
+        result.
+      </p>
+      <p class="hint">
+        The same review lists anything in your settings the export never mentions, which is
+        usually last year's chart of accounts, and offers to remove it. Removing changes no
+        figure. Nothing is ever classified behind your back: while any guess is unconfirmed,
+        a warning sits above the reports.
       </p>
       <p class="hint">
         The settings file plus a fresh export is everything a successor needs. It holds no

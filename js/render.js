@@ -233,6 +233,101 @@ export function renderErrors(errors, mount) {
 
 /* ------------------------------------------------------------------ */
 
+/**
+ * The import review: what this export added to the chart of accounts, and what
+ * the chart holds that the export never mentions.
+ *
+ * The added entries are already in the settings by the time this renders — the
+ * point of the panel is that no guess passes unseen. Each row carries the
+ * evidence the guess was made from, so confirming one is a judgement rather than
+ * an act of faith.
+ */
+export function renderChartReview(review, mount, { onFundChange, onAccountChange, onRemoveUnused, onDone }) {
+  mount.replaceChildren();
+  const added = review.newFunds.length + review.newAccounts.length;
+  const unused = review.unusedFunds.length + review.unusedAccounts.length;
+  if (!added && !unused) { mount.hidden = true; return; }
+  mount.hidden = false;
+
+  if (added) {
+    mount.append(el('p', { class: 'warn' },
+      el('strong', { text: `${plural(added, 'new name')} in this export ${added === 1 ? 'was' : 'were'} not in your settings.` }),
+      document.createTextNode(' Each has been added with the classification guessed below, so the reports could run.'
+        + ' A guess puts money in a section; check them before you publish anything.')));
+
+    if (review.newFunds.length) {
+      const table = el('table', { class: 'cfg' });
+      table.append(el('thead', {}, el('tr', {},
+        th('New fund', 'label'), th('Net in export', 'num'), th('Legs', 'num'), th('Category'))));
+      const body = el('tbody');
+      for (const f of review.newFunds) {
+        const sel = el('select');
+        for (const opt of CATEGORY_NAMES) {
+          sel.append(el('option', { value: opt, text: opt, ...(f.guess === opt ? { selected: '' } : {}) }));
+        }
+        sel.addEventListener('change', () => onFundChange(f.name, sel.value));
+        body.append(el('tr', {},
+          el('th', { class: 'label', scope: 'row', text: f.name }),
+          num(f.net), el('td', { class: 'num', text: fmtInt(f.legs) }), el('td', {}, sel)));
+      }
+      table.append(body);
+      mount.append(el('h3', { text: 'Funds added' }), table);
+    }
+
+    if (review.newAccounts.length) {
+      const table = el('table', { class: 'cfg' });
+      table.append(el('thead', {}, el('tr', {}, th('New troop account', 'label'), th('Classification'))));
+      const body = el('tbody');
+      for (const a of review.newAccounts) {
+        const sel = el('select');
+        for (const opt of ['cash', 'noncash', 'liability']) {
+          sel.append(el('option', { value: opt, text: opt, ...(a.guess === opt ? { selected: '' } : {}) }));
+        }
+        sel.addEventListener('change', () => onAccountChange(a.name, sel.value));
+        body.append(el('tr', {},
+          el('th', { class: 'label', scope: 'row', text: a.name }), el('td', {}, sel)));
+      }
+      table.append(body);
+      mount.append(el('h3', { text: 'Troop accounts added' }), table);
+    }
+  }
+
+  if (unused) {
+    mount.append(el('h3', { text: 'Not used by this export' }));
+    mount.append(el('p', { class: 'hint', text:
+      `Your settings classify ${plural(review.unusedFunds.length, 'fund')} and `
+      + `${plural(review.unusedAccounts.length, 'troop account')} that this export never mentions. `
+      + 'Removing them tidies the chart of accounts and changes no figure — nothing in the '
+      + 'reports refers to them. They come back, with a guessed classification, if they turn '
+      + 'up in a later export.' }));
+    mount.append(nameList('Funds', review.unusedFunds), nameList('Troop accounts', review.unusedAccounts));
+    const remove = el('button', { class: 'danger', type: 'button',
+      text: `Remove ${unused === 1 ? 'it' : `all ${fmtInt(unused)}`} from the settings` });
+    remove.addEventListener('click', onRemoveUnused);
+    mount.append(el('p', { class: 'actions' }, remove));
+  }
+
+  const done = el('button', { type: 'button', text: 'Done — go to the reports' });
+  done.addEventListener('click', onDone);
+  mount.append(el('p', { class: 'actions' }, done));
+}
+
+const plural = (n, word) => `${fmtInt(n)} ${word}${n === 1 ? '' : 's'}`;
+
+/**
+ * A short list is worth reading in place; a long one is a wall the eye skips, so
+ * it collapses. Either way the names are all there — this is the list a
+ * treasurer is deciding to delete from.
+ */
+function nameList(label, names, inlineLimit = 10) {
+  if (!names.length) return null;
+  const items = el('ul', { class: 'namelist' }, names.map(n => el('li', { text: n })));
+  if (names.length <= inlineLimit) {
+    return el('div', {}, el('p', { class: 'hint', text: `${label} (${fmtInt(names.length)}):` }), items);
+  }
+  return el('details', {}, el('summary', { text: `${label}: ${fmtInt(names.length)} — show them` }), items);
+}
+
 export function renderConfig(cfg, mount, onChange) {
   mount.replaceChildren();
 
@@ -264,9 +359,9 @@ export function renderConfig(cfg, mount, onChange) {
 
   mount.append(
     el('h3', { text: 'Troop account classification' }),
-    el('p', { class: 'hint', text: 'Cash and non-cash accounts both count toward Total Assets; non-cash is additionally deducted from Unrestricted Net Assets, since it cannot be spent. Liability is displayed under Liabilities with the sign inverted. An account in the export that is missing here halts the load.' }),
+    el('p', { class: 'hint', text: 'Cash and non-cash accounts both count toward Total Assets; non-cash is additionally deducted from Unrestricted Net Assets, since it cannot be spent. Liability is displayed under Liabilities with the sign inverted. An account in the export that is missing here is added on import with a guessed classification, and listed for confirmation on the Import tab.' }),
     accounts,
     el('h3', { text: 'Fund categories' }),
-    el('p', { class: 'hint', text: 'Drives both the income-statement section and whether an event counts as program or fundraising activity. A fund in the export that is missing here halts the load. To adopt a different chart of accounts wholesale, load a settings file.' }),
+    el('p', { class: 'hint', text: 'Drives both the income-statement section and whether an event counts as program or fundraising activity. A fund in the export that is missing here is added on import with a category guessed from its name and its net, and listed for confirmation on the Import tab. To adopt a different chart of accounts wholesale, load a settings file.' }),
     funds);
 }

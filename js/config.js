@@ -109,9 +109,14 @@ export function loadConfig() {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return structuredClone(DEFAULTS);
     const saved = JSON.parse(raw);
+    // A saved chart of accounts is authoritative, not a patch over the shipped
+    // example. Merging the example back in would undo a removal — the entry
+    // reappears on the next visit — and would leave a troop that adopted their
+    // own chart carrying example funds they never had. Parameters do merge:
+    // those are named settings, and a release that adds one needs its default.
     return {
-      fundCategories: { ...FUND_CATEGORIES, ...(saved.fundCategories || {}) },
-      accountClass:   { ...DEFAULT_ACCOUNT_CLASS, ...(saved.accountClass || {}) },
+      fundCategories: saved.fundCategories ? { ...saved.fundCategories } : structuredClone(FUND_CATEGORIES),
+      accountClass:   saved.accountClass   ? { ...saved.accountClass }   : structuredClone(DEFAULT_ACCOUNT_CLASS),
       params:         { ...DEFAULT_PARAMS, ...(saved.params || {}) },
     };
   } catch {
@@ -129,3 +134,62 @@ export function clearConfig() {
 
 /** Values a settings file is allowed to set. See js/settings.js. */
 export const ACCOUNT_CLASSES = ['cash', 'noncash', 'liability'];
+
+/* ------------------------------------------------------------------ */
+/* Guessing a classification for a name the settings have never seen.  */
+/*                                                                     */
+/* Used at import: a fund or account that appears in the export but not */
+/* in the chart of accounts is added with the guess below, so a new     */
+/* fund costs a treasurer a glance rather than a hand-edited settings   */
+/* file. A guess is a starting point and is presented as one — the      */
+/* import review names every guessed entry and asks for confirmation.   */
+/* Nothing here may be used to classify silently.                       */
+/* ------------------------------------------------------------------ */
+
+// Word lists, not troop lists. Every term is generic to Scouting or to
+// bookkeeping; none of them identifies a unit. TroopWebHost fund names are
+// free text, so these will miss — that is why the guess is reviewed.
+const EXPENSE_WORDS = /\b(expense|expenses|cost|costs|purchase|purchases|paid|payable|reimburse\w*|refund\w*)\b/i;
+// "Donation" is deliberately absent here. It says which section a fund belongs
+// to, not which side of it: a donation received and a donation made by the troop
+// share the word and point opposite ways. Words like it are left to the sign,
+// which knows. A wrong section is a tidiness problem; a wrong side prints
+// revenue as a negative number.
+const REVENUE_WORDS = /\b(revenue|revenues|income|proceeds|sales|sale|dues|fee|fees|deposit|deposits|collected|received)\b/i;
+const FUNDRAISING_WORDS = /\b(fundrais\w*|donation|donations|sponsor\w*|popcorn|wreath\w*|product sale|concession\w*|raffle|auction|car wash|bake sale|camp ?card|coupon|scouting for food)\b/i;
+const OTHER_WORDS = /\b(admin\w*|interest|dividend|dividends|bank|service charge|insurance|charter|recharter|adult training|passthru|pass-through|scholarship)\b/i;
+
+/**
+ * Guess a fund's category from its name and its net in the export.
+ *
+ * The name decides the section (program / fundraising / other). For the
+ * revenue-or-expense half, an explicit word in the name wins — a fund called
+ * "… Expense" is an expense even in a month when refunds made it net positive.
+ * With no such word the sign decides, credit-positive meaning revenue, which is
+ * the strongest evidence available and better than any default.
+ */
+export function guessFundCategory(name, net = 0) {
+  const n = String(name || '');
+  const isExpense = EXPENSE_WORDS.test(n) ? true
+    : REVENUE_WORDS.test(n) ? false
+    : net < 0;
+
+  if (OTHER_WORDS.test(n)) return isExpense ? 'Other Expenses' : 'Other Income';
+  if (FUNDRAISING_WORDS.test(n)) return isExpense ? 'Fundraising Expenses' : 'Fundraising Revenue';
+  return isExpense ? 'Program Expenses' : 'Program Revenue';
+}
+
+/**
+ * Guess a troop account's balance-sheet class from its name.
+ *
+ * Defaults to `cash`, because most troop accounts are bank accounts. The two
+ * exceptions are recognisable by name and expensive to get wrong: inventory
+ * counts toward assets but cannot be spent, and a card balance is a liability
+ * shown with the sign inverted.
+ */
+export function guessAccountClass(name) {
+  const n = String(name || '');
+  if (/\b(credit card|charge card|line of credit|loan|payable|liabilit\w*)\b/i.test(n)) return 'liability';
+  if (/\b(inventory|merchandise|stock on hand)\b/i.test(n)) return 'noncash';
+  return 'cash';
+}
