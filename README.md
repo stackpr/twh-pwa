@@ -33,6 +33,13 @@ from a checkout of this repo, load `test/fixtures/sample-settings.yaml` with
 `test/fixtures/sample-export.csv` to see every report with no setup at all —
 both are synthetic.
 
+**The tabs.** **Import** takes the transaction export and is the only place a file
+is dropped; it switches to **Reports** once the file loads, and reports live there
+only while an export is loaded. **Settings** is the settings file and the chart of
+accounts. **Cache** is everything the browser is holding, and how to clear it.
+**Help** is the monthly routine and the reasoning behind the reports, written for
+the volunteer inheriting this. Switching tabs never changes the address bar.
+
 **Install.** On Chrome/Edge/Android an *Install for offline use* button appears
 once the browser decides the app is installable. On iOS, use Share → Add to Home
 Screen; Safari never fires the install event.
@@ -40,7 +47,8 @@ Screen; Safari never fires the install event.
 ## Monthly runbook
 
 1. TroopWebHost → **Export All Transactions to Excel** (it emits CSV despite the name).
-2. Open the app, drop the file on the target on the **Reports** tab.
+2. Open the app, drop the file on the target on the **Import** tab. It switches to
+   **Reports** once the file loads.
 3. Read the **Reconciliation** panel. Account count, fund count and transaction-type
    count should match last month. A jump in *single-leg entries* means someone
    posted something unusual.
@@ -431,19 +439,26 @@ that is the finding — do not loosen a tolerance to get a green run.
   snapshot totals only. The service worker caches the app shell only — enforced
   structurally, since the CSV never becomes a `Request`.
 - **No URL state, no share links.** Nothing to leak through history or referrers.
-  The **Reports** / **Settings** tabs show and hide panels in place; they add no
-  hash, no query string, and no history entry.
+  The tabs show and hide panels in place; they add no hash, no query string, and
+  no history entry.
+- **One place to clear it all.** The **Cache** tab explains what is held in the
+  browser and clears configuration, snapshots and the offline shell in one press
+  — the thing to do on a shared computer.
 - **Print is an allow-list.** A new report section is hidden until named in the
   `@media print` rules, so a schema change can't start printing unreviewed columns.
 - Names hashed at parse; originals discarded immediately.
 
-**Purge offline cache** in the app clears the shell cache and unregisters the
-service worker. **Clear cached settings** resets config while keeping snapshots.
+All of that is on the **Cache** tab. **Clear everything in this browser** does the
+lot — configuration, snapshots, and the offline shell — and the granular buttons
+below it are still there: **Purge offline app cache** clears the shell cache and
+unregisters the service worker, **Reset settings to shipped defaults** resets
+config while keeping snapshots, **Clear snapshots** drops the published figures.
+Nothing on that tab can be undone, and the settings file is the only backup.
 
 ## Layout
 
 ```
-index.html            markup and controls (Reports / Settings tab panels)
+index.html            markup and controls (Import/Reports/Settings/Cache/Help panels)
 app.css               screen + print styles (one report per sheet)
 manifest.webmanifest  PWA manifest
 sw.js                 app-shell service worker

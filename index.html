@@ -29,22 +29,52 @@
   <!-- Tabs are a view switch, not navigation: pressing one changes nothing in
        the address bar and adds no history entry. See the note in js/main.js. -->
   <div class="tablist no-print" role="tablist" aria-label="Sections">
+    <button type="button" class="tab" role="tab" id="tab-import"
+            data-tab="import" aria-controls="panel-import" aria-selected="true">Import</button>
     <button type="button" class="tab" role="tab" id="tab-reports"
-            data-tab="reports" aria-controls="panel-reports" aria-selected="true">Reports</button>
+            data-tab="reports" aria-controls="panel-reports" aria-selected="false" tabindex="-1">Reports</button>
     <button type="button" class="tab" role="tab" id="tab-settings"
             data-tab="settings" aria-controls="panel-settings" aria-selected="false" tabindex="-1">Settings</button>
+    <button type="button" class="tab" role="tab" id="tab-cache"
+            data-tab="cache" aria-controls="panel-cache" aria-selected="false" tabindex="-1">Cache</button>
+    <button type="button" class="tab" role="tab" id="tab-help"
+            data-tab="help" aria-controls="panel-help" aria-selected="false" tabindex="-1">Help</button>
   </div>
 
-  <div class="panel" id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" tabindex="0">
+  <!-- The export is dropped here and nowhere else. The drop target is not
+       repeated on the Reports tab: two file inputs for one file is how a
+       treasurer ends up wondering which one the figures came from. -->
+  <div class="panel no-print" id="panel-import" role="tabpanel" aria-labelledby="tab-import" tabindex="0">
 
-  <section class="no-print">
-    <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose or drop the TroopWebHost CSV export">
-      <strong>Drop the CSV export here</strong>
-      <span class="hint">or press to choose a file &mdash; <code>Export_All_Transactions_to_Excel_*.CSV</code></span>
-      <span id="filename" class="filename"></span>
-    </div>
-    <input type="file" id="file" accept=".csv,text/csv" hidden>
-    <div id="errors" class="errors" hidden></div>
+    <section>
+      <h2>Transaction export</h2>
+      <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose or drop the TroopWebHost CSV export">
+        <strong>Drop the CSV export here</strong>
+        <span class="hint">or press to choose a file &mdash; <code>Export_All_Transactions_to_Excel_*.CSV</code></span>
+        <span id="filename" class="filename"></span>
+      </div>
+      <input type="file" id="file" accept=".csv,text/csv" hidden>
+      <div id="errors" class="errors" hidden></div>
+      <p class="hint">
+        TroopWebHost &rarr; <strong>Export All Transactions to Excel</strong>; it emits CSV
+        despite the name. The file is read in this browser and never uploaded, never
+        written to storage, and never kept between visits &mdash; so it is dropped again
+        each time you open the app.
+      </p>
+      <p id="import-done" class="ok" hidden></p>
+    </section>
+
+  </div><!-- /panel-import -->
+
+  <div class="panel" id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" tabindex="0" hidden>
+
+  <section class="no-print" id="reports-empty">
+    <h2>Reports</h2>
+    <p class="hint">
+      No transaction export is loaded. The reports are computed from the export
+      each time, so this is the first step every month.
+    </p>
+    <p class="actions"><button type="button" data-goto="import">Go to the Import tab</button></p>
   </section>
 
   <div id="reports" hidden>
@@ -131,7 +161,6 @@
         <button id="settings-export">Download settings file (.yaml)</button>
         <button id="settings-export-txt">Download as .txt</button>
         <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".yaml,.yml,.txt,text/yaml,application/yaml,text/plain" hidden></label>
-        <button id="snap-clear" class="danger">Clear snapshots</button>
       </p>
       <p class="hint">
         Both downloads hold identical YAML; only the extension differs. Use <code>.txt</code>
@@ -143,15 +172,148 @@
     <section>
       <h2>Configuration</h2>
       <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; edit below for one-off changes, or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
-      <p class="actions">
-        <button id="cfg-reset" class="danger">Reset to shipped defaults</button>
-        <button id="app-reset" class="danger">Purge offline cache</button>
-      </p>
+      <p class="hint">To discard any of this &mdash; the chart of accounts, the snapshots, the offline copy of the app &mdash; see the <button type="button" class="linkish" data-goto="cache">Cache</button> tab.</p>
       <p id="config-note" class="hint"></p>
       <div id="config"></div>
     </section>
 
   </div><!-- /panel-settings -->
+
+  <div class="panel no-print" id="panel-cache" role="tabpanel" aria-labelledby="tab-cache" tabindex="0" hidden>
+
+    <section>
+      <h2>Clear cache</h2>
+      <p class="hint">
+        Everything this app remembers &mdash; the troop name, the report parameters, the
+        chart of accounts, the balance-sheet snapshots, and the offline copy of the app
+        itself &mdash; is stored in this browser, on this computer. Nothing is held on a
+        server, so nothing here can be recovered once cleared.
+      </p>
+      <p class="warn">
+        <strong>On a shared or borrowed computer, clear it before you walk away.</strong>
+        The next person to open this browser would otherwise see your troop name,
+        chart of accounts, and published balance-sheet totals.
+      </p>
+      <p class="warn">
+        Download the settings file from the Settings tab first if you want to keep the
+        chart of accounts and the snapshots. That file is the only copy.
+      </p>
+      <p class="actions">
+        <button id="clear-all" class="danger">Clear everything in this browser</button>
+      </p>
+
+      <h3>Or clear one thing at a time</h3>
+      <p class="actions">
+        <button id="snap-clear" class="danger">Clear snapshots</button>
+        <button id="cfg-reset" class="danger">Reset settings to shipped defaults</button>
+        <button id="app-reset" class="danger">Purge offline app cache</button>
+      </p>
+      <p class="hint">
+        <em>Clear snapshots</em> drops the published balance-sheet figures.
+        <em>Reset settings</em> restores the example chart of accounts and the default
+        parameters, keeping snapshots. <em>Purge offline app cache</em> removes the
+        installed copy of the app and unregisters its service worker, keeping settings
+        and snapshots; use it if a deployment looks stale.
+      </p>
+      <p class="hint">
+        Transaction data is not on this list because it is never stored. The export is
+        read into memory, and scout names are hashed and the originals discarded before
+        anything else sees them. Closing the page ends it.
+      </p>
+    </section>
+
+  </div><!-- /panel-cache -->
+
+  <div class="panel no-print" id="panel-help" role="tabpanel" aria-labelledby="tab-help" tabindex="0" hidden>
+
+    <section>
+      <h2>What this does</h2>
+      <p class="hint">
+        It reads a TroopWebHost transaction export and produces three printable reports
+        &mdash; a Balance Sheet, an Event Income statement, and a Monthly Income statement
+        &mdash; without pivot tables or hand-maintained formulas. Every figure is a sum
+        over the same set of transaction legs, so the reports cannot disagree with each
+        other.
+      </p>
+
+      <h3>Monthly routine</h3>
+      <ol class="help-steps">
+        <li>In TroopWebHost, run <strong>Export All Transactions to Excel</strong>. It
+            produces a CSV despite the name.</li>
+        <li>On the <button type="button" class="linkish" data-goto="import">Import</button>
+            tab, drop the file on the target.</li>
+        <li>On the <button type="button" class="linkish" data-goto="reports">Reports</button>
+            tab, read the <strong>Reconciliation</strong> panel first. The account, fund
+            and transaction-type counts should match last month; a jump in single-leg
+            entries means something unusual was posted.</li>
+        <li>Set <strong>Past events shown</strong> so the Event Income statement fits one
+            page. It is a page-fit control only &mdash; the totals never change with it.</li>
+        <li>Print each report and save as PDF.</li>
+        <li>Press <strong>Capture snapshot at this date</strong>, then download the
+            settings file from the
+            <button type="button" class="linkish" data-goto="settings">Settings</button>
+            tab and keep it with the PDFs.</li>
+      </ol>
+
+      <h3>First run, and handover</h3>
+      <p class="hint">
+        The app ships with an <em>example</em> chart of accounts, which will not match your
+        troop. Adopt your own by editing the settings file &mdash; the
+        <code>accounts:</code> and <code>funds:</code> sections &mdash; and loading it back
+        on the Settings tab. Any fund or account in the export that the settings file does
+        not classify halts the load with a named error rather than quietly leaving money
+        out of a report.
+      </p>
+      <p class="hint">
+        The settings file plus a fresh export is everything a successor needs. It holds no
+        scout names, no individual balances, and no transactions, so it is safe to email; a
+        transaction export never is.
+      </p>
+
+      <h3>Why some things look the way they do</h3>
+      <p class="hint">
+        <strong>The balance sheet is not filtered by the as-of date.</strong> Event fees are
+        dated to the event, so a fee for a future event has already moved a scout's balance.
+        Filtering it out would understate what the troop owes. The deferred position appears
+        instead on the <em>Other Future Events (Net)</em> line.
+      </p>
+      <p class="hint">
+        <strong>Only the balance sheet is snapshotted.</strong> The income statements are
+        period reports and are recomputed every time; if a back-dated entry lands, they move,
+        and that is correct. The balance sheet is the one thing published as a point-in-time
+        position, so it is frozen &mdash; and when the recomputed figures differ from a
+        snapshot, the app says so rather than quietly rewriting what was published.
+      </p>
+      <p class="hint">
+        <strong>Reports are computed, never stored.</strong> Reload the page and they are
+        gone until the export is dropped again. That is deliberate: a financial report on
+        disk goes stale, and a stale one gets circulated.
+      </p>
+
+      <h3>Privacy</h3>
+      <p class="hint">
+        The app makes no network requests once loaded: no analytics, no fonts, no
+        third-party scripts. The export is read locally through the browser's file API and
+        never becomes a network request. Scout names are hashed the moment the file is
+        parsed and the originals discarded. Nothing about your troop appears in the web
+        address, so nothing leaks through browser history or a shared link.
+      </p>
+      <p class="hint">
+        Configuration and whole-troop snapshot totals are kept in this browser so you do not
+        re-enter them monthly. On a shared computer, clear them from the
+        <button type="button" class="linkish" data-goto="cache">Cache</button> tab when you
+        are done.
+      </p>
+
+      <h3>Installing</h3>
+      <p class="hint">
+        On Chrome, Edge or Android an <em>Install for offline use</em> button appears at the
+        top once the browser decides the app is installable. On iPhone or iPad, use Share
+        &rarr; Add to Home Screen. Installed, it works with no connection at all.
+      </p>
+    </section>
+
+  </div><!-- /panel-help -->
 
 </main>
 

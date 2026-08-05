@@ -93,11 +93,22 @@ alternative rather than implementing it quietly.
    `reports.js`. Do not introduce a second convention.
 5. **Print is an allow-list.** `@media print` in `app.css` names each printable
    report explicitly. A new section stays hidden until named. Do not invert this.
-6. **Tabs never touch the URL.** The tab strip in `index.html` shows one panel
-   and hides the others, and that is all it does: no hash, no `history.pushState`,
-   no query string, no router. Rule 2 forbids fragment state, and the same
-   reasoning covers a tab name. The active tab is remembered in `sessionStorage`
-   (`troopfin.tab`), which holds a panel name and nothing else.
+6. **Tabs never touch the URL.** The tab strip in `index.html` — Import,
+   Reports, Settings, Cache, Help — shows one panel and hides the others, and
+   that is all it does: no hash, no `history.pushState`, no query string, no
+   router. Rule 2 forbids fragment state, and the same reasoning covers a tab
+   name. The active tab is remembered in `sessionStorage` (`troopfin.tab`),
+   which holds a panel name and nothing else. Cross-references between panels
+   are `[data-goto]` buttons rather than anchors, for the same reason.
+7. **One file input, on the Import tab.** The export is dropped in exactly one
+   place. A second drop target on another panel invites the question of which
+   file the figures came from, which is the question this app exists to remove.
+   Reports render only while an export is loaded; with none, the Reports panel
+   points back at Import instead of offering a duplicate form.
+8. **Destructive actions live on the Cache tab.** Clearing configuration,
+   snapshots or the offline shell is irreversible and the settings file is the
+   only backup, so those buttons stay together with the explanation of what is
+   held in the browser. Do not scatter them back across the other panels.
 
 ## Architecture
 

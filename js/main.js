@@ -33,18 +33,30 @@ async function handleFile(file) {
   loadRecords(records);
 }
 
+/** Reports exist only while an export is loaded; otherwise point at the Import tab. */
+function setReportsShown(on) {
+  $('#reports').hidden = !on;
+  $('#reports-empty').hidden = on;
+}
+
 function loadRecords(records) {
   const ledger = buildLedger(records, state.cfg);
   renderErrors(ledger.errors, $('#errors'));
+  $('#import-done').hidden = true;
   if (ledger.errors.length) {
+    // Errors are rendered on the Import tab, next to the file that caused them.
     state.ledger = null;
-    $('#reports').hidden = true;
+    setReportsShown(false);
     return;
   }
   state.ledger = ledger;
   state.asOf = resolveAsOf(ledger, state.cfg.params);
   $('#asOf').value = isoDate(state.asOf);
-  $('#reports').hidden = false;
+  setReportsShown(true);
+  $('#import-done').textContent =
+    `Loaded ${records.length} transactions. The reports are on the Reports tab.`;
+  $('#import-done').hidden = false;
+  showTab('reports');
   renderReconciliation(reconcile(ledger, state.cfg), ledger, $('#reconciliation'));
   rerender();
 }
@@ -133,9 +145,20 @@ function bindTabs() {
       next.focus();
     });
   });
+  // Cross-references elsewhere in the page ("see the Cache tab") are buttons, not
+  // links, so that following one still leaves the address bar alone.
+  document.querySelectorAll('[data-goto]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showTab(btn.dataset.goto);
+      $(`#tab-${btn.dataset.goto}`)?.focus();
+    });
+  });
+
   let saved = null;
   try { saved = sessionStorage.getItem(TAB_KEY); } catch { /* private mode */ }
-  showTab(saved || 'reports');
+  // Import first: with no export loaded there is nothing else to do, and the
+  // export is not retained between visits.
+  showTab(saved || 'import');
 }
 
 /* ---- controls ---------------------------------------------------- */
@@ -224,15 +247,15 @@ function bind() {
     alert(`Settings loaded: ${counts}.`
       + (warnings.length ? `\n\nNotes:\n${warnings.slice(0, 8).join('\n')}` : '')
       + '\n\nDrop the transaction export to produce the reports.');
-    showTab('reports'); // the export is dropped there, and the reload lands on it
+    showTab('import'); // the export is dropped there, and the reload lands on it
     location.reload();
   });
+  // cache — every destructive action lives on one tab, so a treasurer on a
+  // shared computer has a single place to go before walking away.
   $('#snap-clear').addEventListener('click', () => {
-    if (!confirm('Delete all stored snapshots from this browser? Export the settings file first if you want to keep them.')) return;
+    if (!confirm('Delete all stored snapshots from this browser? Download the settings file first if you want to keep them.')) return;
     state.snapshots = {}; clearSnapshots(); rerender();
   });
-
-  // config
   $('#cfg-reset').addEventListener('click', async () => {
     if (!confirm('Clear cached settings (chart of accounts, parameters)? Snapshots are kept.')) return;
     clearConfig();
@@ -242,6 +265,21 @@ function bind() {
   });
   $('#app-reset').addEventListener('click', async () => {
     if (!confirm('Purge the offline app cache and unregister the service worker? Settings and snapshots are kept.')) return;
+    await purgeAppCache();
+    location.reload();
+  });
+  $('#clear-all').addEventListener('click', async () => {
+    if (!confirm(
+      'Clear everything this app has stored in this browser?\n\n'
+      + '  • troop name and report parameters\n'
+      + '  • the chart of accounts\n'
+      + '  • all balance-sheet snapshots\n'
+      + '  • the offline copy of the app\n\n'
+      + 'None of it is held anywhere else, so it cannot be recovered. Download the '
+      + 'settings file first if you want to keep the chart of accounts and snapshots.')) return;
+    clearSnapshots();
+    clearConfig();
+    try { sessionStorage.removeItem(TAB_KEY); } catch { /* private mode */ }
     await purgeAppCache();
     location.reload();
   });
