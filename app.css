@@ -60,16 +60,21 @@ button.danger { color: var(--err); }
    the hidden attribute, so keep that winning over any display rule below. */
 [hidden] { display: none !important; }
 
+/* All five tabs stay on one row, down to the narrowest phone. A wrapped tab
+   strip reads as two rows of unrelated buttons, and the second row is where the
+   Help tab was landing. Hence nowrap plus padding that gives way before the
+   labels do. */
 .tablist {
-  display: flex; gap: .25rem; flex-wrap: wrap;
+  display: flex; gap: .15rem; flex-wrap: nowrap;
   margin: 1.5rem 0 0; border-bottom: 1px solid var(--line);
 }
 .tab {
   border: 1px solid transparent; border-bottom: none;
   border-radius: 6px 6px 0 0;
   background: none; color: var(--muted);
-  padding: .5rem 1rem; margin-bottom: -1px;
-  font-weight: 600;
+  padding: .5rem clamp(.4rem, 2.2vw, 1rem); margin-bottom: -1px;
+  font-weight: 600; white-space: nowrap;
+  flex: 0 1 auto; min-width: 0;
 }
 .tab:hover { color: var(--ink); border-color: var(--line); background: var(--panel); }
 .tab[aria-selected="true"] {
@@ -87,6 +92,13 @@ button.danger { color: var(--err); }
   font: inherit; color: var(--accent); text-decoration: underline;
 }
 .linkish:hover { border: none; color: var(--ink); }
+
+/* Phones: the page gutter and the tab labels both give a little, so the strip
+   still fits five tabs at 320px — narrower than any phone in use. */
+@media (max-width: 560px) {
+  main { padding-inline: .75rem; }
+  .tab { font-size: clamp(.72rem, 3.3vw, .82rem); letter-spacing: -.01em; }
+}
 
 .help-steps { margin: .4rem 0 1rem; padding-left: 1.2rem; color: var(--muted); font-size: .82rem; }
 .help-steps li { margin: .3rem 0; }
