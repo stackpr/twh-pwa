@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION on every deployment.
  */
 
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const CACHE_NAME = `troopfin-shell-${CACHE_VERSION}`;
 
 const SHELL = [
@@ -92,4 +92,9 @@ self.addEventListener('fetch', event => {
 
 self.addEventListener('message', event => {
   if (event.data === 'skip-waiting') self.skipWaiting();
+  // The page asks which shell it is actually being served. Answering from here
+  // rather than from a constant in the page is the point: after a deployment the
+  // page can be new while the worker serving it is still the old one, and that
+  // gap is exactly what the version in the header is for.
+  if (event.data === 'version' && event.ports[0]) event.ports[0].postMessage(CACHE_VERSION);
 });

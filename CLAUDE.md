@@ -231,6 +231,12 @@ every exclusion. Adding a repo-only file means adding it to `_config.yml`.
 tests and the emit tools import them; browsers never fetch it, and it is
 excluded from the published site.
 
+`CACHE_VERSION` is shown in the page header ("shell v9"), asked of the running
+service worker over a message channel rather than duplicated in the page — so it
+reports the shell actually serving the page, which after a deployment may still
+be the old one. Keep that the single source; do not add a version constant to
+the page.
+
 **Bump `CACHE_VERSION` in `sw.js` on every deployment**, or installed clients
 keep serving the old shell. Adding or renaming a shell file means updating the
 `SHELL` array in `sw.js` too.

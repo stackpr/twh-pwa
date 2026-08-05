@@ -35,6 +35,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem 4rem; }
 .tagline { margin: 0; color: #c8d8d0; font-size: .9rem; }
 .install-row { margin: .9rem 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
 .app-head .hint { color: #b7cbc2; }
+.version { font-family: var(--mono); font-size: .78rem; opacity: .85; }
 
 section { margin: 2rem 0; }
 h2 { font-size: 1.05rem; margin: 0 0 .6rem; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); }

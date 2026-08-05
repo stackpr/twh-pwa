@@ -401,7 +401,7 @@ function bind() {
     location.reload();
   });
 
-  initInstall({ button: $('#install'), status: $('#install-status') });
+  initInstall({ button: $('#install'), status: $('#install-status'), version: $('#app-version') });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

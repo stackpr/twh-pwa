@@ -11,8 +11,12 @@
 
 let deferredPrompt = null;
 
-export function initInstall({ button, status }) {
+export function initInstall({ button, status, version }) {
   const setStatus = msg => { if (status) status.textContent = msg; };
+  showShellVersion(version);
+  // On a first visit no worker controls the page yet; one claims it moments
+  // later, and the label should follow rather than wait for a reload.
+  navigator.serviceWorker?.addEventListener('controllerchange', () => showShellVersion(version));
 
   // --- install prompt ---
   window.addEventListener('beforeinstallprompt', e => {
@@ -50,6 +54,29 @@ export function initInstall({ button, status }) {
   }
 
   registerSW(setStatus);
+}
+
+/**
+ * Show which app shell is serving this page: the service worker's own cache
+ * version, asked for over a message channel rather than duplicated in the page.
+ * With no worker in control there is no cached shell — everything came from the
+ * network this second — and it says so.
+ */
+async function showShellVersion(node) {
+  if (!node) return;
+  const sw = navigator.serviceWorker;
+  if (!sw || !sw.controller) { node.textContent = 'not installed'; return; }
+  try {
+    const version = await new Promise((resolve, reject) => {
+      const ch = new MessageChannel();
+      ch.port1.onmessage = e => resolve(e.data);
+      setTimeout(() => reject(new Error('timeout')), 2000);
+      sw.controller.postMessage('version', [ch.port2]);
+    });
+    node.textContent = `shell ${version}`;
+  } catch {
+    node.textContent = 'shell version unavailable';
+  }
 }
 
 function isIOS() {
