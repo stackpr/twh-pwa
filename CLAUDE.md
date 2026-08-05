@@ -231,7 +231,7 @@ every exclusion. Adding a repo-only file means adding it to `_config.yml`.
 tests and the emit tools import them; browsers never fetch it, and it is
 excluded from the published site.
 
-`CACHE_VERSION` is shown in the page header ("shell v9"), asked of the running
+`CACHE_VERSION` is shown in the page header ("v9"), asked of the running
 service worker over a message channel rather than duplicated in the page — so it
 reports the shell actually serving the page, which after a deployment may still
 be the old one. Keep that the single source; do not add a version constant to

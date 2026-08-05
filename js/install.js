@@ -73,9 +73,9 @@ async function showShellVersion(node) {
       setTimeout(() => reject(new Error('timeout')), 2000);
       sw.controller.postMessage('version', [ch.port2]);
     });
-    node.textContent = `shell ${version}`;
+    node.textContent = version;
   } catch {
-    node.textContent = 'shell version unavailable';
+    node.textContent = 'version unavailable';
   }
 }
 
