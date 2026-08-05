@@ -151,21 +151,16 @@
     <section>
       <h2>Settings file</h2>
       <p class="hint">
-        One YAML file holding the troop name, report parameters, the chart of
-        accounts, and the balance-sheet snapshots. Open it in any plain text editor
-        &mdash; Notepad, TextEdit, Notepad++ &mdash; to edit.
+        One plain text file &mdash; <code>troop-settings.txt</code> &mdash; holding the
+        troop name, report parameters, the chart of accounts, and the balance-sheet
+        snapshots. Open it in Notepad, TextEdit or any other text editor to change it,
+        then load it back here.
         It contains no scout names and no transactions, so it is safe to hand to a successor
         &mdash; this file plus a fresh TroopWebHost export is everything they need.
       </p>
       <p class="actions">
-        <button id="settings-export">Download settings file (.yaml)</button>
-        <button id="settings-export-txt">Download as .txt</button>
-        <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".yaml,.yml,.txt,text/yaml,application/yaml,text/plain" hidden></label>
-      </p>
-      <p class="hint">
-        Both downloads hold identical YAML; only the extension differs. Use <code>.txt</code>
-        if double-clicking a <code>.yaml</code> file on your computer opens nothing useful.
-        Either extension loads back in.
+        <button id="settings-export">Download settings file</button>
+        <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".txt,text/plain" hidden></label>
       </p>
     </section>
 

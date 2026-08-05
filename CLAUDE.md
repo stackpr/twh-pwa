@@ -105,7 +105,12 @@ alternative rather than implementing it quietly.
    file the figures came from, which is the question this app exists to remove.
    Reports render only while an export is loaded; with none, the Reports panel
    points back at Import instead of offering a duplicate form.
-8. **Destructive actions live on the Cache tab.** Clearing configuration,
+8. **The settings file is `.txt`, and the interface never says "YAML".** One
+   extension, chosen because `.txt` opens in Notepad on any Windows machine. The
+   format is an implementation detail of `yaml.js`; the treasurer edits a
+   settings file in a text editor. Do not add a second extension, a format
+   picker, or the word YAML to the UI copy or the Help tab.
+9. **Destructive actions live on the Cache tab.** Clearing configuration,
    snapshots or the offline shell is irreversible and the settings file is the
    only backup, so those buttons stay together with the explanation of what is
    held in the browser. Do not scatter them back across the other panels.
@@ -165,12 +170,12 @@ Load-bearing assertions: `Other + all columns == Total` on Event Income, totals
 independent of `pastEventsShown`, Total Assets unaffected by the as-of date, the
 settings-file round-trip, and the two generated-file freshness checks.
 
-`defaults.yaml` and `test/fixtures/sample-settings.yaml` are generated. Never edit
+`defaults.txt` and `test/fixtures/sample-settings.txt` are generated. Never edit
 them by hand — change the source and rerun:
 
 ```
-node tools/emit-defaults.mjs        > defaults.yaml
-node tools/emit-sample-settings.mjs > test/fixtures/sample-settings.yaml
+node tools/emit-defaults.mjs        > defaults.txt
+node tools/emit-sample-settings.mjs > test/fixtures/sample-settings.txt
 ```
 
 ## Deployment
@@ -184,7 +189,7 @@ Because the branch is the live site, a push *is* a deployment. Before pushing:
 
 - run `node test/reconcile.test.mjs` and see it green,
 - bump `CACHE_VERSION` in `sw.js`,
-- regenerate `defaults.yaml` and `test/fixtures/sample-settings.yaml` if
+- regenerate `defaults.txt` and `test/fixtures/sample-settings.txt` if
   anything they derive from moved.
 
 If a push to `gh-pages` is rejected — branch protection, or a permission the

@@ -242,11 +242,11 @@ console.log('\n== GENERATED FILES ARE CURRENT ==');
     const fresh = execFileSync(process.execPath, [path.join(here, '..', tool)], { encoding: 'utf8' });
     ok(`${label} matches ${tool}`, onDisk === fresh);
   };
-  check('defaults.yaml', 'defaults.yaml', 'tools/emit-defaults.mjs');
-  if (isFixture) check('sample-settings.yaml', 'test/fixtures/sample-settings.yaml', 'tools/emit-sample-settings.mjs');
+  check('defaults.txt', 'defaults.txt', 'tools/emit-defaults.mjs');
+  if (isFixture) check('sample-settings.txt', 'test/fixtures/sample-settings.txt', 'tools/emit-sample-settings.mjs');
 
   // The shipped pair must actually work together.
-  const sample = settingsFromText(fs.readFileSync(path.join(here, 'fixtures', 'sample-settings.yaml'), 'utf8'));
+  const sample = settingsFromText(fs.readFileSync(path.join(here, 'fixtures', 'sample-settings.txt'), 'utf8'));
   ok('sample settings file loads cleanly', sample.errors.length === 0);
   if (isFixture) {
     const ledger = buildLedger(records, sample.config);

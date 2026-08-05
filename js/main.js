@@ -8,7 +8,7 @@ import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
   driftReport, isoDate, fmtMoney, download,
 } from './snapshots.js';
-import { settingsToText, settingsFromText, SETTINGS_FORMATS } from './settings.js';
+import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
   renderBalanceSheet, renderEventIncome, renderMonthlyIncome,
   renderReconciliation, renderErrors, renderConfig,
@@ -220,14 +220,10 @@ function bind() {
     rerender();
   });
 
-  // settings file — one document carrying config and snapshots together.
-  // Identical YAML under either extension; only the filename differs.
-  const exportSettings = fmt => () => {
-    const { filename, mime } = SETTINGS_FORMATS[fmt];
-    download(filename, settingsToText(state.cfg, state.snapshots), mime);
-  };
-  $('#settings-export').addEventListener('click', exportSettings('yaml'));
-  $('#settings-export-txt').addEventListener('click', exportSettings('txt'));
+  // settings file — one document carrying config and snapshots together
+  $('#settings-export').addEventListener('click', () => {
+    download(SETTINGS_FILENAME, settingsToText(state.cfg, state.snapshots), 'text/plain');
+  });
   $('#settings-import').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
     e.target.value = '';
