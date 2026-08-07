@@ -231,6 +231,44 @@ as-of date, the app compares it against the recomputed figures and reports any
 **drift** — a back-dated correction that landed after publication. Surfacing that
 is the point; a spreadsheet buries it.
 
+## Fiscal year and budget
+
+**Fiscal year.** `fiscalYearStart` is the month a troop's year begins, 1–12, and
+is unset by default. Setting it changes the monthly income statement from a
+rolling `monthsShown` window to **the fiscal year to date** — the months from the
+start of the fiscal year containing the as-of date, through the as-of month. That
+is what makes the Total column comparable to an annual budget; comparing a budget
+against a rolling twelve months would be quietly wrong. A fiscal year is
+identified everywhere by the calendar year it *starts* in, so the year running
+September 2024 to August 2025 is `2024`, and prints as `FY 2024–25`.
+
+**Budget.** A budget is this app's own: TroopWebHost has no concept of one, so
+the settings file is the only copy there is. Budgets are entered on the Settings
+tab or written into the settings file directly, keyed by fiscal year:
+
+```yaml
+budgets:
+  "2023":
+    Program Expenses: 26000.00     # a whole category
+    Food Expense: 1500.00          # one fund inside it
+```
+
+Each line is **either a fund or one of the six category names**. Use whichever
+suits: budget every fund, budget the category as a lump, or mix the two — a
+category figure covers whatever in that category was not budgeted by fund, so a
+section's budget is `category figure + the fund figures inside it`. Enter every
+figure as a positive number, the way it prints on the statement: revenue as
+revenue, spending as spending.
+
+The statement then carries two more columns, **Budget** and **Remaining**
+(`budget − fiscal year to date`), which appear together or not at all — a
+remaining figure with nothing to remain from is noise. Rows with no budget are
+left **blank rather than zero**: zero is a decision to spend nothing, and a blank
+is the absence of one. A budgeted fund with no activity yet still gets a row, or
+its budget would be invisible. A net-income line budgeted on one side only —
+revenue budgeted, expenses not — is marked `†` and says so in the notes, rather
+than treating the missing half as zero.
+
 ## The import review
 
 Every import compares the chart of accounts against what the export actually
@@ -297,6 +335,7 @@ parameters:
   activitySince: 2023-09-01
   pastEventsShown: 8
   monthsShown: 12
+  fiscalYearStart: 9
   asOf: null
   legacyMode: false
   legacyDeductedAccounts: []
@@ -310,6 +349,11 @@ accounts:
 funds:
   Registration Revenue: Program Revenue
   Camping (Weekend) Expense: Program Expenses
+
+budgets:
+  "2023":
+    Program Revenue: 32000.00
+    Program Expenses: 26000.00
 
 snapshots:
   2024-08-03:

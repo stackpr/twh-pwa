@@ -26,13 +26,28 @@ const params = {
   troopName: 'Example Troop',
   activitySince: '2023-09-01',
   asOf: '2024-08-03',
+  // The synthetic year runs Sep 2023 - Aug 2024, so the sample shows the
+  // fiscal-year statement and the budget columns without any setting up.
+  fiscalYearStart: 9,
   legacyDeductedAccounts: [
     '_UNIT, Campership (Main)',
     '_UNIT, High Adventure (Main)',
     '_CREW, Venture Crew (Main)',
   ],
 };
-const base = { fundCategories: FUND_CATEGORIES, accountClass: DEFAULT_ACCOUNT_CLASS, params };
+// Invented round figures, budgeted by category to show the coarser of the two
+// ways in: enough for the Budget and Remaining columns to appear.
+const budgets = {
+  2023: {
+    'Program Revenue': 32000,
+    'Program Expenses': 26000,
+    'Fundraising Revenue': 30000,
+    'Fundraising Expenses': 22000,
+    'Other Expenses': 1500,
+  },
+};
+
+const base = { fundCategories: FUND_CATEGORIES, accountClass: DEFAULT_ACCOUNT_CLASS, params, budgets };
 
 const snapshots = {};
 for (const d of ['2024-03-01', '2024-06-01', '2024-08-03']) {

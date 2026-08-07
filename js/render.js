@@ -1,7 +1,7 @@
 // render.js — DOM rendering. Produces the printable tables.
 
 import { fmtMoney, fmtInt, fmtDate } from './snapshots.js';
-import { CATEGORY_NAMES } from './config.js';
+import { CATEGORY_NAMES, fiscalYearLabel } from './config.js';
 
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -154,26 +154,49 @@ function futureSum(r, ei) {
 
 export function renderMonthlyIncome(mi, mount, troopName = '') {
   mount.replaceChildren();
-  mount.append(rptHead('Income Statement \u2014 Monthly', fmtDate(mi.asOf), troopName));
+  const period = mi.fiscalYear === null
+    ? fmtDate(mi.asOf)
+    : `${mi.fiscalYearLabel} to date \u2014 ${mi.months[0].label} to ${mi.months.at(-1).label}, as of ${fmtDate(mi.asOf)}`;
+  mount.append(rptHead('Income Statement \u2014 Monthly', period, troopName));
 
+  // Budget and Remaining appear together or not at all: a remaining figure with
+  // nothing to remain from is noise, and a budget with no arithmetic done on it
+  // is a number the reader has to check by hand.
+  const cols = mi.months.length + 2 + (mi.hasBudget ? 2 : 0);
   const table = el('table', { class: 'rpt compact' });
   table.append(el('thead', {}, el('tr', {},
-    th('', 'label'), ...mi.months.map(m => th(m.label, 'num')), th('Total', 'num'))));
+    th('', 'label'),
+    ...mi.months.map(m => th(m.label, 'num')),
+    th('Total', 'num'),
+    ...(mi.hasBudget ? [th('Budget', 'num budget'), th('Remaining', 'num budget')] : []))));
 
   const body = el('tbody');
-  const dataRow = (label, r, cls) => body.append(el('tr', { class: cls },
-    el('th', { class: 'label', scope: 'row', text: label }),
-    ...r.cols.map(v => num(v)), num(r.total)));
+  const dataRow = (label, r, cls) => {
+    const cells = [...r.cols.map(v => num(v)), num(r.total)];
+    if (mi.hasBudget) {
+      // An unbudgeted row is left blank rather than shown as zero. Zero is a
+      // decision \u2014 "we planned to spend nothing here" \u2014 and a blank is not.
+      cells.push(r.budget === null ? td('', 'num budget') : num(r.budget, 'budget'));
+      if (r.budget === null) {
+        cells.push(td('', 'num budget'));
+      } else {
+        const remaining = num(r.budget - r.total, 'budget');
+        if (r.budgetPartial) remaining.textContent += ' †';
+        cells.push(remaining);
+      }
+    }
+    body.append(el('tr', { class: cls }, el('th', { class: 'label', scope: 'row', text: label }), ...cells));
+  };
 
   for (const sec of mi.sections) {
     if (!sec.funds.length) continue;
     body.append(el('tr', { class: 'section' },
-      el('th', { class: 'label', scope: 'row', colspan: mi.months.length + 2, text: sec.key })));
+      el('th', { class: 'label', scope: 'row', colspan: cols, text: sec.key })));
     for (const f of sec.funds) dataRow(f.label, f, 'detail');
     dataRow('Total', sec.subtotal, 'subtotal');
   }
 
-  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: mi.months.length + 2 })));
+  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols })));
   dataRow('Net Income \u2014 Scouting Program', mi.netProgram, 'total');
   dataRow('Net Income \u2014 Fundraising', mi.netFundraising, 'total');
   dataRow('Net Income \u2014 Other', mi.netOther, 'total');
@@ -183,11 +206,21 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   mount.append(table);
 
   const diff = mi.allTimeNet - mi.netTotal.total;
-  mount.append(el('footer', { class: 'notes' },
-    el('p', { text: `Total column sums the ${mi.months.length} months shown, not all time.` +
-      (Math.abs(diff) > 0.005
-        ? ` All-time net income differs by ${fmtMoney(diff)}, being activity dated outside this window (including transactions posted to future events and the opening-balance import).`
-        : '') })));
+  const notes = [
+    mi.fiscalYear === null
+      ? `Total column sums the ${mi.months.length} months shown, not all time.`
+      : `Total column sums the fiscal year to date \u2014 ${mi.months.length} month${mi.months.length === 1 ? '' : 's'} \u2014 not all time.`,
+  ];
+  if (Math.abs(diff) > 0.005) {
+    notes.push(`All-time net income differs by ${fmtMoney(diff)}, being activity dated outside this window (including transactions posted to future events and the opening-balance import).`);
+  }
+  if (mi.hasBudget) {
+    notes.push(`Budget is for ${mi.fiscalYearLabel} in full; Remaining is budget less the fiscal year to date. Budgets are held in this app only \u2014 TroopWebHost has no record of them. A blank means no budget was set for that line.`);
+    if ([mi.netProgram, mi.netFundraising, mi.netOther, mi.netTotal].some(n => n.budgetPartial)) {
+      notes.push('A net line marked \u2020 is budgeted on one side only; its counterpart section has no budget and is not being treated as zero.');
+    }
+  }
+  mount.append(el('footer', { class: 'notes' }, notes.map(t => el('p', { text: t }))));
 }
 
 /* ------------------------------------------------------------------ */
@@ -326,6 +359,89 @@ function nameList(label, names, inlineLimit = 10) {
     return el('div', {}, el('p', { class: 'hint', text: `${label} (${fmtInt(names.length)}):` }), items);
   }
   return el('details', {}, el('summary', { text: `${label}: ${fmtInt(names.length)} — show them` }), items);
+}
+
+/**
+ * The budget editor: one fiscal year, category by category.
+ *
+ * Laid out the way the income statement reads, so a figure typed here can be
+ * found there. The section column shows what the two kinds of entry add up to,
+ * because "category figure plus the funds you budgeted separately" is a rule
+ * that is easier to see than to explain.
+ */
+export function renderBudget(cfg, { year, years, label }, mount, { onSetYear, onSet }) {
+  mount.replaceChildren();
+
+  if (!cfg.params.fiscalYearStart) {
+    mount.append(el('p', { class: 'hint', text:
+      'Set "Fiscal year starts" in the report parameters first. A budget covers a fiscal '
+      + 'year, so without one there is no period to compare it against.' }));
+    return;
+  }
+
+  const budget = (cfg.budgets || {})[String(year)] || {};
+  const picker = el('select');
+  for (const y of years) {
+    picker.append(el('option', { value: String(y), text: fiscalYearLabel(y, cfg.params.fiscalYearStart),
+      ...(y === year ? { selected: '' } : {}) }));
+  }
+  picker.addEventListener('change', () => onSetYear(Number(picker.value)));
+  mount.append(el('p', { class: 'actions' }, el('label', { class: 'inline', text: 'Fiscal year ' }), picker));
+
+  const table = el('table', { class: 'cfg budget' });
+  table.append(el('thead', {}, el('tr', {},
+    th('Category / fund', 'label'), th('Budget', 'num'), th('Section total', 'num'))));
+  const body = el('tbody');
+
+  // Section totals are refreshed in place rather than by re-rendering the
+  // table. A change event fires as the box loses focus; replacing the table
+  // under it would tear out the element mid-blur — which the DOM refuses — and
+  // would throw away the focus of anyone typing a budget line by line.
+  const totalCells = new Map();
+  const refreshTotals = () => {
+    const now = (cfg.budgets || {})[String(year)] || {};
+    for (const [cat, cell] of totalCells) {
+      const funds = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === cat);
+      const parts = funds.map(f => now[f]).filter(Number.isFinite);
+      const set = Number.isFinite(now[cat]) || parts.length;
+      cell.textContent = set
+        ? fmtMoney((Number.isFinite(now[cat]) ? now[cat] : 0) + parts.reduce((s, v) => s + v, 0))
+        : '';
+    }
+  };
+
+  const input = name => {
+    const box = el('input', { type: 'number', step: '0.01', min: '0',
+      value: Number.isFinite(budget[name]) ? String(budget[name]) : '' });
+    box.addEventListener('change', () => {
+      const v = box.value.trim() === '' ? null : Number(box.value);
+      onSet(name, v !== null && Number.isFinite(v) ? v : null);
+      refreshTotals();
+    });
+    return box;
+  };
+
+  for (const cat of CATEGORY_NAMES) {
+    const funds = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === cat).sort();
+    const cell = el('td', { class: 'num' });
+    totalCells.set(cat, cell);
+    body.append(el('tr', { class: 'section' },
+      el('th', { class: 'label', scope: 'row', text: cat }),
+      el('td', { class: 'num' }, input(cat)),
+      cell));
+    for (const f of funds) {
+      body.append(el('tr', { class: 'detail' },
+        el('th', { class: 'label', scope: 'row', text: f }),
+        el('td', { class: 'num' }, input(f)),
+        el('td', {})));
+    }
+  }
+  refreshTotals();
+  table.append(body);
+  mount.append(table);
+  mount.append(el('p', { class: 'hint', text:
+    `Blank is not zero: a blank line has no budget and prints blank on the statement. `
+    + `Budgets for other years are kept in the settings file. Showing ${label}.` }));
 }
 
 export function renderConfig(cfg, mount, onChange) {

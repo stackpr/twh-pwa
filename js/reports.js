@@ -3,7 +3,9 @@
 // Every displayed figure traces to a sum over `ledger.legs` with a filter.
 // Sign is flipped in exactly one place: sectionSign().
 
-import { CATEGORY_ORDER } from './config.js';
+import {
+  CATEGORY_ORDER, fiscalYearOf, fiscalYearStartDate, fiscalYearLabel, budgetFor, sectionBudget,
+} from './config.js';
 import { isPseudoAccount } from './ledger.js';
 
 const sectionSign = isRevenue => (isRevenue ? 1 : -1);
@@ -216,13 +218,33 @@ function sumRows(rows, ncols) {
 /* ------------------------------------------------------------------ */
 
 export function monthlyIncome(ledger, cfg, asOf) {
-  const n = cfg.params.monthsShown;
+  // Two windows. Without a fiscal year the statement is a rolling monthsShown
+  // months, as it always was. With one it runs from the first month of the
+  // fiscal year containing the as-of date to the as-of month — which is what
+  // makes the Total column comparable to a fiscal-year budget. Anything else
+  // would print a budget beside a total that does not cover the same period.
+  const startMonth = cfg.params.fiscalYearStart;
+  const fiscalYear = fiscalYearOf(asOf, startMonth);
   const months = [];
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(asOf.getFullYear(), asOf.getMonth() - i, 1);
-    months.push({ key: monthKey(d), label: monthLabel(d), date: d });
+  if (fiscalYear !== null) {
+    const start = fiscalYearStartDate(fiscalYear, startMonth);
+    const span = (asOf.getFullYear() - start.getFullYear()) * 12 + asOf.getMonth() - start.getMonth();
+    for (let i = 0; i <= Math.min(span, 11); i++) {
+      const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+      months.push({ key: monthKey(d), label: monthLabel(d), date: d });
+    }
+  } else {
+    for (let i = cfg.params.monthsShown - 1; i >= 0; i--) {
+      const d = new Date(asOf.getFullYear(), asOf.getMonth() - i, 1);
+      months.push({ key: monthKey(d), label: monthLabel(d), date: d });
+    }
   }
   const mIndex = new Map(months.map((m, i) => [m.key, i]));
+
+  // The budget for the fiscal year on show, if one was entered. Budgets are
+  // this app's own: TroopWebHost has no idea they exist.
+  const budget = fiscalYear === null ? null : (cfg.budgets || {})[String(fiscalYear)] || null;
+  const hasBudget = !!budget && Object.values(budget).some(v => Number.isFinite(v) && v !== 0);
 
   const acc = new Map();
   const bucket = fund => {
@@ -239,20 +261,31 @@ export function monthlyIncome(ledger, cfg, asOf) {
 
   const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
     const sign = sectionSign(isRevenue);
-    const funds = [...acc.entries()]
+    const inCategory = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === key);
+    // A budgeted fund with nothing spent against it yet still belongs on the
+    // statement — its whole budget is what remains, and that is the line a
+    // treasurer is looking for.
+    const budgeted = hasBudget ? inCategory.filter(f => budgetFor(budget, f) !== null) : [];
+    const active = [...acc.entries()]
       .filter(([f]) => cfg.fundCategories[f] === key)
       .filter(([, b]) => b.cols.some(v => Math.abs(v) > 0.005))
-      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([f]) => f);
+    const empty = { cols: new Array(months.length).fill(0), allTime: 0 };
+    const funds = [...new Set([...active, ...budgeted])]
+      .sort((a, b) => a.localeCompare(b))
+      .map(f => [f, acc.get(f) || empty])
       .map(([f, b]) => ({
         label: f,
         cols: b.cols.map(v => sign * v),
         total: sign * b.cols.reduce((s, v) => s + v, 0),
         allTime: sign * b.allTime,
+        budget: hasBudget ? budgetFor(budget, f) : null,
       }));
     const subtotal = {
       cols: months.map((_, i) => funds.reduce((s, r) => s + r.cols[i], 0)),
       total: funds.reduce((s, r) => s + r.total, 0),
       allTime: funds.reduce((s, r) => s + r.allTime, 0),
+      budget: hasBudget ? sectionBudget(budget, key, inCategory) : null,
     };
     return { key, isRevenue, funds, subtotal };
   });
@@ -260,20 +293,40 @@ export function monthlyIncome(ledger, cfg, asOf) {
   const netOf = keys => {
     const rows = sections.filter(s => keys.includes(s.key));
     const sg = s => (s.isRevenue ? 1 : -1);
+    // A net line's budget is budgeted revenue less budgeted expenses, and it
+    // exists only if one of its sections was budgeted at all. Half a budget
+    // still answers a real question — "we said we would raise this much" —
+    // as long as the missing half is visibly missing rather than treated as
+    // zero, which is what showing nothing at all would imply.
+    const parts = rows.map(sec => sec.subtotal.budget).filter(v => v !== null);
     return {
       cols: months.map((_, i) => rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.cols[i], 0)),
       total: rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.total, 0),
+      budget: parts.length
+        ? rows.reduce((s, sec) => s + sg(sec) * (sec.subtotal.budget || 0), 0)
+        : null,
+      budgetPartial: parts.length > 0 && parts.length < rows.length,
     };
   };
   const netProgram = netOf(['Program Revenue', 'Program Expenses']);
   const netFundraising = netOf(['Fundraising Revenue', 'Fundraising Expenses']);
   const netOther = netOf(['Other Income', 'Other Expenses']);
+  const netBudgets = [netProgram, netFundraising, netOther].map(n => n.budget).filter(v => v !== null);
   const netTotal = {
     cols: months.map((_, i) => netProgram.cols[i] + netFundraising.cols[i] + netOther.cols[i]),
     total: netProgram.total + netFundraising.total + netOther.total,
+    budget: netBudgets.length ? netBudgets.reduce((s, v) => s + v, 0) : null,
+    budgetPartial: [netProgram, netFundraising, netOther].some(n => n.budgetPartial)
+      || (netBudgets.length > 0 && netBudgets.length < 3),
   };
 
   const allTimeNet = sections.reduce((s, sec) => s + (sec.isRevenue ? 1 : -1) * sec.subtotal.allTime, 0);
 
-  return { asOf, months, sections, netProgram, netFundraising, netOther, netTotal, allTimeNet };
+  return {
+    asOf, months, sections, netProgram, netFundraising, netOther, netTotal, allTimeNet,
+    // Fiscal-year framing, null when no fiscal year is configured.
+    fiscalYear,
+    fiscalYearLabel: fiscalYear === null ? null : fiscalYearLabel(fiscalYear, startMonth),
+    hasBudget,
+  };
 }

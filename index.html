@@ -113,6 +113,25 @@
         </label>
         <label>Months shown
           <input type="number" id="months" min="1" max="24" step="1">
+          <span class="hint">Used when no fiscal year is set.</span>
+        </label>
+        <label>Fiscal year starts
+          <select id="fiscalYearStart">
+            <option value="">Not set &mdash; rolling window</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <span class="hint">Makes the monthly statement fiscal-year-to-date, and lets a budget be compared against it.</span>
         </label>
         <label class="check">
           <input type="checkbox" id="legacyMode">
@@ -175,6 +194,23 @@
         <button id="settings-export">Download settings file</button>
         <label class="filebtn">Load settings file<input type="file" id="settings-import" accept=".txt,text/plain" hidden></label>
       </p>
+    </section>
+
+    <section>
+      <h2>Budget</h2>
+      <p class="hint">
+        A budget for one fiscal year, entered here and nowhere else &mdash; TroopWebHost
+        has no record of it, so the settings file is the only copy. It appears on the
+        monthly income statement as <strong>Budget</strong> and <strong>Remaining</strong>
+        columns; both are omitted entirely when nothing is budgeted.
+      </p>
+      <p class="hint">
+        Budget a whole category, or individual funds within it, or both &mdash; a category
+        figure covers whatever in that category you did not budget by fund. Enter every
+        figure as a positive number, the way it prints on the statement: revenue as revenue,
+        spending as spending.
+      </p>
+      <div id="budget"></div>
     </section>
 
     <section>
@@ -282,6 +318,24 @@
         The settings file plus a fresh export is everything a successor needs. It holds no
         scout names, no individual balances, and no transactions, so it is safe to email; a
         transaction export never is.
+      </p>
+
+      <h3>Fiscal year and budget</h3>
+      <p class="hint">
+        Set <strong>Fiscal year starts</strong> in the report parameters to the month your
+        troop's year begins. The monthly income statement then covers the fiscal year to
+        date rather than a rolling twelve months, which is the period a budget is written
+        against.
+      </p>
+      <p class="hint">
+        With that set, the <button type="button" class="linkish" data-goto="settings">Settings</button>
+        tab takes a budget for the year: a figure for a whole category, or for individual
+        funds within it, or both &mdash; a category figure covers whatever you did not
+        budget by fund. The statement then shows <strong>Budget</strong> and
+        <strong>Remaining</strong> columns, and shows neither when nothing is budgeted. A
+        line you left blank stays blank rather than printing as zero, because a blank is
+        not the same as a decision to spend nothing. Budgets exist only here &mdash;
+        TroopWebHost has no record of them &mdash; so the settings file is the only copy.
       </p>
 
       <h3>Why some things look the way they do</h3>

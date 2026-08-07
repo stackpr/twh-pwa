@@ -25,7 +25,12 @@ troop:
 #   pastEventsShown         how many past events get a column on the event
 #                           income statement. Purely a page-fit control —
 #                           totals never change with it.
-#   monthsShown             months in the monthly income statement.
+#   monthsShown             months in the monthly income statement, when no
+#                           fiscal year is set.
+#   fiscalYearStart         month your fiscal year begins, 1-12, or null.
+#                           Set it and the monthly income statement covers
+#                           the fiscal year to date instead of a rolling
+#                           window, which is what a budget compares against.
 #   asOf                    report date (YYYY-MM-DD), or null for today.
 #   legacyMode              reproduce spreadsheet-era defects, for comparing
 #                           against an old workbook during a migration.
@@ -37,6 +42,7 @@ parameters:
   activitySince: 2025-09-01
   pastEventsShown: 8
   monthsShown: 12
+  fiscalYearStart: null
   asOf: null
   legacyMode: false
   legacyDeductedAccounts: []
@@ -116,6 +122,25 @@ funds:
   Transportation Expense: Program Expenses
   Troop-Funded Program Expense: Program Expenses
   Troop-Hosted Event Expense: Program Expenses
+
+# Budgets, by the calendar year each fiscal year starts in. The year
+# beginning September 2024 is 2024, whatever your troop calls it.
+#
+# Each line is a fund name or one of the six category names above:
+#
+#   Program Expenses: 12000     the whole category
+#   Food Expense: 3000          one fund inside it
+#
+# Use either, or both: a category figure covers whatever in that category
+# you did not budget by fund, so the two add up on the section total.
+# Enter every figure as a positive number — expenses are budgeted as
+# spending, the same way they are printed on the income statement.
+#
+# Budgets exist only in this app. TroopWebHost has no record of them, so
+# this file is the only copy. They appear on the monthly income statement
+# as Budget and Remaining columns, for the fiscal year the report covers,
+# and only when fiscalYearStart is set.
+budgets: {}
 
 # Balance sheet figures as published, frozen by date. These are not
 # recalculated — they are the record of what was actually reported, so a

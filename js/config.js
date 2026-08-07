@@ -89,6 +89,10 @@ export const DEFAULT_PARAMS = {
   activitySince: '2025-09-01', // drives prior-period split and per-event columns
   pastEventsShown: 8,          // most recent N past program events, for one-page fit
   monthsShown: 12,             // rolling window for Monthly Income
+  // Month the fiscal year starts, 1-12. null leaves the monthly statement a
+  // rolling window of monthsShown; set, it becomes a fiscal-year-to-date
+  // statement, which is what a budget can be compared against.
+  fiscalYearStart: null,
   asOf: null,                  // null = min(latest txn date, today)
   legacyMode: false,           // reproduce spreadsheet-era defects, for diffing
   // Under legacyMode, the troop-held accounts a predecessor spreadsheet deducted
@@ -102,7 +106,65 @@ const DEFAULTS = {
   fundCategories: FUND_CATEGORIES,
   accountClass: DEFAULT_ACCOUNT_CLASS,
   params: DEFAULT_PARAMS,
+  // Fiscal-year budgets, keyed by the calendar year the fiscal year starts in:
+  //   { '2024': { 'Program Revenue': 30000, 'Merch Revenue': 500 } }
+  // A key is either a fund or one of the six categories — see budgetFor().
+  budgets: {},
 };
+
+/* ------------------------------------------------------------------ */
+/* Fiscal year                                                         */
+/*                                                                     */
+/* A troop's year rarely matches the calendar's; scouting years usually */
+/* start with the school year. A fiscal year is identified throughout   */
+/* by the CALENDAR YEAR IT STARTS IN, so the year beginning September   */
+/* 2024 and ending August 2025 is 2024, whatever it is called on paper. */
+/* ------------------------------------------------------------------ */
+
+export const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** The fiscal year a date falls in, or null when no fiscal year is configured. */
+export function fiscalYearOf(date, startMonth) {
+  if (!startMonth) return null;
+  return date.getMonth() + 1 >= startMonth ? date.getFullYear() : date.getFullYear() - 1;
+}
+
+/** First day of a fiscal year. */
+export const fiscalYearStartDate = (year, startMonth) => new Date(year, startMonth - 1, 1);
+
+/**
+ * "FY 2024–25", or "FY 2024" for a fiscal year that is also a calendar year.
+ * The label is worth getting right: a budget compared against the wrong year is
+ * the kind of error that survives a whole season unnoticed.
+ */
+export function fiscalYearLabel(year, startMonth) {
+  if (!startMonth || startMonth === 1) return `FY ${year}`;
+  return `FY ${year}–${String((year + 1) % 100).padStart(2, '0')}`;
+}
+
+/**
+ * The budget for one fund: its own figure if it has one, otherwise nothing.
+ * A category figure is deliberately NOT spread across its funds — it is the
+ * budget for whatever in that category was not budgeted individually, and it
+ * belongs on the section subtotal, not on a row. See sectionBudget().
+ */
+export const budgetFor = (budget, name) =>
+  (budget && Number.isFinite(budget[name]) ? budget[name] : null);
+
+/**
+ * A section's budget: every fund figure inside it, plus the category figure
+ * covering the rest. Either alone is normal — budget each fund, or budget the
+ * category as a lump — and mixing the two means "these funds, plus this much
+ * for everything else in the category".
+ */
+export function sectionBudget(budget, category, fundNames) {
+  if (!budget) return null;
+  const parts = fundNames.map(f => budgetFor(budget, f)).filter(v => v !== null);
+  const cat = budgetFor(budget, category);
+  if (cat === null && !parts.length) return null;
+  return (cat || 0) + parts.reduce((s, v) => s + v, 0);
+}
 
 export function loadConfig() {
   try {
@@ -118,6 +180,7 @@ export function loadConfig() {
       fundCategories: saved.fundCategories ? { ...saved.fundCategories } : structuredClone(FUND_CATEGORIES),
       accountClass:   saved.accountClass   ? { ...saved.accountClass }   : structuredClone(DEFAULT_ACCOUNT_CLASS),
       params:         { ...DEFAULT_PARAMS, ...(saved.params || {}) },
+      budgets:        saved.budgets ? { ...saved.budgets } : {},
     };
   } catch {
     return structuredClone(DEFAULTS);

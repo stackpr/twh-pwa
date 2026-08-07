@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { parseCSV } from '../js/csv.js';
 import {
   FUND_CATEGORIES, DEFAULT_ACCOUNT_CLASS, DEFAULT_PARAMS, CATEGORY_NAMES,
-  guessFundCategory, guessAccountClass,
+  guessFundCategory, guessAccountClass, fiscalYearOf, fiscalYearLabel,
 } from '../js/config.js';
 import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
@@ -144,6 +144,82 @@ console.log('== INVARIANTS ==');
   eq('Total Assets unaffected by as-of date', bsLater.totalAssets, bs.totalAssets);
   ok('Future-event liability shrinks as events pass',
      bsLater.otherFutureEventsNet <= bs.otherFutureEventsNet + 0.005);
+}
+
+console.log('\n== FISCAL YEAR AND BUDGET ==');
+{
+  // The fixture's synthetic year runs Sep 2023 - Aug 2024, as of 2024-08-03,
+  // so a September fiscal year puts the whole of it in FY 2023.
+  const SEP = 9;
+  ok('a date after the start month is in that fiscal year',
+     fiscalYearOf(new Date(2024, 8, 15), SEP) === 2024);
+  ok('a date before it belongs to the year before',
+     fiscalYearOf(new Date(2024, 7, 31), SEP) === 2023);
+  ok('a January fiscal year is the calendar year', fiscalYearOf(new Date(2024, 5, 1), 1) === 2024);
+  ok('no fiscal year configured means none', fiscalYearOf(new Date(2024, 5, 1), null) === null);
+  ok('a straddling year is labelled with both', fiscalYearLabel(2023, SEP) === 'FY 2023–24');
+  ok('a calendar fiscal year is labelled with one', fiscalYearLabel(2023, 1) === 'FY 2023');
+
+  const base = build({ fiscalYearStart: SEP });
+  const fy = monthlyIncome(base.ledger, base.cfg, base.asOf);
+  eq('fiscal year to date spans Sep to Aug', fy.months.length, 12);
+  ok('the window starts at the fiscal year start',
+     fy.months[0].label.startsWith('Sep') && fy.months.at(-1).label.startsWith('Aug'));
+  ok('the report knows which fiscal year it is', fy.fiscalYear === 2023);
+  ok('no budget means no budget columns', fy.hasBudget === false);
+
+  // Without a fiscal year nothing about the report may change.
+  const rolling = monthlyIncome(build({}).ledger, mk({}), base.asOf);
+  eq('no fiscal year keeps the rolling window', rolling.months.length, DEFAULT_PARAMS.monthsShown);
+  ok('no fiscal year means no fiscal framing', rolling.fiscalYear === null && rolling.hasBudget === false);
+
+  // A budget on a category and on one fund inside it.
+  const withBudget = {
+    ...mk({ fiscalYearStart: SEP }),
+    budgets: { 2023: { 'Program Expenses': 10000, 'Food Expense': 1500, 'Program Revenue': 40000 } },
+  };
+  const b = monthlyIncome(base.ledger, withBudget, base.asOf);
+  ok('a budget for the year on show turns the columns on', b.hasBudget === true);
+  const progExp = b.sections.find(s => s.key === 'Program Expenses');
+  const food = progExp.funds.find(f => f.label === 'Food Expense');
+  eq('a fund carries its own budget', food.budget, 1500);
+  ok('an unbudgeted fund carries none',
+     progExp.funds.filter(f => f.label !== 'Food Expense').every(f => f.budget === null));
+  eq('the section adds the category figure to the funds budgeted inside it',
+     progExp.subtotal.budget, 11500);
+  eq('net program budget is budgeted revenue less budgeted expenses',
+     b.netProgram.budget, 40000 - 11500);
+  ok('a fully budgeted net line is not flagged partial', b.netProgram.budgetPartial === false);
+
+  // Remaining is what the renderer prints; assert the arithmetic it relies on.
+  eq('remaining is budget less the fiscal year to date',
+     progExp.subtotal.budget - progExp.subtotal.total, 11500 - progExp.subtotal.total);
+
+  // Half a budget must stay visibly half.
+  const oneSided = { ...mk({ fiscalYearStart: SEP }), budgets: { 2023: { 'Other Income': 100 } } };
+  const os = monthlyIncome(base.ledger, oneSided, base.asOf);
+  ok('a net line budgeted on one side only is flagged', os.netOther.budgetPartial === true);
+  eq('and counts only the side that was budgeted', os.netOther.budget, 100);
+  ok('an unbudgeted section stays null',
+     os.sections.find(s => s.key === 'Program Revenue').subtotal.budget === null);
+
+  // A budget for another year must not leak into this one.
+  const otherYear = { ...mk({ fiscalYearStart: SEP }), budgets: { 2030: { 'Program Revenue': 1 } } };
+  ok('a budget for a different fiscal year is not shown',
+     monthlyIncome(base.ledger, otherYear, base.asOf).hasBudget === false);
+
+  // A budgeted fund with no activity still needs its line, or its budget is invisible.
+  const dormant = {
+    ...mk({ fiscalYearStart: SEP }),
+    budgets: { 2023: { 'Crew Revenue (from Scout)': 750 } },
+  };
+  const d = monthlyIncome(base.ledger, dormant, base.asOf);
+  const row = d.sections.flatMap(s => s.funds).find(f => f.label === 'Crew Revenue (from Scout)');
+  ok('a budgeted fund with no activity still gets a row', !!row);
+  ok('and shows its whole budget as remaining', row && row.budget === 750 && Math.abs(row.total) < 0.005);
+
+  // The figures themselves must not move because a budget was entered.
+  eq('a budget changes no actual', b.netTotal.total, fy.netTotal.total);
 }
 
 console.log('\n== CHART REVIEW (new and unused names) ==');
@@ -328,6 +404,31 @@ console.log('\n== SETTINGS FILE ==');
   eq('round-trip preserves an integer count', back.snapshots['2024-08-03'].scout_arrears_count, 3);
   eq('round-trip preserves a negative figure', back.snapshots['2024-08-03'].unrestricted_net_assets, -12);
   ok('currency keeps two decimal places in the file', /total_assets: 1234\.50/.test(text));
+
+  // Budgets and the fiscal year live in the settings file too — TroopWebHost
+  // has no idea they exist, so this file is the only copy there is.
+  const budgeted = { ...mk({ fiscalYearStart: 9 }), budgets: { 2023: { 'Program Revenue': 40000, 'Food Expense': 1500.5 } } };
+  const bText = settingsToText(budgeted, {});
+  const bBack = settingsFromText(bText);
+  ok('budget round-trips without error', bBack.errors.length === 0);
+  eq('round-trip preserves a budget figure', bBack.config.budgets['2023']['Program Revenue'], 40000);
+  eq('round-trip preserves budget cents', bBack.config.budgets['2023']['Food Expense'], 1500.5);
+  ok('round-trip preserves the fiscal year start', bBack.config.params.fiscalYearStart === 9);
+  ok('a fiscal year start outside 1-12 is rejected',
+     settingsFromText(bText.replace('fiscalYearStart: 9', 'fiscalYearStart: 13')).errors.length > 0);
+  ok('a non-numeric budget figure is rejected',
+     settingsFromText(bText.replace('Program Revenue: 40000.00', 'Program Revenue: lots')).errors.length > 0);
+  ok('a budget year that is not a year is rejected',
+     settingsFromText(bText.replace('"2023":', '"next year":')).errors.length > 0);
+  ok('a budget naming something unknown is kept, with a warning',
+     (() => { const r = settingsFromText(bText.replace('Food Expense: 1500.50', 'Not A Fund: 10.00'));
+              return r.errors.length === 0 && r.warnings.some(w => /Not A Fund/.test(w))
+                && r.config.budgets['2023']['Not A Fund'] === 10; })());
+  ok('no fiscal year round-trips as none',
+     settingsFromText(settingsToText(mk({}), {})).config.params.fiscalYearStart === null);
+  ok('a settings file with no budget has an empty budget section',
+     settingsFromText(text).config.budgets && Object.keys(settingsFromText(text).config.budgets).length === 0);
+  ok('the budget carries no scout identifiers', !/scout:[0-9a-f]{8}/.test(bText));
   ok('every shipped fund maps to a known category',
      Object.values(cfg.fundCategories).every(c => CATEGORY_NAMES.includes(c)));
   ok('settings file carries no scout identifiers', !/scout:[0-9a-f]{8}/.test(text));

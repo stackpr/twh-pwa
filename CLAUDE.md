@@ -257,6 +257,22 @@ keep serving the old shell. Adding or renaming a shell file means updating the
   as-of would understate liabilities. The deferred position is reported instead
   as the *Other Future Events (Net)* liability line. Historical figures come from
   snapshots, not recomputation. Explained at the top of `balanceSheet()`.
+- **A budget is not data, and it is not TroopWebHost's.** It exists only in this
+  app, so the settings file is the only copy — treat losing it as losing the
+  budget. Budget keys are a fund *or* a category, and a category figure covers
+  what was not budgeted by fund, so a section's budget is the category figure
+  plus the fund figures inside it. Never spread a category figure across its
+  funds: it would invent per-fund budgets nobody set.
+- **Blank is not zero, on a budget line.** Zero says "we planned to spend
+  nothing here" and a blank says nothing at all; the statement prints them
+  differently, and `roundBudgets` drops zeros rather than writing them to the
+  settings file. A net line budgeted on one side only is marked, not completed
+  with an assumed zero.
+- **The fiscal year changes the monthly window.** With `fiscalYearStart` set,
+  Monthly Income runs from the fiscal year's first month to the as-of month
+  instead of a rolling `monthsShown`. That is what makes the Total column
+  comparable to an annual budget; do not print a budget beside a total covering
+  a different period. A fiscal year is named by the calendar year it starts in.
 - **Only the balance sheet is snapshotted.** The income statements are period
   reports and are allowed to drift when back-dated entries land. Do not add them
   to `BS_ROW_KEYS` or the drift report.

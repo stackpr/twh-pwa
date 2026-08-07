@@ -175,6 +175,20 @@ details .namelist { columns: 2 14rem; }
 #import-review .namelist { margin-top: .4rem; }
 #import-review table.cfg { margin-top: .3rem; }
 
+/* budget editor */
+table.cfg.budget { min-width: min(100%, 34rem); }
+table.cfg.budget tr.section th { padding-top: .5rem; font-weight: 700; }
+table.cfg.budget tr.detail th.label { padding-left: 1.4rem; font-weight: 400; }
+table.cfg.budget input {
+  font: inherit; font-size: .82rem; width: 7.5rem; text-align: right;
+  padding: .15rem .35rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel);
+}
+table.cfg.budget td.num { text-align: right; font-variant-numeric: tabular-nums; }
+label.inline { font-size: .85rem; font-weight: 600; }
+
+/* budget columns on the income statement */
+table.rpt th.budget, table.rpt td.budget { border-left: 1px solid var(--line); }
+
 table.cfg { border-collapse: collapse; font-size: .85rem; margin-bottom: 1rem; }
 table.cfg th, table.cfg td { padding: .2rem .6rem; text-align: left; border-bottom: 1px solid var(--line); }
 table.cfg thead th { border-bottom: 1.5px solid var(--ink); }

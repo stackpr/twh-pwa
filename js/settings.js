@@ -38,7 +38,7 @@ const block = (comment, key, value) => [
  * generated, because they are instructions for a human editor and the emitter
  * has no business inventing prose.
  */
-export function settingsToText(cfg, snapshots = {}) {
+export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {}) {
   const params = { ...DEFAULT_PARAMS, ...cfg.params };
   const lines = [
     '# ---------------------------------------------------------------------',
@@ -71,7 +71,12 @@ export function settingsToText(cfg, snapshots = {}) {
     '  pastEventsShown         how many past events get a column on the event',
     '                          income statement. Purely a page-fit control —',
     '                          totals never change with it.',
-    '  monthsShown             months in the monthly income statement.',
+    '  monthsShown             months in the monthly income statement, when no',
+    '                          fiscal year is set.',
+    '  fiscalYearStart         month your fiscal year begins, 1-12, or null.',
+    '                          Set it and the monthly income statement covers',
+    '                          the fiscal year to date instead of a rolling',
+    '                          window, which is what a budget compares against.',
     '  asOf                    report date (YYYY-MM-DD), or null for today.',
     '  legacyMode              reproduce spreadsheet-era defects, for comparing',
     '                          against an old workbook during a migration.',
@@ -83,6 +88,7 @@ export function settingsToText(cfg, snapshots = {}) {
     activitySince: params.activitySince,
     pastEventsShown: params.pastEventsShown,
     monthsShown: params.monthsShown,
+    fiscalYearStart: params.fiscalYearStart ?? null,
     asOf: params.asOf ?? null,
     legacyMode: params.legacyMode,
     legacyDeductedAccounts: params.legacyDeductedAccounts || [],
@@ -117,6 +123,26 @@ export function settingsToText(cfg, snapshots = {}) {
   ], 'funds', sortedMap(cfg.fundCategories)));
 
   lines.push(...block([
+    'Budgets, by the calendar year each fiscal year starts in. The year',
+    'beginning September 2024 is 2024, whatever your troop calls it.',
+    '',
+    'Each line is a fund name or one of the six category names above:',
+    '',
+    '  Program Expenses: 12000     the whole category',
+    '  Food Expense: 3000          one fund inside it',
+    '',
+    'Use either, or both: a category figure covers whatever in that category',
+    'you did not budget by fund, so the two add up on the section total.',
+    'Enter every figure as a positive number — expenses are budgeted as',
+    'spending, the same way they are printed on the income statement.',
+    '',
+    'Budgets exist only in this app. TroopWebHost has no record of them, so',
+    'this file is the only copy. They appear on the monthly income statement',
+    'as Budget and Remaining columns, for the fiscal year the report covers,',
+    'and only when fiscalYearStart is set.',
+  ], 'budgets', roundBudgets(budgets)));
+
+  lines.push(...block([
     'Balance sheet figures as published, frozen by date. These are not',
     'recalculated — they are the record of what was actually reported, so a',
     'back-dated correction shows up as drift instead of quietly rewriting',
@@ -131,6 +157,20 @@ export function settingsToText(cfg, snapshots = {}) {
 }
 
 const sortedMap = obj => Object.fromEntries(Object.keys(obj || {}).sort().map(k => [k, obj[k]]));
+
+function roundBudgets(budgets) {
+  const out = {};
+  for (const year of Object.keys(budgets || {}).sort()) {
+    const row = {};
+    for (const name of Object.keys(budgets[year] || {}).sort()) {
+      const v = Number(budgets[year][name]);
+      if (!Number.isFinite(v) || v === 0) continue;   // an unset line is absent, not zero
+      row[name] = raw(v.toFixed(2));
+    }
+    if (Object.keys(row).length) out[year] = row;
+  }
+  return out;
+}
 
 function roundSnapshots(snaps) {
   const out = {};
@@ -179,6 +219,18 @@ export function settingsFromText(text) {
     for (const [k, v] of Object.entries(p)) {
       if (k === 'troopName') continue; // lives under troop:
       if (!(k in DEFAULT_PARAMS)) { warnings.push(`Ignoring unknown parameter "${k}".`); continue; }
+      // fiscalYearStart is a month number or nothing at all, so it fits neither
+      // the numeric branch (null is legal) nor the string one (13 is not).
+      if (k === 'fiscalYearStart') {
+        if (v === null || v === '') { params[k] = null; continue; }
+        const m = Number(v);
+        if (!Number.isInteger(m) || m < 1 || m > 12) {
+          errors.push(`Parameter "fiscalYearStart" should be a month number from 1 to 12, or null, found "${v}".`);
+          continue;
+        }
+        params[k] = m;
+        continue;
+      }
       const def = DEFAULT_PARAMS[k];
       if (Array.isArray(def)) params[k] = Array.isArray(v) ? v.map(String) : (v == null ? [] : [String(v)]);
       else if (typeof def === 'number') {
@@ -228,6 +280,35 @@ export function settingsFromText(text) {
     errors.push('The "funds:" section is empty. Refusing to load a settings file with no chart of accounts.');
   }
 
+  const budgets = {};
+  if (doc.budgets && typeof doc.budgets === 'object' && !Array.isArray(doc.budgets)) {
+    for (const [year, row] of Object.entries(doc.budgets)) {
+      if (!/^\d{4}$/.test(String(year))) {
+        errors.push(`Budget year "${year}" should be the four-digit calendar year the fiscal year starts in.`);
+        continue;
+      }
+      if (!row || typeof row !== 'object' || Array.isArray(row)) {
+        errors.push(`Budget ${year} has no figures under it.`); continue;
+      }
+      const clean = {};
+      for (const [name, v] of Object.entries(row)) {
+        const n = Number(v);
+        if (!Number.isFinite(n)) { errors.push(`Budget ${year}, line "${name}": "${v}" is not a number.`); continue; }
+        // A name that is neither a category nor a fund in the chart is kept, not
+        // dropped: a budget written before the fund's first transaction is a
+        // normal thing to do, and silently discarding it is exactly the failure
+        // this app exists to avoid. It is reported so it can be corrected.
+        if (!CATEGORY_NAMES.includes(name) && !(name in fundCategories)) {
+          warnings.push(`Budget ${year}: "${name}" is not a category or a fund in this settings file. Kept, but it will not appear on the income statement until the name matches.`);
+        }
+        clean[name] = n;
+      }
+      budgets[year] = clean;
+    }
+  } else if (doc.budgets !== undefined && doc.budgets !== null) {
+    errors.push('The "budgets" section is not a set of years.');
+  }
+
   const snapshots = {};
   if (doc.snapshots && typeof doc.snapshots === 'object' && !Array.isArray(doc.snapshots)) {
     for (const [date, row] of Object.entries(doc.snapshots)) {
@@ -248,7 +329,7 @@ export function settingsFromText(text) {
 
   return {
     errors, warnings,
-    config: errors.length ? null : { fundCategories, accountClass, params },
+    config: errors.length ? null : { fundCategories, accountClass, params, budgets },
     snapshots,
   };
 }

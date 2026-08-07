@@ -1,7 +1,7 @@
 // main.js — wiring.
 
 import { parseCSV } from './csv.js';
-import { loadConfig, saveConfig, clearConfig } from './config.js';
+import { loadConfig, saveConfig, clearConfig, fiscalYearOf, fiscalYearLabel } from './config.js';
 import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents } from './ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from './reports.js';
 import {
@@ -11,7 +11,7 @@ import {
 import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
   renderBalanceSheet, renderEventIncome, renderMonthlyIncome,
-  renderReconciliation, renderErrors, renderConfig, renderChartReview,
+  renderReconciliation, renderErrors, renderConfig, renderChartReview, renderBudget,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
 
@@ -22,7 +22,8 @@ const state = {
   snapshots: loadSnapshots(),
   ledger: null,
   asOf: null,
-  review: null,   // what the last import added to, or found stale in, the chart
+  review: null,      // what the last import added to, or found stale in, the chart
+  budgetYear: null,  // fiscal year the budget editor is showing; null = the reports'
 };
 
 /* ---- file intake ------------------------------------------------- */
@@ -76,10 +77,58 @@ function loadRecords(records) {
   $('#import-done').hidden = false;
   renderReconciliation(reconcile(ledger, state.cfg), ledger, $('#reconciliation'));
   rerender();
+  renderBudgetPanel();   // the as-of date is now known, and with it the fiscal year
   renderReview();
   // A review is the one thing worth reading before the figures. With nothing to
   // review the reports are what was asked for, so go straight there.
   if (!hasReview()) showTab('reports');
+}
+
+/* ---- budget -------------------------------------------------------- */
+
+/**
+ * Which fiscal year the editor is showing, and which it offers.
+ *
+ * Defaults to the year the reports are covering, so the figures on screen and
+ * the figures being typed are the same year. Last year and next year are always
+ * offered — a budget is usually written before the year starts — along with any
+ * year the settings file already carries.
+ */
+function budgetYears() {
+  const startMonth = state.cfg.params.fiscalYearStart;
+  // The reports' as-of date if there is one, then the configured as-of, then
+  // today. Defaulting to today would open the editor on next year's budget
+  // whenever a treasurer is reporting on a year that has already closed.
+  const on = state.asOf
+    || (state.cfg.params.asOf ? new Date(state.cfg.params.asOf + 'T00:00:00') : new Date());
+  const current = fiscalYearOf(on, startMonth);
+  if (current === null) return { year: null, years: [], label: '' };
+  const stored = Object.keys(state.cfg.budgets || {}).map(Number).filter(Number.isFinite);
+  const years = [...new Set([current - 1, current, current + 1, ...stored])].sort((a, b) => a - b);
+  const year = state.budgetYear !== null && years.includes(state.budgetYear) ? state.budgetYear : current;
+  return { year, years, label: fiscalYearLabel(year, startMonth) };
+}
+
+function renderBudgetPanel() {
+  renderBudget(state.cfg, budgetYears(), $('#budget'), {
+    // Deferred for the same reason: the select is mid-change when this fires.
+    onSetYear: y => { state.budgetYear = y; setTimeout(renderBudgetPanel, 0); },
+    onSet: (name, value) => {
+      const { year } = budgetYears();
+      const key = String(year);
+      const forYear = { ...(state.cfg.budgets[key] || {}) };
+      // An erased box removes the line rather than storing zero. Zero is a
+      // decision to spend nothing; blank is the absence of one, and the
+      // statement prints them differently.
+      if (value === null) delete forYear[name]; else forYear[name] = value;
+      state.cfg.budgets = { ...state.cfg.budgets, [key]: forYear };
+      if (!Object.keys(forYear).length) delete state.cfg.budgets[key];
+      saveConfig(state.cfg);
+      rerender();
+      // The editor updates its own totals in place; re-rendering it here would
+      // pull the box out from under the change event that got us here.
+    },
+  });
 }
 
 /* ---- printing ----------------------------------------------------- */
@@ -198,6 +247,9 @@ function afterChartEdit() {
   }
   rerender();
   renderGuessNote();
+  // The chart changed, so the funds a budget can name did too. Deferred because
+  // this can be reached from a select's own change event.
+  setTimeout(renderBudgetPanel, 0);
 }
 
 function rerender() {
@@ -213,6 +265,12 @@ function rerender() {
 
   renderDrift(bs);
   renderConfig(cfg, $('#config'), onConfigEdit);
+}
+
+/** Everything on the Settings tab that is derived from the config. */
+function renderSettingsPanel() {
+  renderConfig(state.cfg, $('#config'), onConfigEdit);
+  renderBudgetPanel();
 }
 
 function onConfigEdit() {
@@ -322,21 +380,29 @@ function bind() {
   drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 
   const p = state.cfg.params;
-  const bindParam = (sel, key, cast = Number) => {
+  const bindParam = (sel, key, cast = Number, after = null) => {
     const node = $(sel);
     if (!node) return;
-    node.value = p[key];
+    node.value = p[key] ?? '';
     node.addEventListener('change', () => {
       p[key] = node.type === 'checkbox' ? node.checked : cast(node.value);
       saveConfig(state.cfg);
       rerender();
+      if (after) after();
     });
   };
   bindParam('#troopName', 'troopName', String);
   bindParam('#activitySince', 'activitySince', String);
   bindParam('#pastEvents', 'pastEventsShown');
   bindParam('#months', 'monthsShown');
-  bindParam('#asOf', 'asOf', String);
+  // The as-of date decides which fiscal year the reports cover, so the budget
+  // editor follows it rather than the calendar.
+  bindParam('#asOf', 'asOf', String, () => setTimeout(renderBudgetPanel, 0));
+  // Blank means no fiscal year, which is not the same as month zero — the
+  // monthly statement goes back to a rolling window and budgets have no period.
+  bindParam('#fiscalYearStart', 'fiscalYearStart',
+    v => (v === '' ? null : Number(v)),
+    () => { state.budgetYear = null; renderBudgetPanel(); });
 
   const legacy = $('#legacyMode');
   legacy.checked = p.legacyMode;
@@ -436,5 +502,5 @@ function bind() {
 document.addEventListener('DOMContentLoaded', () => {
   bindTabs();
   bind();
-  renderConfig(state.cfg, $('#config'), onConfigEdit);
+  renderSettingsPanel();
 });
