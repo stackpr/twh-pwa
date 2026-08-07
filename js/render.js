@@ -1,7 +1,7 @@
 // render.js — DOM rendering. Produces the printable tables.
 
 import { fmtMoney, fmtInt, fmtDate } from './snapshots.js';
-import { CATEGORY_NAMES, fiscalYearLabel } from './config.js';
+import { CATEGORY_NAMES, ACCOUNT_CLASSES, fiscalYearLabel } from './config.js';
 
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -444,24 +444,47 @@ export function renderBudget(cfg, { year, years, label }, mount, { onSetYear, on
     + `Budgets for other years are kept in the settings file. Showing ${label}.` }));
 }
 
-export function renderConfig(cfg, mount, onChange) {
+/**
+ * The chart of accounts, editable: classify, add, remove.
+ *
+ * Every fund and account this troop uses is a row here, and rows come and go —
+ * TroopWebHost gains a fund, a bank account closes. Adding and removing is
+ * therefore part of this table rather than an errand into a text editor, which
+ * is what the settings file used to be for.
+ *
+ * The SIX CATEGORY NAMES are not editable and never will be: they drive the
+ * income-statement sections and the program/fundraising split, so they are the
+ * app's vocabulary rather than a troop's. What belongs to a troop is which
+ * funds exist and which category each one is in.
+ */
+export function renderConfig(cfg, mount, { onChange, onAdd, onRemove }) {
   mount.replaceChildren();
 
+  const removeButton = (kind, name) => {
+    const b = el('button', { type: 'button', class: 'linkish remove', title: `Remove ${name}`, text: '✕' });
+    b.addEventListener('click', () => onRemove(kind, name));
+    return b;
+  };
+
   const accounts = el('table', { class: 'cfg' });
-  accounts.append(el('thead', {}, el('tr', {}, th('Troop account', 'label'), th('Classification'))));
+  accounts.append(el('thead', {}, el('tr', {},
+    th('Troop account', 'label'), th('Classification'), th('', 'shrink'))));
   const abody = el('tbody');
   for (const name of Object.keys(cfg.accountClass).sort()) {
     const sel = el('select');
-    for (const opt of ['cash', 'noncash', 'liability']) {
+    for (const opt of ACCOUNT_CLASSES) {
       sel.append(el('option', { value: opt, text: opt, ...(cfg.accountClass[name] === opt ? { selected: '' } : {}) }));
     }
     sel.addEventListener('change', () => { cfg.accountClass[name] = sel.value; onChange(); });
-    abody.append(el('tr', {}, el('th', { class: 'label', scope: 'row', text: name }), el('td', {}, sel)));
+    abody.append(el('tr', {},
+      el('th', { class: 'label', scope: 'row', text: name }),
+      el('td', {}, sel),
+      el('td', { class: 'shrink' }, removeButton('account', name))));
   }
   accounts.append(abody);
 
   const funds = el('table', { class: 'cfg' });
-  funds.append(el('thead', {}, el('tr', {}, th('Fund', 'label'), th('Category'))));
+  funds.append(el('thead', {}, el('tr', {}, th('Fund', 'label'), th('Category'), th('', 'shrink'))));
   const fbody = el('tbody');
   for (const name of Object.keys(cfg.fundCategories).sort()) {
     const sel = el('select');
@@ -469,15 +492,38 @@ export function renderConfig(cfg, mount, onChange) {
       sel.append(el('option', { value: opt, text: opt, ...(cfg.fundCategories[name] === opt ? { selected: '' } : {}) }));
     }
     sel.addEventListener('change', () => { cfg.fundCategories[name] = sel.value; onChange(); });
-    fbody.append(el('tr', {}, el('th', { class: 'label', scope: 'row', text: name }), el('td', {}, sel)));
+    fbody.append(el('tr', {},
+      el('th', { class: 'label', scope: 'row', text: name }),
+      el('td', {}, sel),
+      el('td', { class: 'shrink' }, removeButton('fund', name))));
   }
   funds.append(fbody);
 
+  /** name box + classification select + Add, as one row of controls. */
+  const adder = (kind, options, placeholder) => {
+    const box = el('input', { type: 'text', placeholder, maxlength: '80', class: 'addname' });
+    const sel = el('select');
+    for (const opt of options) sel.append(el('option', { value: opt, text: opt }));
+    const go = el('button', { type: 'button', text: 'Add' });
+    const submit = () => {
+      const name = box.value.trim();
+      if (!name) return;
+      box.value = '';
+      onAdd(kind, name, sel.value);
+    };
+    go.addEventListener('click', submit);
+    box.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    return el('p', { class: 'actions' }, box, sel, go);
+  };
+
   mount.append(
-    el('h3', { text: 'Troop account classification' }),
-    el('p', { class: 'hint', text: 'Cash and non-cash accounts both count toward Total Assets; non-cash is additionally deducted from Unrestricted Net Assets, since it cannot be spent. Liability is displayed under Liabilities with the sign inverted. An account in the export that is missing here is added on import with a guessed classification, and listed for confirmation on the Import tab.' }),
+    el('h3', { text: 'Troop accounts' }),
+    el('p', { class: 'hint', text: 'Cash and non-cash accounts both count toward Total Assets; non-cash is additionally deducted from Unrestricted Net Assets, since it cannot be spent. Liability is displayed under Liabilities with the sign inverted.' }),
     accounts,
-    el('h3', { text: 'Fund categories' }),
-    el('p', { class: 'hint', text: 'Drives both the income-statement section and whether an event counts as program or fundraising activity. A fund in the export that is missing here is added on import with a category guessed from its name and its net, and listed for confirmation on the Import tab. To adopt a different chart of accounts wholesale, load a settings file.' }),
-    funds);
+    adder('account', ACCOUNT_CLASSES, 'New troop account, exactly as TroopWebHost spells it'),
+    el('h3', { text: 'Funds' }),
+    el('p', { class: 'hint', text: 'Your troop\'s funds, and the category each one reports under. The category drives both the income-statement section and whether an event counts as program or fundraising activity. Add or remove funds here as TroopWebHost gains and loses them; whatever is listed is what the settings file carries.' }),
+    el('p', { class: 'hint', text: 'The six category names are fixed — they are the sections of the income statement — but which funds exist, and where each one sits, is entirely yours. Importing an export adds anything missing with a guessed category and offers to remove what has gone; this table is the same list, edited by hand.' }),
+    funds,
+    adder('fund', CATEGORY_NAMES, 'New fund, exactly as TroopWebHost spells it'));
 }

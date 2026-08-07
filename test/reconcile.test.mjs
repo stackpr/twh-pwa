@@ -32,7 +32,7 @@ import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
 import { snapshotFromReport } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
-import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents } from '../js/ledger.js';
+import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart } from '../js/ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from '../js/reports.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -278,6 +278,41 @@ console.log('\n== CHART REVIEW (new and unused names) ==');
   ok('removing unused names does not halt the load', ledC.errors.length === 0);
   const bsTidied = balanceSheet(ledC, tidied, resolveAsOf(ledC, tidied.params));
   eq('removing unused names moves no figure', bsTidied.unrestricted, bsAdopted.unrestricted);
+}
+
+console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
+{
+  // The chart is editable while an export is loaded, so a name can be removed
+  // out from under a ledger. That must halt the reports, not quietly drop the
+  // fund's legs — the same rule as an unknown name at import time.
+  const { ledger, cfg } = build({});
+  ok('a complete chart validates clean',
+     validateChart(ledger, cfg).unknownFunds.length === 0
+     && validateChart(ledger, cfg).unknownAccounts.length === 0);
+
+  const usedFund = reconcile(ledger, cfg).fundsSeen[0];
+  const without = { ...cfg, fundCategories: { ...cfg.fundCategories } };
+  delete without.fundCategories[usedFund];
+  eq('removing a fund the export uses is caught',
+     validateChart(ledger, without).unknownFunds.length, 1);
+  ok('and names it', validateChart(ledger, without).unknownFunds[0] === usedFund);
+
+  const usedAccount = reconcile(ledger, cfg).accounts[0];
+  const noAccount = { ...cfg, accountClass: { ...cfg.accountClass } };
+  delete noAccount.accountClass[usedAccount];
+  eq('removing an account the export uses is caught',
+     validateChart(ledger, noAccount).unknownAccounts.length, 1);
+
+  // Removing something the export never mentions is the tidy-up case and must
+  // stay silent — that is what the import review offers to do.
+  const spare = { ...cfg, fundCategories: { ...cfg.fundCategories, 'Never Used Fund': 'Other Income' } };
+  ok('an unused name added or removed changes nothing',
+     validateChart(ledger, spare).unknownFunds.length === 0);
+
+  // Adding a fund by hand is just a chart entry until an export mentions it.
+  ok('a hand-added fund does not disturb the reports',
+     Math.abs(monthlyIncome(ledger, spare, resolveAsOf(ledger, spare.params)).netTotal.total
+              - monthlyIncome(ledger, cfg, resolveAsOf(ledger, cfg.params)).netTotal.total) < 0.005);
 }
 
 console.log('\n== CLASSIFICATION GUESSES ==');

@@ -193,6 +193,13 @@ table.cfg { border-collapse: collapse; font-size: .85rem; margin-bottom: 1rem; }
 table.cfg th, table.cfg td { padding: .2rem .6rem; text-align: left; border-bottom: 1px solid var(--line); }
 table.cfg thead th { border-bottom: 1.5px solid var(--ink); }
 table.cfg select { font: inherit; font-size: .82rem; }
+table.cfg th.shrink, table.cfg td.shrink { width: 1.8rem; text-align: center; padding-left: 0; }
+table.cfg .remove { color: var(--muted); text-decoration: none; font-size: .9rem; line-height: 1; }
+table.cfg .remove:hover { color: var(--err); }
+input.addname {
+  font: inherit; font-size: .85rem; min-width: min(100%, 24rem); flex: 1 1 16rem;
+  padding: .35rem .5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel);
+}
 
 .app-foot { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
 

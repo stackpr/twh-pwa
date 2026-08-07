@@ -168,6 +168,25 @@ export function classifyEvents(ledger, cfg) {
 }
 
 /**
+ * Names in the loaded export that the chart of accounts no longer classifies.
+ *
+ * buildLedger checks this as it reads the rows; this checks the same thing
+ * against a ledger already built, which is what a chart edited after the import
+ * needs. Removing a fund that the export uses has to stop the reports the same
+ * way an unknown fund at import time does — otherwise its legs would simply
+ * stop being counted, which is the silent under-reporting this app exists to
+ * prevent.
+ */
+export function validateChart(ledger, cfg) {
+  const unknownFunds = new Set(), unknownAccounts = new Set();
+  for (const l of ledger.legs) {
+    if (l.kind === 'fund' && !(l.key in cfg.fundCategories)) unknownFunds.add(l.key);
+    else if (l.kind === 'asset' && !(l.key in cfg.accountClass)) unknownAccounts.add(l.key);
+  }
+  return { unknownFunds: [...unknownFunds].sort(), unknownAccounts: [...unknownAccounts].sort() };
+}
+
+/**
  * Compare the chart of accounts against what this export actually contains.
  *
  * Two directions, both worth knowing at import time. Names in the export that

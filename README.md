@@ -91,6 +91,15 @@ Every fund maps to one of six categories, set in `js/config.js`:
 | Other Income | revenue | Net Income — Other |
 | Other Expenses | expense | Net Income — Other |
 
+**The six category names are fixed; the funds are yours.** Categories are the
+sections of the income statement, so they are the app's vocabulary rather than a
+troop's, and auto-detection only ever assigns one of them. Which funds exist, and
+which category each sits in, is entirely a troop's own: the Settings tab lists
+them with a category dropdown, an ✕ to remove one, and a box to add one, and
+whatever is listed there is what the settings file carries. Removing a fund the
+loaded export uses stops the reports and names it, the same as an unclassified
+fund at import — it is never dropped from the figures quietly.
+
 The map does double duty. Besides placing a fund in an income-statement section,
 it classifies **events**: an event whose fund activity is mostly Program-category
 is a program event and gets a column on Event Income; one that is mostly

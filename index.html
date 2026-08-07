@@ -221,7 +221,7 @@
 
     <section>
       <h2>Configuration</h2>
-      <p class="hint">The chart of accounts, as currently loaded. Shipped with an example set; importing an export adds anything missing from it with a guessed classification. Edit below for one-off changes &mdash; the reports recompute as you do &mdash; or load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
+      <p class="hint">Your troop's funds and troop accounts. Add one, remove one, or change where it reports &mdash; the reports recompute as you do, and whatever is listed here is what the settings file carries. Importing an export adds anything missing with a guessed classification, so this table is usually a matter of correcting rather than typing. Shipped with an example set; load a settings file to adopt a different chart wholesale. Cached in this browser; never contains transaction data.</p>
       <p class="hint">To discard any of this &mdash; the chart of accounts, the snapshots, the offline copy of the app &mdash; see the <button type="button" class="linkish" data-goto="cache">Cache</button> tab.</p>
       <p id="config-note" class="hint"></p>
       <div id="config"></div>
@@ -312,7 +312,9 @@
         and troop account it contains is added for you, each with a guessed classification
         that the Import tab then asks you to confirm. Correct anything wrong there &mdash;
         the reports update as you do &mdash; and download the settings file to keep the
-        result.
+        result. The Settings tab lists the same funds and accounts, where you can add one,
+        remove one, or move it to another category by hand. The six category names
+        themselves are fixed: they are the sections of the income statement.
       </p>
       <p class="hint">
         The same review lists anything in your settings the export never mentions, which is

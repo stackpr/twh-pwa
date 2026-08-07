@@ -2,7 +2,7 @@
 
 import { parseCSV } from './csv.js';
 import { loadConfig, saveConfig, clearConfig, fiscalYearOf, fiscalYearLabel } from './config.js';
-import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents } from './ledger.js';
+import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents, validateChart } from './ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from './reports.js';
 import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
@@ -77,7 +77,7 @@ function loadRecords(records) {
   $('#import-done').hidden = false;
   renderReconciliation(reconcile(ledger, state.cfg), ledger, $('#reconciliation'));
   rerender();
-  renderBudgetPanel();   // the as-of date is now known, and with it the fiscal year
+  renderSettingsPanel();   // the as-of date is now known, and with it the fiscal year
   renderReview();
   // A review is the one thing worth reading before the figures. With nothing to
   // review the reports are what was asked for, so go straight there.
@@ -241,15 +241,36 @@ function renderGuessNote() {
  */
 function afterChartEdit() {
   saveConfig(state.cfg);
+  const errors = [];
   if (state.ledger) {
+    // An edit can uncover a name as surely as an import can — remove a fund the
+    // export uses and its legs would otherwise stop being counted. Same halt,
+    // same reason: nothing disappears quietly.
+    const { unknownFunds, unknownAccounts } = validateChart(state.ledger, state.cfg);
+    if (unknownFunds.length) {
+      errors.push(`Fund(s) in the loaded export with no category: ${unknownFunds.join(', ')}.`);
+    }
+    if (unknownAccounts.length) {
+      errors.push(`Troop account(s) in the loaded export with no classification: ${unknownAccounts.join(', ')}.`);
+    }
+    renderErrors(errors.length
+      ? [...errors, 'Add them back to the chart of accounts, or re-import the export to have them classified by guess.']
+      : [], $('#errors'));
+    setReportsShown(!errors.length);
+    if (errors.length) {
+      renderGuessNote();
+      setTimeout(renderSettingsPanel, 0);
+      return errors;
+    }
     classifyEvents(state.ledger, state.cfg);
     renderReconciliation(reconcile(state.ledger, state.cfg), state.ledger, $('#reconciliation'));
   }
   rerender();
   renderGuessNote();
-  // The chart changed, so the funds a budget can name did too. Deferred because
-  // this can be reached from a select's own change event.
-  setTimeout(renderBudgetPanel, 0);
+  // The chart changed, so both tables on the Settings tab did. Deferred because
+  // this can be reached from a control's own change event.
+  setTimeout(renderSettingsPanel, 0);
+  return errors;
 }
 
 function rerender() {
@@ -264,21 +285,68 @@ function rerender() {
   renderMonthlyIncome(monthlyIncome(state.ledger, cfg, state.asOf), $('#report-monthly'), org);
 
   renderDrift(bs);
-  renderConfig(cfg, $('#config'), onConfigEdit);
 }
 
-/** Everything on the Settings tab that is derived from the config. */
+/**
+ * Everything on the Settings tab that is derived from the config.
+ *
+ * Called deferred after an edit, never synchronously: a change event fires as
+ * the control loses focus, and replacing the table underneath it tears the
+ * element out mid-blur. It also has to run when no export is loaded, which is
+ * why it is not part of rerender() — that returns early with no ledger, and a
+ * fund added before the first import would have gone into the settings without
+ * appearing in the table.
+ */
 function renderSettingsPanel() {
-  renderConfig(state.cfg, $('#config'), onConfigEdit);
+  renderConfig(state.cfg, $('#config'), CONFIG_HANDLERS);
   renderBudgetPanel();
 }
 
-function onConfigEdit() {
-  afterChartEdit();
-  $('#config-note').textContent = state.ledger
+function onConfigEdit(note) {
+  const errors = afterChartEdit();
+  const said = note || (state.ledger
     ? 'Configuration saved, and the reports have been recomputed.'
-    : 'Configuration saved. It applies to the next export you import.';
+    : 'Configuration saved. It applies to the next export you import.');
+  // The halt itself is rendered on the Import tab, next to the file; say it here
+  // too, because this is the tab the treasurer is looking at.
+  $('#config-note').textContent = errors.length
+    ? `${said} The reports are stopped until every name is classified — ${errors.join(' ')}`
+    : said;
 }
+
+const CONFIG_HANDLERS = {
+  onChange: () => onConfigEdit(),
+
+  onAdd: (kind, name, value) => {
+    const map = kind === 'fund' ? state.cfg.fundCategories : state.cfg.accountClass;
+    const what = kind === 'fund' ? 'Fund' : 'Troop account';
+    if (name in map) {
+      onConfigEdit(`${what} "${name}" is already in the chart of accounts.`);
+      return;
+    }
+    map[name] = value;
+    // The name has to match the export character for character, and nothing
+    // here can check that until an export arrives — so say so rather than
+    // implying the fund is now wired up.
+    onConfigEdit(`${what} "${name}" added as ${value}. It applies to activity in the export only if the name matches exactly.`);
+  },
+
+  onRemove: (kind, name) => {
+    const map = kind === 'fund' ? state.cfg.fundCategories : state.cfg.accountClass;
+    const what = kind === 'fund' ? 'fund' : 'troop account';
+    // Removing something the loaded export uses does not quietly drop its
+    // money: the reports halt, exactly as they would for an unclassified name
+    // at import. Better to say that up front than to let it be discovered.
+    const inUse = state.ledger && state.ledger.legs.some(l =>
+      l.key === name && l.kind === (kind === 'fund' ? 'fund' : 'asset'));
+    const warning = inUse
+      ? `\n\nThe loaded export uses this ${what}. Removing it will stop the reports until it is classified again — nothing is dropped silently.`
+      : '';
+    if (!confirm(`Remove the ${what} "${name}" from the chart of accounts?${warning}`)) return;
+    delete map[name];
+    onConfigEdit(`Removed ${what} "${name}".`);
+  },
+};
 
 function reloadFromLedger() {
   // Some parameters — legacy mode, the hash salt — change how the ledger itself

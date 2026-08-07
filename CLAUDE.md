@@ -100,6 +100,13 @@ alternative rather than implementing it quietly.
    the halt in `ledger.js` must stay as the backstop for any path that does not.
    Skipping an unclassified account is still the specific failure that makes
    spreadsheet-era tooling untrustworthy.
+
+   The chart is also editable *after* an import — funds and accounts can be
+   added and removed on the Settings tab — so the same check has to run against
+   an already-built ledger: `validateChart` in `ledger.js`, called from
+   `afterChartEdit`. Remove a fund the loaded export uses and the reports stop
+   with it named, rather than its legs quietly ceasing to be counted. Any new
+   way to edit the chart must go through that path.
 4. **One sign convention.** Credit positive, debit negative, on every leg, set in
    `ledger.js`. The only place the sign flips for display is `sectionSign()` in
    `reports.js`. Do not introduce a second convention.
