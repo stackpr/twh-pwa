@@ -10,6 +10,11 @@
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="stylesheet" href="./app.css">
+<!-- Paper size and orientation for the next print job, written by js/main.js.
+     It lives here, after the stylesheet, so it wins the cascade. Empty until a
+     print is requested; @page cannot be selected on, so this is the only way to
+     give the wide statements landscape and the balance sheet portrait. -->
+<style id="page-style"></style>
 <!-- No external requests. Any CDN reference here would put a third party in the
      same origin as parsed scout data; that is the one thing this app must not do. -->
 </head>

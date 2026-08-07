@@ -82,6 +82,32 @@ function loadRecords(records) {
   if (!hasReview()) showTab('reports');
 }
 
+/* ---- printing ----------------------------------------------------- */
+
+// Which way up each report wants the paper. The two statements carry a column
+// per event or per month and are unreadable squeezed into portrait; the balance
+// sheet is one narrow column of figures and would waste half a landscape sheet.
+const ORIENTATION = { balance: 'portrait', event: 'landscape', monthly: 'landscape' };
+
+/**
+ * Set the paper for the next print job.
+ *
+ * @page takes no selector, so orientation cannot be expressed as a rule keyed to
+ * the report being printed — it has to be written just before printing. Letter
+ * is named explicitly because Chrome otherwise keeps whatever paper the print
+ * dialog last used, and the margins are asymmetric to match the orientation.
+ */
+function setPageSize(orientation) {
+  $('#page-style').textContent = `@page { size: Letter ${orientation}; margin: `
+    + (orientation === 'landscape' ? '10mm 12mm' : '12mm 10mm') + '; }';
+}
+
+function printReport(target) {
+  document.body.dataset.printTarget = target;
+  setPageSize(ORIENTATION[target] || 'portrait');
+  window.print();
+}
+
 /* ---- chart of accounts review ------------------------------------ */
 
 const hasReview = () => {
@@ -325,10 +351,13 @@ function bind() {
 
   // printing
   document.querySelectorAll('[data-print]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.body.dataset.printTarget = btn.dataset.print;
-      window.print();
-    });
+    btn.addEventListener('click', () => printReport(btn.dataset.print));
+  });
+  // Ctrl+P is as valid as the buttons, and can be pressed on any tab. The
+  // stylesheet already reduces the page to the reports; this gives that job a
+  // paper size too, since no button chose one.
+  window.addEventListener('beforeprint', () => {
+    if (!document.body.dataset.printTarget) setPageSize('landscape');
   });
   window.addEventListener('afterprint', () => { delete document.body.dataset.printTarget; });
 

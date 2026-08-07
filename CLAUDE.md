@@ -105,6 +105,12 @@ alternative rather than implementing it quietly.
    `reports.js`. Do not introduce a second convention.
 5. **Print is an allow-list.** `@media print` in `app.css` names each printable
    report explicitly. A new section stays hidden until named. Do not invert this.
+   The same block reduces the page to the reports whatever tab is open, because
+   Ctrl+P is as valid as the buttons: every panel is suppressed and
+   `#panel-reports` forced back on even while `hidden`. Paper size lives in
+   `#page-style`, written by `main.js` at print time — `@page` takes no selector,
+   so the balance sheet's portrait and the statements' landscape cannot be
+   expressed as rules. Do not move a version of it back into `app.css`.
 6. **Tabs never touch the URL.** The tab strip in `index.html` — Import,
    Reports, Settings, Cache, Help — shows one panel and hides the others, and
    that is all it does: no hash, no `history.pushState`, no query string, no

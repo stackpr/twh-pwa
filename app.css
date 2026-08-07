@@ -183,16 +183,28 @@ table.cfg select { font: inherit; font-size: .82rem; }
 .app-foot { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
 
 /* ------------------------------------------------------------------ */
-/* Print: exactly one report per sheet, chosen by the button pressed.  */
+/* Print: the report, and nothing else on the page.                    */
+/*                                                                     */
+/* Paper size and orientation are not set here. They are written into  */
+/* #page-style by main.js at the moment of printing, because @page      */
+/* cannot be made conditional on which report was asked for: the wide   */
+/* statements want landscape and the balance sheet does not.            */
 /* ------------------------------------------------------------------ */
 
 @media print {
-  @page { margin: 12mm 10mm; }
-
   body { background: #fff; font-size: 9pt; }
   main { max-width: none; padding: 0; }
-  .no-print, .app-head, .app-foot { display: none !important; }
+  .no-print, .app-head, .app-foot, .tablist { display: none !important; }
   section { margin: 0; }
+
+  /* Ctrl+P is as valid a way to print as the buttons, and it can be pressed on
+     any tab. Every panel but the reports is suppressed whatever the tab strip
+     says, and the reports panel is forced back on even while hidden — printing
+     from Settings should still yield a report, not a page of controls.
+     #panel-reports[hidden] outweighs the global [hidden] rule; both are
+     !important, so the more specific selector wins. */
+  .panel { display: none !important; }
+  #panel-reports, #panel-reports[hidden] { display: block !important; }
 
   .report { border: none; border-radius: 0; padding: 0; page-break-after: always; }
   .report:last-of-type { page-break-after: auto; }
@@ -204,14 +216,21 @@ table.cfg select { font: inherit; font-size: .82rem; }
   body[data-print-target="event"]   .report[data-report="event"],
   body[data-print-target="monthly"] .report[data-report="monthly"] { display: block; page-break-after: auto; }
 
-  table.rpt { font-size: 8.5pt; }
-  table.rpt.compact { font-size: 7pt; }
-  table.rpt th, table.rpt td { padding: .08rem .25rem; }
+  /* Sized so a full six-section income statement clears one sheet: at screen
+     line height the monthly statement ran about 12% over, which costs a whole
+     second page for a few rows. */
+  table.rpt { font-size: 8pt; line-height: 1.25; }
+  /* The wide statements are tighter still: at paper width the long fund names
+     wrap to a second line and put the monthly statement a few points over. */
+  table.rpt.compact { font-size: 7pt; line-height: 1.12; }
+  table.rpt th, table.rpt td { padding: .06rem .25rem; }
   table.rpt tbody tr:hover { background: none; }
   table.rpt td.neg { color: #000; }
+  /* Rules and the double underline under a grand total are structure, not
+     decoration; Chrome drops backgrounds by default and would drop these too. */
+  table.rpt, table.rpt th, table.rpt td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   thead { display: table-header-group; }
   tr { page-break-inside: avoid; }
-  .notes { font-size: 6.5pt; }
+  .rpt-head { break-after: avoid; }
+  .notes { font-size: 6.5pt; break-before: avoid; }
 }
-
-@page balance { size: Letter portrait; }

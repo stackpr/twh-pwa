@@ -56,7 +56,10 @@ Screen; Safari never fires the install event.
    count should match last month. A jump in *single-leg entries* means someone
    posted something unusual.
 5. Set **Past events shown** so Event Income fits one page.
-6. Print each report. Browser print → Save as PDF.
+6. Print each report. The buttons set the paper themselves — portrait for the
+   balance sheet, landscape for the two statements — and each report is sized to
+   land on one sheet, so Chrome's *Save as PDF* needs no adjusting. Ctrl+P works
+   too, from any tab: only the reports print, in landscape.
 7. **Capture snapshot at this date**, then, on the **Settings** tab, **Download
    settings file** and keep it with the PDFs. That file is the handover artefact.
 
