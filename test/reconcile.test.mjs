@@ -27,6 +27,7 @@ import { parseCSV } from '../js/csv.js';
 import {
   FUND_CATEGORIES, DEFAULT_ACCOUNT_CLASS, DEFAULT_PARAMS, CATEGORY_NAMES,
   guessFundCategory, guessAccountClass, fiscalYearOf, fiscalYearLabel,
+  budgetYearsFor, mergeBudgetLine,
 } from '../js/config.js';
 import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
@@ -308,6 +309,42 @@ console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
   const spare = { ...cfg, fundCategories: { ...cfg.fundCategories, 'Never Used Fund': 'Other Income' } };
   ok('an unused name added or removed changes nothing',
      validateChart(ledger, spare).unknownFunds.length === 0);
+
+  // A fund the export uses cannot be removed through the UI at all; the check
+  // above is the backstop for a settings file that removes one by hand.
+  // A fund that is NOT in the export can go, but its budget may not go with it.
+  const budgets = {
+    2023: { 'Old Fund': 400, 'Keeper Fund': 100, 'Program Revenue': 5000 },
+    2024: { 'Old Fund': 250 },
+    2025: { 'Keeper Fund': 75 },
+  };
+  const yearTotal = (b, y) => Object.values(b[y] || {}).reduce((s, v) => s + v, 0);
+  const merged = mergeBudgetLine(budgets, 'Old Fund', 'Keeper Fund');
+
+  eq('merging sums into the target where both exist', merged['2023']['Keeper Fund'], 500);
+  eq('and creates the target where only the source existed', merged['2024']['Keeper Fund'], 250);
+  ok('the merged-away fund is gone from every year',
+     Object.values(merged).every(row => !('Old Fund' in row)));
+  ok('a year that never mentioned it is untouched',
+     merged['2025']['Keeper Fund'] === 75 && Object.keys(merged['2025']).length === 1);
+  for (const y of ['2023', '2024', '2025']) {
+    eq(`FY ${y} total unchanged by the merge`, yearTotal(merged, y), yearTotal(budgets, y));
+  }
+  ok('other lines in the year are left alone', merged['2023']['Program Revenue'] === 5000);
+  ok('merging a fund into itself is a no-op on the total',
+     yearTotal(mergeBudgetLine(budgets, 'Old Fund', 'Old Fund'), '2023') === yearTotal(budgets, '2023'));
+  eq('budget years are found for a fund', budgetYearsFor(budgets, 'Old Fund').length, 2);
+  eq('and none for a fund with no budget', budgetYearsFor(budgets, 'Keeper Fund').length, 2);
+  eq('none at all for an unbudgeted name', budgetYearsFor(budgets, 'Nothing Here').length, 0);
+
+  // A budgeted fund is kept out of the bulk "remove unused" offer, because its
+  // budget needs somewhere to go, and named instead so it is not just missing.
+  const withBudget = { ...cfg, budgets: { 2023: { 'Never Used Fund': 90 } },
+    fundCategories: { ...cfg.fundCategories, 'Never Used Fund': 'Other Income' } };
+  const rev = chartReview(ledger, withBudget);
+  ok('a budgeted unused fund is not offered for bulk removal',
+     !rev.unusedFunds.includes('Never Used Fund'));
+  ok('but it is named', rev.unusedBudgetedFunds.includes('Never Used Fund'));
 
   // Adding a fund by hand is just a chart entry until an export mentions it.
   ok('a hand-added fund does not disturb the reports',

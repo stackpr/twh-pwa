@@ -104,9 +104,19 @@ alternative rather than implementing it quietly.
    The chart is also editable *after* an import — funds and accounts can be
    added and removed on the Settings tab — so the same check has to run against
    an already-built ledger: `validateChart` in `ledger.js`, called from
-   `afterChartEdit`. Remove a fund the loaded export uses and the reports stop
-   with it named, rather than its legs quietly ceasing to be counted. Any new
-   way to edit the chart must go through that path.
+   `afterChartEdit`. A name the loaded export uses cannot be removed at all: the
+   ✕ is disabled and `onRemove` refuses it, because a chart that cannot classify
+   the transactions in front of it is not a tidier chart. `validateChart` stays
+   as the backstop for the path the UI does not own — a settings file that
+   removes a fund by hand — and stops the reports with the fund named rather
+   than letting its legs quietly cease to be counted.
+
+   A fund that is *not* in the export may be removed, but its budget may not
+   vanish with it. Removal offers a fund to move the budget onto and
+   `mergeBudgetLine` adds it in year by year, so every fiscal year's total is
+   what it was before. For the same reason the import review's bulk "remove
+   unused" offer skips budgeted funds and names them instead: where a budget
+   goes is a decision per fund, not a side effect of a tidy-up.
 4. **One sign convention.** Credit positive, debit negative, on every leg, set in
    `ledger.js`. The only place the sign flips for display is `sectionSign()` in
    `reports.js`. Do not introduce a second convention.
@@ -181,6 +191,32 @@ Module boundaries, in dependency order — keep it acyclic:
 
 `reports.js` must stay DOM-free so the test harness can import it under Node.
 
+## Agents
+
+Three subagents live in `.claude/agents/`, each pinning its own model and
+effort. Use them; do not do their jobs inline.
+
+- **`test-runner`** (sonnet, low) — runs `node test/reconcile.test.mjs` and
+  reports. **Every test run goes through it**, including the routine green check
+  after a small change. It is read-only by construction: it cannot edit a golden
+  value, loosen a tolerance, or regenerate a file to make a run pass, which is
+  exactly the pressure a failing run applies.
+- **`browser-check`** (sonnet, medium) — drives headless Chromium. Use it
+  whenever a change touches `index.html`, `app.css`, `main.js` or `render.js`;
+  the Node suite has no DOM and cannot see a tab that does not switch, a print
+  sheet that spills, or a `replaceChildren` thrown mid-blur.
+- **`privacy-auditor`** (opus, high) — audits a change against Rules 1 and 2
+  before a push that touches ingest, storage, the service worker, the fixtures,
+  or anything that adds a request.
+
+**Agents wrap skills; they do not replace them.** If a skill covers the task —
+`/code-review`, `/security-review`, `run` — the agent invokes it and follows it,
+then reports. Do not reimplement a skill's checklist in an agent definition, and
+do not skip a skill because an agent exists.
+
+Adding an agent means giving it a `model:` and an `effort:` explicitly. The
+default is not a decision.
+
 ## Testing
 
 ```
@@ -188,7 +224,8 @@ node test/reconcile.test.mjs                    # synthetic fixture
 node test/reconcile.test.mjs <path-to-export>   # invariants only
 ```
 
-Run after **any** change to `ledger.js` or `reports.js`.
+Run through the `test-runner` agent after **any** change to `ledger.js` or
+`reports.js` — and before any push, since a push to `gh-pages` is a deployment.
 
 - **Invariants** hold for any well-formed export. Adding one is usually worth
   more than adding another golden value.

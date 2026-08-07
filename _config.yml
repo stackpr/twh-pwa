@@ -10,6 +10,7 @@
 exclude:
   - README.md        # domain conventions, for contributors
   - CLAUDE.md        # working notes for Claude Code sessions
+  - .claude/         # subagent definitions — repo-only, never served
   - tools/           # regenerate the two committed generated files
   - test/            # test suite and synthetic fixtures — repo-only
   - js/package.json  # marks js/ as ES modules for Node; the browser ignores it

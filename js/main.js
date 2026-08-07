@@ -1,7 +1,10 @@
 // main.js — wiring.
 
 import { parseCSV } from './csv.js';
-import { loadConfig, saveConfig, clearConfig, fiscalYearOf, fiscalYearLabel } from './config.js';
+import {
+  loadConfig, saveConfig, clearConfig, fiscalYearOf, fiscalYearLabel,
+  budgetYearsFor, mergeBudgetLine,
+} from './config.js';
 import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents, validateChart } from './ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from './reports.js';
 import {
@@ -161,8 +164,8 @@ function printReport(target) {
 
 const hasReview = () => {
   const r = state.review;
-  return !!r && (r.newFunds.length + r.newAccounts.length
-    + r.unusedFunds.length + r.unusedAccounts.length > 0);
+  return !!r && (r.newFunds.length + r.newAccounts.length + r.unusedFunds.length
+    + r.unusedAccounts.length + (r.unusedBudgetedFunds || []).length > 0);
 };
 
 /**
@@ -198,6 +201,8 @@ function renderReview() {
         state.review.newAccounts.find(a => a.name === name).guess = cls;
         afterChartEdit();
       },
+      // Only the unbudgeted ones are in this list; a budgeted fund's removal is
+      // a decision about where its budget goes, taken on the Settings tab.
       onRemoveUnused: () => {
         const { unusedFunds, unusedAccounts } = state.review;
         const n = unusedFunds.length + unusedAccounts.length;
@@ -298,7 +303,7 @@ function rerender() {
  * appearing in the table.
  */
 function renderSettingsPanel() {
-  renderConfig(state.cfg, $('#config'), CONFIG_HANDLERS);
+  renderConfig(state.cfg, $('#config'), { ...CONFIG_HANDLERS, usage: chartUsage() });
   renderBudgetPanel();
 }
 
@@ -331,22 +336,37 @@ const CONFIG_HANDLERS = {
     onConfigEdit(`${what} "${name}" added as ${value}. It applies to activity in the export only if the name matches exactly.`);
   },
 
-  onRemove: (kind, name) => {
+  onRemove: (kind, name, mergeInto = null) => {
     const map = kind === 'fund' ? state.cfg.fundCategories : state.cfg.accountClass;
     const what = kind === 'fund' ? 'fund' : 'troop account';
-    // Removing something the loaded export uses does not quietly drop its
-    // money: the reports halt, exactly as they would for an unclassified name
-    // at import. Better to say that up front than to let it be discovered.
-    const inUse = state.ledger && state.ledger.legs.some(l =>
-      l.key === name && l.kind === (kind === 'fund' ? 'fund' : 'asset'));
-    const warning = inUse
-      ? `\n\nThe loaded export uses this ${what}. Removing it will stop the reports until it is classified again — nothing is dropped silently.`
-      : '';
-    if (!confirm(`Remove the ${what} "${name}" from the chart of accounts?${warning}`)) return;
+    // Belt and braces: the ✕ is already disabled for a name the export uses.
+    // A settings file can still remove one by hand, which validateChart catches.
+    if (chartUsage()[kind === 'fund' ? 'funds' : 'accounts'].has(name)) {
+      onConfigEdit(`"${name}" is used by the loaded export and cannot be removed.`);
+      return;
+    }
+    const moving = mergeInto ? budgetYearsFor(state.cfg.budgets, name).length : 0;
+    const question = mergeInto
+      ? `Remove the fund "${name}" and move its budget (${moving} year${moving === 1 ? '' : 's'}) to "${mergeInto}"?`
+      : `Remove the ${what} "${name}" from the chart of accounts?`;
+    if (!confirm(question)) return;
+    if (mergeInto) state.cfg.budgets = mergeBudgetLine(state.cfg.budgets, name, mergeInto);
     delete map[name];
-    onConfigEdit(`Removed ${what} "${name}".`);
+    onConfigEdit(mergeInto
+      ? `Removed fund "${name}". Its budget moved to "${mergeInto}", so each year's total is unchanged.`
+      : `Removed ${what} "${name}".`);
   },
 };
+
+/** Fund and account names the loaded export actually uses. */
+function chartUsage() {
+  const funds = new Set(), accounts = new Set();
+  for (const l of (state.ledger ? state.ledger.legs : [])) {
+    if (l.kind === 'fund') funds.add(l.key);
+    else if (l.kind === 'asset') accounts.add(l.key);
+  }
+  return { funds, accounts };
+}
 
 function reloadFromLedger() {
   // Some parameters — legacy mode, the hash salt — change how the ledger itself

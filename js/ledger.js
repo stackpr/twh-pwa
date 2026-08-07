@@ -5,7 +5,7 @@
 // the sign at presentation only, in exactly one place (reports.js:sectionSign).
 
 import { md5 } from './csv.js';
-import { guessFundCategory, guessAccountClass } from './config.js';
+import { guessFundCategory, guessAccountClass, budgetYearsFor } from './config.js';
 
 export const REQUIRED_COLUMNS = [
   'Transaction Type', 'Date', 'Amount',
@@ -222,7 +222,13 @@ export function chartReview(ledger, cfg) {
       name,
       guess: guessAccountClass(name),
     })),
-    unusedFunds: Object.keys(cfg.fundCategories).filter(n => !fundNet.has(n)).sort(),
+    // A budgeted fund is deliberately not offered for bulk removal: its budget
+    // has to go somewhere, and choosing where is a decision per fund. It is
+    // named instead, so it is not simply missing from the list.
+    unusedFunds: Object.keys(cfg.fundCategories)
+      .filter(n => !fundNet.has(n) && !budgetYearsFor(cfg.budgets, n).length).sort(),
+    unusedBudgetedFunds: Object.keys(cfg.fundCategories)
+      .filter(n => !fundNet.has(n) && budgetYearsFor(cfg.budgets, n).length).sort(),
     unusedAccounts: Object.keys(cfg.accountClass).filter(n => !accountsSeen.has(n)).sort(),
   };
 }

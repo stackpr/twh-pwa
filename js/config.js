@@ -152,6 +152,36 @@ export function fiscalYearLabel(year, startMonth) {
 export const budgetFor = (budget, name) =>
   (budget && Number.isFinite(budget[name]) ? budget[name] : null);
 
+/** Fiscal years in which this fund or category carries a budget figure. */
+export const budgetYearsFor = (budgets, name) =>
+  Object.keys(budgets || {})
+    .filter(y => Number.isFinite((budgets[y] || {})[name]))
+    .sort();
+
+/**
+ * Move one budget line onto another, year by year.
+ *
+ * Used when a fund leaves the chart of accounts. Its budget is not discarded and
+ * not left orphaned: it is added to whichever line the treasurer nominates, in
+ * each year it exists, so every yearly total is exactly what it was before. A
+ * budget is only in this app — nothing else holds a copy to restore it from.
+ */
+export function mergeBudgetLine(budgets, from, into) {
+  // Moving a line onto itself is nothing happening, not a line being consumed.
+  if (from === into) return { ...(budgets || {}) };
+  const out = {};
+  for (const [year, row] of Object.entries(budgets || {})) {
+    const copy = { ...row };
+    if (Number.isFinite(copy[from])) {
+      const moved = copy[from];
+      delete copy[from];
+      copy[into] = (Number.isFinite(copy[into]) ? copy[into] : 0) + moved;
+    }
+    if (Object.keys(copy).length) out[year] = copy;
+  }
+  return out;
+}
+
 /**
  * A section's budget: every fund figure inside it, plus the category figure
  * covering the rest. Either alone is normal — budget each fund, or budget the

@@ -96,9 +96,19 @@ sections of the income statement, so they are the app's vocabulary rather than a
 troop's, and auto-detection only ever assigns one of them. Which funds exist, and
 which category each sits in, is entirely a troop's own: the Settings tab lists
 them with a category dropdown, an ✕ to remove one, and a box to add one, and
-whatever is listed there is what the settings file carries. Removing a fund the
-loaded export uses stops the reports and names it, the same as an unclassified
-fund at import — it is never dropped from the figures quietly.
+whatever is listed there is what the settings file carries.
+
+Two guards on removal, both about not losing a figure:
+
+- **A fund or account the loaded export uses cannot be removed.** Its ✕ is
+  disabled and says why. The transactions are in the reports; a chart with
+  nothing to classify them by is not tidier, it is broken. (A settings file can
+  still remove one by hand, and that stops the reports with the fund named.)
+- **A fund carrying a budget takes its budget with it.** Removing one asks which
+  fund to move the budget to and adds it in year by year, so every fiscal year's
+  total is unchanged. The import review's bulk "remove unused" skips budgeted
+  funds for the same reason and names them instead — where a budget goes is a
+  decision, not a side effect.
 
 The map does double duty. Besides placing a fund in an income-statement section,
 it classifies **events**: an event whose fund activity is mostly Program-category

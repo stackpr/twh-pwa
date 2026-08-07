@@ -1,7 +1,7 @@
 // render.js — DOM rendering. Produces the printable tables.
 
 import { fmtMoney, fmtInt, fmtDate } from './snapshots.js';
-import { CATEGORY_NAMES, ACCOUNT_CLASSES, fiscalYearLabel } from './config.js';
+import { CATEGORY_NAMES, ACCOUNT_CLASSES, fiscalYearLabel, budgetYearsFor } from './config.js';
 
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -279,7 +279,8 @@ export function renderChartReview(review, mount, { onFundChange, onAccountChange
   mount.replaceChildren();
   const added = review.newFunds.length + review.newAccounts.length;
   const unused = review.unusedFunds.length + review.unusedAccounts.length;
-  if (!added && !unused) { mount.hidden = true; return; }
+  const budgeted = review.unusedBudgetedFunds?.length || 0;
+  if (!added && !unused && !budgeted) { mount.hidden = true; return; }
   mount.hidden = false;
 
   if (added) {
@@ -325,7 +326,7 @@ export function renderChartReview(review, mount, { onFundChange, onAccountChange
     }
   }
 
-  if (unused) {
+  if (unused || budgeted) {
     mount.append(el('h3', { text: 'Not used by this export' }));
     mount.append(el('p', { class: 'hint', text:
       `Your settings classify ${plural(review.unusedFunds.length, 'fund')} and `
@@ -334,10 +335,18 @@ export function renderChartReview(review, mount, { onFundChange, onAccountChange
       + 'reports refers to them. They come back, with a guessed classification, if they turn '
       + 'up in a later export.' }));
     mount.append(nameList('Funds', review.unusedFunds), nameList('Troop accounts', review.unusedAccounts));
-    const remove = el('button', { class: 'danger', type: 'button',
-      text: `Remove ${unused === 1 ? 'it' : `all ${fmtInt(unused)}`} from the settings` });
-    remove.addEventListener('click', onRemoveUnused);
-    mount.append(el('p', { class: 'actions' }, remove));
+    if (review.unusedBudgetedFunds?.length) {
+      mount.append(el('p', { class: 'hint', text:
+        `${plural(review.unusedBudgetedFunds.length, 'unused fund')} carr${review.unusedBudgetedFunds.length === 1 ? 'ies' : 'y'} a budget and `
+        + `${review.unusedBudgetedFunds.length === 1 ? 'is' : 'are'} not in that list: `
+        + `${review.unusedBudgetedFunds.join(', ')}. Remove those on the Settings tab, where the budget can be moved to another fund instead of vanishing with it.` }));
+    }
+    if (unused) {
+      const remove = el('button', { class: 'danger', type: 'button',
+        text: `Remove ${unused === 1 ? 'it' : `all ${fmtInt(unused)}`} from the settings` });
+      remove.addEventListener('click', onRemoveUnused);
+      mount.append(el('p', { class: 'actions' }, remove));
+    }
   }
 
   const done = el('button', { type: 'button', text: 'Done — go to the reports' });
@@ -457,13 +466,60 @@ export function renderBudget(cfg, { year, years, label }, mount, { onSetYear, on
  * app's vocabulary rather than a troop's. What belongs to a troop is which
  * funds exist and which category each one is in.
  */
-export function renderConfig(cfg, mount, { onChange, onAdd, onRemove }) {
+export function renderConfig(cfg, mount, { usage, onChange, onAdd, onRemove }) {
   mount.replaceChildren();
+  const inUse = { funds: new Set(), accounts: new Set(), ...(usage || {}) };
 
-  const removeButton = (kind, name) => {
+  /**
+   * The ✕ on a row, and what it is allowed to do.
+   *
+   * A name the loaded export uses cannot be removed at all — its transactions
+   * are in the reports, and a chart with nothing to classify them by is not a
+   * tidier chart, it is a broken report. Removing it is not offered rather than
+   * offered and then punished.
+   *
+   * A fund carrying a budget can go, but its budget cannot simply go with it:
+   * the row turns into a chooser for the fund to move that budget onto, so the
+   * yearly totals come out where they went in.
+   */
+  const removeCell = (kind, name, row) => {
+    const cell = el('td', { class: 'shrink' });
+    if (inUse[kind === 'fund' ? 'funds' : 'accounts'].has(name)) {
+      cell.append(el('button', {
+        type: 'button', class: 'linkish remove', disabled: '',
+        title: `"${name}" is used by the loaded export, so it cannot be removed. Its transactions would have nothing to classify them.`,
+        text: '✕',
+      }));
+      return cell;
+    }
+    const years = kind === 'fund' ? budgetYearsFor(cfg.budgets, name) : [];
     const b = el('button', { type: 'button', class: 'linkish remove', title: `Remove ${name}`, text: '✕' });
-    b.addEventListener('click', () => onRemove(kind, name));
-    return b;
+    b.addEventListener('click', () => {
+      if (!years.length) { onRemove(kind, name); return; }
+      b.disabled = true;
+      row.after(mergeRow(name, years, () => { b.disabled = false; }));
+    });
+    cell.append(b);
+    return cell;
+  };
+
+  /** The inline "where does its budget go?" row. */
+  const mergeRow = (name, years, onCancel) => {
+    const sel = el('select');
+    for (const other of Object.keys(cfg.fundCategories).filter(f => f !== name).sort()) {
+      sel.append(el('option', { value: other, text: other }));
+    }
+    const figures = years
+      .map(y => `${fiscalYearLabel(Number(y), cfg.params.fiscalYearStart)} ${fmtMoney(cfg.budgets[y][name])}`)
+      .join(', ');
+    const go = el('button', { type: 'button', class: 'danger', text: 'Move budget and remove' });
+    const cancel = el('button', { type: 'button', text: 'Cancel' });
+    const tr = el('tr', { class: 'mergerow' }, el('td', { colspan: 3 },
+      el('p', { class: 'hint', text: `"${name}" has a budget (${figures}). Removing it moves that budget to another fund, so every year's total stays what it was. Move it to:` }),
+      el('p', { class: 'actions' }, sel, go, cancel)));
+    go.addEventListener('click', () => onRemove('fund', name, sel.value));
+    cancel.addEventListener('click', () => { tr.remove(); onCancel(); });
+    return tr;
   };
 
   const accounts = el('table', { class: 'cfg' });
@@ -476,10 +532,11 @@ export function renderConfig(cfg, mount, { onChange, onAdd, onRemove }) {
       sel.append(el('option', { value: opt, text: opt, ...(cfg.accountClass[name] === opt ? { selected: '' } : {}) }));
     }
     sel.addEventListener('change', () => { cfg.accountClass[name] = sel.value; onChange(); });
-    abody.append(el('tr', {},
+    const row = el('tr', {},
       el('th', { class: 'label', scope: 'row', text: name }),
-      el('td', {}, sel),
-      el('td', { class: 'shrink' }, removeButton('account', name))));
+      el('td', {}, sel));
+    row.append(removeCell('account', name, row));
+    abody.append(row);
   }
   accounts.append(abody);
 
@@ -492,10 +549,11 @@ export function renderConfig(cfg, mount, { onChange, onAdd, onRemove }) {
       sel.append(el('option', { value: opt, text: opt, ...(cfg.fundCategories[name] === opt ? { selected: '' } : {}) }));
     }
     sel.addEventListener('change', () => { cfg.fundCategories[name] = sel.value; onChange(); });
-    fbody.append(el('tr', {},
+    const row = el('tr', {},
       el('th', { class: 'label', scope: 'row', text: name }),
-      el('td', {}, sel),
-      el('td', { class: 'shrink' }, removeButton('fund', name))));
+      el('td', {}, sel));
+    row.append(removeCell('fund', name, row));
+    fbody.append(row);
   }
   funds.append(fbody);
 
