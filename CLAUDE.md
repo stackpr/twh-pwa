@@ -268,11 +268,16 @@ keep serving the old shell. Adding or renaming a shell file means updating the
   differently, and `roundBudgets` drops zeros rather than writing them to the
   settings file. A net line budgeted on one side only is marked, not completed
   with an assumed zero.
-- **The fiscal year changes the monthly window.** With `fiscalYearStart` set,
-  Monthly Income runs from the fiscal year's first month to the as-of month
-  instead of a rolling `monthsShown`. That is what makes the Total column
-  comparable to an annual budget; do not print a budget beside a total covering
-  a different period. A fiscal year is named by the calendar year it starts in.
+- **The fiscal year drives the monthly window.** `fiscalYearStart` defaults to
+  January, so Monthly Income normally runs from the fiscal year's first month to
+  the as-of month rather than a rolling `monthsShown` — which is what makes the
+  Total column comparable to an annual budget. Do not print a budget beside a
+  total covering a different period. `null` restores the rolling window and
+  disables budgets; that is the only case where `monthsShown` is read. A fiscal
+  year is named by the calendar year it starts in. Both controls live on the
+  Settings tab: the fiscal year cannot go in the Parameters block, which is
+  inside `#reports` and hidden until an export loads — a budget has to be
+  settable before there is any data.
 - **Only the balance sheet is snapshotted.** The income statements are period
   reports and are allowed to drift when back-dated entries land. Do not add them
   to `BS_ROW_KEYS` or the drift report.

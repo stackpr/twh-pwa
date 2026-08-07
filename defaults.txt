@@ -27,10 +27,11 @@ troop:
 #                           totals never change with it.
 #   monthsShown             months in the monthly income statement, when no
 #                           fiscal year is set.
-#   fiscalYearStart         month your fiscal year begins, 1-12, or null.
-#                           Set it and the monthly income statement covers
-#                           the fiscal year to date instead of a rolling
-#                           window, which is what a budget compares against.
+#   fiscalYearStart         month your fiscal year begins, 1-12. Defaults to
+#                           1, January. The monthly income statement covers
+#                           the fiscal year to date, which is what a budget
+#                           compares against. null instead gives a rolling
+#                           window of monthsShown months, and no budget.
 #   asOf                    report date (YYYY-MM-DD), or null for today.
 #   legacyMode              reproduce spreadsheet-era defects, for comparing
 #                           against an old workbook during a migration.
@@ -42,7 +43,7 @@ parameters:
   activitySince: 2025-09-01
   pastEventsShown: 8
   monthsShown: 12
-  fiscalYearStart: null
+  fiscalYearStart: 1
   asOf: null
   legacyMode: false
   legacyDeductedAccounts: []

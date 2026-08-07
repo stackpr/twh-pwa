@@ -89,10 +89,10 @@ export const DEFAULT_PARAMS = {
   activitySince: '2025-09-01', // drives prior-period split and per-event columns
   pastEventsShown: 8,          // most recent N past program events, for one-page fit
   monthsShown: 12,             // rolling window for Monthly Income
-  // Month the fiscal year starts, 1-12. null leaves the monthly statement a
-  // rolling window of monthsShown; set, it becomes a fiscal-year-to-date
-  // statement, which is what a budget can be compared against.
-  fiscalYearStart: null,
+  // Month the fiscal year starts, 1-12. Defaults to January: most troops run a
+  // calendar year, and a budget needs a period to be a budget for. null is
+  // still available and gives back the rolling monthsShown window.
+  fiscalYearStart: 1,
   asOf: null,                  // null = min(latest txn date, today)
   legacyMode: false,           // reproduce spreadsheet-era defects, for diffing
   // Under legacyMode, the troop-held accounts a predecessor spreadsheet deducted

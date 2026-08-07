@@ -233,14 +233,19 @@ is the point; a spreadsheet buries it.
 
 ## Fiscal year and budget
 
-**Fiscal year.** `fiscalYearStart` is the month a troop's year begins, 1–12, and
-is unset by default. Setting it changes the monthly income statement from a
-rolling `monthsShown` window to **the fiscal year to date** — the months from the
-start of the fiscal year containing the as-of date, through the as-of month. That
-is what makes the Total column comparable to an annual budget; comparing a budget
-against a rolling twelve months would be quietly wrong. A fiscal year is
+**Fiscal year.** `fiscalYearStart` is the month a troop's year begins, 1–12,
+defaulting to **1, January**; it is set on the Settings tab. The monthly income
+statement covers **the fiscal year to date** — the months from the start of the
+fiscal year containing the as-of date, through the as-of month — which is what
+makes the Total column comparable to an annual budget. (Comparing a budget
+against a rolling twelve months would be quietly wrong.) A fiscal year is
 identified everywhere by the calendar year it *starts* in, so the year running
 September 2024 to August 2025 is `2024`, and prints as `FY 2024–25`.
+
+Setting it to `null` restores the older behaviour, a rolling `monthsShown`
+window, and turns budgets off with it — `monthsShown` is used only in that case.
+Note the consequence of the default: in March of a January fiscal year the
+statement has three month columns, not twelve.
 
 **Budget.** A budget is this app's own: TroopWebHost has no concept of one, so
 the settings file is the only copy there is. Budgets are entered on the Settings

@@ -113,25 +113,7 @@
         </label>
         <label>Months shown
           <input type="number" id="months" min="1" max="24" step="1">
-          <span class="hint">Used when no fiscal year is set.</span>
-        </label>
-        <label>Fiscal year starts
-          <select id="fiscalYearStart">
-            <option value="">Not set &mdash; rolling window</option>
-            <option value="1">January</option>
-            <option value="2">February</option>
-            <option value="3">March</option>
-            <option value="4">April</option>
-            <option value="5">May</option>
-            <option value="6">June</option>
-            <option value="7">July</option>
-            <option value="8">August</option>
-            <option value="9">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <span class="hint">Makes the monthly statement fiscal-year-to-date, and lets a budget be compared against it.</span>
+          <span class="hint">Only used when the fiscal year is set to <em>Not set</em>, on the Settings tab.</span>
         </label>
         <label class="check">
           <input type="checkbox" id="legacyMode">
@@ -197,7 +179,31 @@
     </section>
 
     <section>
-      <h2>Budget</h2>
+      <h2>Fiscal year and budget</h2>
+      <p class="actions">
+        <label class="inline" for="fiscalYearStart">Fiscal year starts</label>
+        <select id="fiscalYearStart">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+          <option value="">Not set &mdash; rolling window instead</option>
+        </select>
+      </p>
+      <p class="hint">
+        The monthly income statement covers the fiscal year to date. Choosing
+        <em>Not set</em> gives the older behaviour instead &mdash; a rolling window of the
+        last <em>Months shown</em> months &mdash; and turns budgets off, since a budget
+        needs a period to be a budget for.
+      </p>
       <p class="hint">
         A budget for one fiscal year, entered here and nowhere else &mdash; TroopWebHost
         has no record of it, so the settings file is the only copy. It appears on the
@@ -322,14 +328,14 @@
 
       <h3>Fiscal year and budget</h3>
       <p class="hint">
-        Set <strong>Fiscal year starts</strong> in the report parameters to the month your
-        troop's year begins. The monthly income statement then covers the fiscal year to
-        date rather than a rolling twelve months, which is the period a budget is written
-        against.
+        On the <button type="button" class="linkish" data-goto="settings">Settings</button>
+        tab, set <strong>Fiscal year starts</strong> to the month your troop's year begins.
+        It starts at January. The monthly income statement covers the fiscal year to date,
+        which is the period a budget is written against; choosing <em>Not set</em> gives a
+        rolling twelve months instead and turns budgets off.
       </p>
       <p class="hint">
-        With that set, the <button type="button" class="linkish" data-goto="settings">Settings</button>
-        tab takes a budget for the year: a figure for a whole category, or for individual
+        The same tab takes a budget for the year: a figure for a whole category, or for individual
         funds within it, or both &mdash; a category figure covers whatever you did not
         budget by fund. The statement then shows <strong>Budget</strong> and
         <strong>Remaining</strong> columns, and shows neither when nothing is budgeted. A

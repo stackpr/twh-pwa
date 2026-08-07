@@ -44,6 +44,10 @@ const isFixture = path.resolve(csvPath) === path.resolve(FIXTURE);
 const FIXTURE_PARAMS = {
   asOf: '2024-08-03',
   activitySince: '2023-09-01',
+  // The synthetic year runs Sep 2023 - Aug 2024, so a September fiscal year
+  // covers exactly it. The monthly golden values are the same twelve months
+  // either way, which is what keeps them comparable across this change.
+  fiscalYearStart: 9,
   // Legacy mode needs the hand-maintained deduction list a predecessor
   // spreadsheet would have carried. Two of the fixture's troop-held accounts are
   // deliberately absent from it, which is what reproduces the double-count.
@@ -169,7 +173,7 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
   ok('no budget means no budget columns', fy.hasBudget === false);
 
   // Without a fiscal year nothing about the report may change.
-  const rolling = monthlyIncome(build({}).ledger, mk({}), base.asOf);
+  const rolling = monthlyIncome(build({}).ledger, mk({ fiscalYearStart: null }), base.asOf);
   eq('no fiscal year keeps the rolling window', rolling.months.length, DEFAULT_PARAMS.monthsShown);
   ok('no fiscal year means no fiscal framing', rolling.fiscalYear === null && rolling.hasBudget === false);
 
@@ -425,7 +429,7 @@ console.log('\n== SETTINGS FILE ==');
               return r.errors.length === 0 && r.warnings.some(w => /Not A Fund/.test(w))
                 && r.config.budgets['2023']['Not A Fund'] === 10; })());
   ok('no fiscal year round-trips as none',
-     settingsFromText(settingsToText(mk({}), {})).config.params.fiscalYearStart === null);
+     settingsFromText(settingsToText(mk({ fiscalYearStart: null }), {})).config.params.fiscalYearStart === null);
   ok('a settings file with no budget has an empty budget section',
      settingsFromText(text).config.budgets && Object.keys(settingsFromText(text).config.budgets).length === 0);
   ok('the budget carries no scout identifiers', !/scout:[0-9a-f]{8}/.test(bText));

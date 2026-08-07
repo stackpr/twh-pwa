@@ -374,8 +374,8 @@ export function renderBudget(cfg, { year, years, label }, mount, { onSetYear, on
 
   if (!cfg.params.fiscalYearStart) {
     mount.append(el('p', { class: 'hint', text:
-      'Set "Fiscal year starts" in the report parameters first. A budget covers a fiscal '
-      + 'year, so without one there is no period to compare it against.' }));
+      'Choose a month above to budget. A budget covers a fiscal year, so with no fiscal '
+      + 'year there is no period to compare it against.' }));
     return;
   }
 
