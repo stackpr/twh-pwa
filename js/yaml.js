@@ -47,37 +47,51 @@ function tokenize(text) {
   return out;
 }
 
-// A quote character only quotes when it OPENS the scalar — that is, at position
-// zero. Anywhere else it is an ordinary character, which is what makes a name
-// like "Ranger's Fund" or an account with an inch mark in it survive the round
-// trip. Treating every apostrophe as an opening quote would swallow the rest of
-// the line looking for a partner that is never coming, and the file the app
-// itself had just written would refuse to load. parseScalar reads quotes the
-// same way, so the three stay consistent.
-const opensQuote = (c, i) => i === 0 && (c === '"' || c === "'");
+/**
+ * The index just past a leading quoted scalar, or 0 if the text does not open
+ * with one. Everything before it is quoted and must be read literally.
+ *
+ * A quote character only quotes when it OPENS the scalar — that is, at position
+ * zero. Anywhere else it is ordinary punctuation, which is what lets a name like
+ * "Ranger's Fund" or an account with an inch mark in it survive the round trip.
+ * Treating every apostrophe as an opening quote swallows the rest of the line
+ * hunting a partner that is never coming, and the file the app itself had just
+ * written stops loading.
+ *
+ * Inside the scalar the same escapes parseScalar understands apply, or a name
+ * carrying an escaped quote would be silently truncated at the next " #" — and a
+ * settings file that quietly alters a fund name is worse than one that refuses
+ * to open, because the budget under that name is the only copy there is.
+ */
+function endOfQuoted(s) {
+  const q = s[0];
+  if (q !== '"' && q !== "'") return 0;
+  let i = 1;
+  while (i < s.length) {
+    if (q === '"' && s[i] === '\\') { i += 2; continue; }   // \" and \\
+    if (s[i] === q) {
+      if (q === "'" && s[i + 1] === "'") { i += 2; continue; }  // '' is one quote
+      return i + 1;
+    }
+    i++;
+  }
+  return s.length;   // unterminated; parseScalar reports it with a line number
+}
 
-/** Split "key: value" at the first colon that is outside quotes. */
+/** Split "key: value" at the first colon outside a quoted key. */
 function splitKey(content, line) {
-  let quote = null;
-  for (let i = 0; i < content.length; i++) {
-    const c = content[i];
-    if (quote) { if (c === quote) quote = null; continue; }
-    if (opensQuote(c, i)) { quote = c; continue; }
-    if (c === ':' && (i === content.length - 1 || content[i + 1] === ' ')) {
+  for (let i = endOfQuoted(content); i < content.length; i++) {
+    if (content[i] === ':' && (i === content.length - 1 || content[i + 1] === ' ')) {
       return [content.slice(0, i).trim(), content.slice(i + 1).trim()];
     }
   }
   throw new YamlError(`expected "key: value" but found "${content}". A colon inside a name must be quoted.`, line);
 }
 
-/** Strip a trailing " # comment" that is outside quotes. */
+/** Strip a trailing " # comment" that falls outside a quoted value. */
 function stripComment(s) {
-  let quote = null;
-  for (let i = 0; i < s.length; i++) {
-    const c = s[i];
-    if (quote) { if (c === quote) quote = null; continue; }
-    if (opensQuote(c, i)) { quote = c; continue; }
-    if (c === '#' && i > 0 && s[i - 1] === ' ') return s.slice(0, i).trim();
+  for (let i = endOfQuoted(s); i < s.length; i++) {
+    if (s[i] === '#' && i > 0 && s[i - 1] === ' ') return s.slice(0, i).trim();
   }
   return s;
 }

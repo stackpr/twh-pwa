@@ -10,6 +10,11 @@
 // Pass the settings file and the invariants run against the same configuration
 // the app uses. Golden values are skipped, exactly as for any external export.
 //
+// Both of those forms print your own fund and account names to the terminal, and
+// the settings file's name is usually the unit's. There are no scout names in
+// the output, but a chart of accounts still identifies a troop: do not paste a
+// run into an issue, a pull request, or a chat log.
+//
 // Two kinds of assertion:
 //
 //   INVARIANTS hold for any well-formed export. They are the properties the
@@ -497,6 +502,17 @@ console.log('\n== YAML SUBSET ==');
   ok('an inch mark inside a key needs no quoting', apos.funds['Two 6" Signs'] === 'Program Expenses');
   ok('a trailing comment is still stripped after an apostrophe',
      parseYAML("a: it's fine # not this").a === "it's fine");
+  ok("a doubled '' inside a single-quoted scalar is one quote",
+     parseYAML("a: 'it''s fine # not this'").a === "it's fine # not this");
+
+  // Once a scalar IS quoted, its escapes have to be honoured all the way to the
+  // closing quote. A name truncated at an escaped quote would come back subtly
+  // altered rather than rejected, and the budget filed under it would be
+  // orphaned by a settings file that never said it changed anything.
+  for (const name of ['He said "hi" # ok', '6" x 4" # sign', 'Odd: Name', 'back\\slash']) {
+    const line = stringifyYAML({ [name]: 'cash' }).join('\n');
+    ok(`a key needing escapes round-trips: ${name}`, Object.keys(parseYAML(line))[0] === name);
+  }
 
   const rt = parseYAML(stringifyYAML({
     a: 'plain', b: 'has: colon', c: 12, d: 1.5, e: true, f: null,
