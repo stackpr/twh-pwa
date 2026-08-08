@@ -541,7 +541,15 @@ by hand.
 ```
 node test/reconcile.test.mjs                     # synthetic fixture
 node test/reconcile.test.mjs ~/Downloads/YOUR_EXPORT.CSV   # invariants only
+node test/reconcile.test.mjs ~/Downloads/YOUR_EXPORT.CSV ~/troop-settings.txt
 ```
+
+The third form runs the invariants against your own chart of accounts. Once a
+troop has adopted its own, the shipped example no longer classifies its funds
+and a bare run stops at "fund not present in the category map" before checking
+anything; pass the settings file and the run uses the same configuration the app
+does. Neither file is read from or written to the repository, and neither should
+ever be committed.
 
 Two kinds of assertion. **Invariants** hold for any well-formed export — `Other +
 columns == Total`, net income equals revenue minus expenses, totals independent

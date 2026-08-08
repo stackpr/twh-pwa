@@ -222,7 +222,13 @@ default is not a decision.
 ```
 node test/reconcile.test.mjs                    # synthetic fixture
 node test/reconcile.test.mjs <path-to-export>   # invariants only
+node test/reconcile.test.mjs <export> <settings.txt>   # ... against their chart
 ```
+
+The third form is what makes the second one usable on a real troop's export: the
+shipped example chart does not classify their funds, so the run halts before any
+invariant is checked. A settings file disqualifies the golden values even when
+the export is the fixture, because those are pinned to the shipped chart.
 
 Run through the `test-runner` agent after **any** change to `ledger.js` or
 `reports.js` — and before any push, since a push to `gh-pages` is a deployment.

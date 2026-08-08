@@ -2,6 +2,13 @@
 //
 //   node test/reconcile.test.mjs                       # synthetic fixture (default)
 //   node test/reconcile.test.mjs path/to/export.csv    # your own export, invariants only
+//   node test/reconcile.test.mjs export.csv settings.txt   # ... with your own chart
+//
+// The third form matters once a troop has adopted its own chart of accounts: the
+// shipped example does not classify their funds, so without it the run stops at
+// "fund not present in the category map" before a single invariant is checked.
+// Pass the settings file and the invariants run against the same configuration
+// the app uses. Golden values are skipped, exactly as for any external export.
 //
 // Two kinds of assertion:
 //
@@ -39,7 +46,11 @@ import { balanceSheet, eventIncome, monthlyIncome } from '../js/reports.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE = path.join(here, 'fixtures', 'sample-export.csv');
 const csvPath = process.argv[2] || FIXTURE;
-const isFixture = path.resolve(csvPath) === path.resolve(FIXTURE);
+const settingsPath = process.argv[3] || null;
+// Golden values are pinned to the fixture read through the SHIPPED chart. A
+// settings file replaces that chart, so it disqualifies the goldens even when
+// the export is the fixture — the same rule as any external export.
+const isFixture = path.resolve(csvPath) === path.resolve(FIXTURE) && !settingsPath;
 
 // The fixture's synthetic troop year is Sep 2023 – Aug 2024, as of 2024-08-03.
 const FIXTURE_PARAMS = {
@@ -59,8 +70,25 @@ const FIXTURE_PARAMS = {
   ],
 };
 
+// A troop's own chart of accounts, when one was handed in. Refusing a settings
+// file the app itself would reject is the point: a run that quietly fell back to
+// the shipped example would report invariants about a configuration nobody uses.
+let external = null;
+if (settingsPath) {
+  const parsed = settingsFromText(fs.readFileSync(settingsPath, 'utf8'));
+  if (parsed.errors.length) {
+    console.error(`Could not read ${path.basename(settingsPath)}:\n  ` + parsed.errors.join('\n  '));
+    process.exit(1);
+  }
+  for (const w of parsed.warnings) console.log(`note: ${w}`);
+  external = parsed.config;
+}
+
 const records = parseCSV(fs.readFileSync(csvPath, 'utf8')).records;
-console.log(`${isFixture ? 'fixture' : 'external'}: ${path.basename(csvPath)} — ${records.length} transactions\n`);
+console.log(`${isFixture ? 'fixture' : 'external'}: ${path.basename(csvPath)} — ${records.length} transactions`
+  + (settingsPath ? `\nchart: ${path.basename(settingsPath)} — `
+     + `${Object.keys(external.fundCategories).length} funds, `
+     + `${Object.keys(external.accountClass).length} accounts` : '') + '\n');
 
 let fail = 0, pass = 0;
 const fmt = n => (typeof n === 'number' ? n.toFixed(2).padStart(12) : String(n).padStart(12));
@@ -75,9 +103,15 @@ const ok = (label, cond) => {
 };
 
 const mk = over => ({
-  fundCategories: { ...FUND_CATEGORIES },
-  accountClass: { ...DEFAULT_ACCOUNT_CLASS },
-  params: { ...DEFAULT_PARAMS, ...(isFixture ? FIXTURE_PARAMS : {}), ...over },
+  fundCategories: { ...(external ? external.fundCategories : FUND_CATEGORIES) },
+  accountClass: { ...(external ? external.accountClass : DEFAULT_ACCOUNT_CLASS) },
+  params: {
+    ...DEFAULT_PARAMS,
+    ...(isFixture ? FIXTURE_PARAMS : {}),
+    ...(external ? external.params : {}),
+    ...over,
+  },
+  budgets: external ? external.budgets : {},
 });
 
 function build(over) {
@@ -165,31 +199,41 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
   ok('a straddling year is labelled with both', fiscalYearLabel(2023, SEP) === 'FY 2023–24');
   ok('a calendar fiscal year is labelled with one', fiscalYearLabel(2023, 1) === 'FY 2023');
 
+  // Everything below is written against the export in front of it rather than
+  // against the fixture's calendar: the fiscal year comes from the as-of date,
+  // and the budgeted fund names are picked out of whatever chart was loaded.
+  // A budget invariant that only holds in one synthetic year is not an
+  // invariant, and it is the run against a real export that most needs these.
+  const noBudget = { ...mk({ fiscalYearStart: SEP }), budgets: {} };
   const base = build({ fiscalYearStart: SEP });
-  const fy = monthlyIncome(base.ledger, base.cfg, base.asOf);
-  eq('fiscal year to date spans Sep to Aug', fy.months.length, 12);
-  ok('the window starts at the fiscal year start',
-     fy.months[0].label.startsWith('Sep') && fy.months.at(-1).label.startsWith('Aug'));
-  ok('the report knows which fiscal year it is', fy.fiscalYear === 2023);
+  const fy = monthlyIncome(base.ledger, noBudget, base.asOf);
+  const FY = fiscalYearOf(base.asOf, SEP);
+  // Sep through the as-of month, capped at a full year.
+  const expectedMonths = Math.min(((base.asOf.getMonth() + 12 - (SEP - 1)) % 12) + 1, 12);
+  eq('the window runs from the fiscal year start to the as-of month', fy.months.length, expectedMonths);
+  ok('the window starts at the fiscal year start', fy.months[0].label.startsWith('Sep'));
+  ok('the report knows which fiscal year it is', fy.fiscalYear === FY);
   ok('no budget means no budget columns', fy.hasBudget === false);
 
   // Without a fiscal year nothing about the report may change.
-  const rolling = monthlyIncome(build({}).ledger, mk({ fiscalYearStart: null }), base.asOf);
+  const rolling = monthlyIncome(build({}).ledger, { ...mk({ fiscalYearStart: null }), budgets: {} }, base.asOf);
   eq('no fiscal year keeps the rolling window', rolling.months.length, DEFAULT_PARAMS.monthsShown);
   ok('no fiscal year means no fiscal framing', rolling.fiscalYear === null && rolling.hasBudget === false);
 
-  // A budget on a category and on one fund inside it.
+  // A budget on a category and on one fund inside it. The fund is whichever one
+  // the export actually spent under; naming one would tie this to a chart.
+  const anExpenseFund = fy.sections.find(s => s.key === 'Program Expenses').funds[0].label;
   const withBudget = {
-    ...mk({ fiscalYearStart: SEP }),
-    budgets: { 2023: { 'Program Expenses': 10000, 'Food Expense': 1500, 'Program Revenue': 40000 } },
+    ...noBudget,
+    budgets: { [FY]: { 'Program Expenses': 10000, [anExpenseFund]: 1500, 'Program Revenue': 40000 } },
   };
   const b = monthlyIncome(base.ledger, withBudget, base.asOf);
   ok('a budget for the year on show turns the columns on', b.hasBudget === true);
   const progExp = b.sections.find(s => s.key === 'Program Expenses');
-  const food = progExp.funds.find(f => f.label === 'Food Expense');
-  eq('a fund carries its own budget', food.budget, 1500);
+  const budgetedFund = progExp.funds.find(f => f.label === anExpenseFund);
+  eq('a fund carries its own budget', budgetedFund.budget, 1500);
   ok('an unbudgeted fund carries none',
-     progExp.funds.filter(f => f.label !== 'Food Expense').every(f => f.budget === null));
+     progExp.funds.filter(f => f.label !== anExpenseFund).every(f => f.budget === null));
   eq('the section adds the category figure to the funds budgeted inside it',
      progExp.subtotal.budget, 11500);
   eq('net program budget is budgeted revenue less budgeted expenses',
@@ -201,7 +245,7 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
      progExp.subtotal.budget - progExp.subtotal.total, 11500 - progExp.subtotal.total);
 
   // Half a budget must stay visibly half.
-  const oneSided = { ...mk({ fiscalYearStart: SEP }), budgets: { 2023: { 'Other Income': 100 } } };
+  const oneSided = { ...noBudget, budgets: { [FY]: { 'Other Income': 100 } } };
   const os = monthlyIncome(base.ledger, oneSided, base.asOf);
   ok('a net line budgeted on one side only is flagged', os.netOther.budgetPartial === true);
   eq('and counts only the side that was budgeted', os.netOther.budget, 100);
@@ -209,17 +253,17 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
      os.sections.find(s => s.key === 'Program Revenue').subtotal.budget === null);
 
   // A budget for another year must not leak into this one.
-  const otherYear = { ...mk({ fiscalYearStart: SEP }), budgets: { 2030: { 'Program Revenue': 1 } } };
+  const otherYear = { ...noBudget, budgets: { [FY + 7]: { 'Program Revenue': 1 } } };
   ok('a budget for a different fiscal year is not shown',
      monthlyIncome(base.ledger, otherYear, base.asOf).hasBudget === false);
 
-  // A budgeted fund with no activity still needs its line, or its budget is invisible.
-  const dormant = {
-    ...mk({ fiscalYearStart: SEP }),
-    budgets: { 2023: { 'Crew Revenue (from Scout)': 750 } },
-  };
+  // A budgeted fund with no activity still needs its line, or its budget is
+  // invisible. "No activity" is again read off the report rather than named.
+  const shown = new Set(fy.sections.flatMap(s => s.funds).map(f => f.label));
+  const idleFund = Object.keys(noBudget.fundCategories).find(f => !shown.has(f));
+  const dormant = { ...noBudget, budgets: { [FY]: { [idleFund]: 750 } } };
   const d = monthlyIncome(base.ledger, dormant, base.asOf);
-  const row = d.sections.flatMap(s => s.funds).find(f => f.label === 'Crew Revenue (from Scout)');
+  const row = d.sections.flatMap(s => s.funds).find(f => f.label === idleFund);
   ok('a budgeted fund with no activity still gets a row', !!row);
   ok('and shows its whole budget as remaining', row && row.budget === 750 && Math.abs(row.total) < 0.005);
 
@@ -436,6 +480,24 @@ console.log('\n== YAML SUBSET ==');
   ok('quoted key containing a colon parses', doc.funds['Odd: Name'] === 'Program Revenue');
   ok('slashes in keys need no quoting', doc.funds['Equipment/Merch Expense'] === 'Program Expenses');
 
+  // An apostrophe is ordinary punctuation in the middle of a name, and troop
+  // account and fund names are full of it — a possessive in a store card, a
+  // shortened year. A quote mark only opens a quoted scalar at the start of the
+  // token; treated as opening anywhere, it eats the rest of the line hunting a
+  // partner and the whole settings file stops loading.
+  const apos = parseYAML([
+    'accounts:',
+    "  Ranger's Card: liability",
+    "  Quartermaster's Fund: cash",
+    'funds:',
+    '  Two 6" Signs: Program Expenses',
+  ].join('\n'));
+  ok('an apostrophe inside a key needs no quoting', apos.accounts["Ranger's Card"] === 'liability');
+  ok('two apostrophes on one line stay literal', apos.accounts["Quartermaster's Fund"] === 'cash');
+  ok('an inch mark inside a key needs no quoting', apos.funds['Two 6" Signs'] === 'Program Expenses');
+  ok('a trailing comment is still stripped after an apostrophe',
+     parseYAML("a: it's fine # not this").a === "it's fine");
+
   const rt = parseYAML(stringifyYAML({
     a: 'plain', b: 'has: colon', c: 12, d: 1.5, e: true, f: null,
     g: [], h: {}, i: ['x', 'y'], j: { k: 'v' }, l: '007', m: 'true',
@@ -480,6 +542,20 @@ console.log('\n== SETTINGS FILE ==');
   eq('round-trip preserves an integer count', back.snapshots['2024-08-03'].scout_arrears_count, 3);
   eq('round-trip preserves a negative figure', back.snapshots['2024-08-03'].unrestricted_net_assets, -12);
   ok('currency keeps two decimal places in the file', /total_assets: 1234\.50/.test(text));
+
+  // The file the app writes must be a file the app can read. An account named
+  // after a shop is the ordinary case that broke this: written out bare and
+  // correct, then rejected on the way back in.
+  {
+    const punct = mk({});
+    punct.accountClass = { ...punct.accountClass, "Ranger's Card": 'liability' };
+    punct.fundCategories = { ...punct.fundCategories, "Ranger's Rebate": 'Other Income' };
+    const pBack = settingsFromText(settingsToText(punct, {}));
+    ok('a settings file with an apostrophe in a name round-trips',
+       pBack.errors.length === 0
+       && pBack.config.accountClass["Ranger's Card"] === 'liability'
+       && pBack.config.fundCategories["Ranger's Rebate"] === 'Other Income');
+  }
 
   // Budgets and the fiscal year live in the settings file too — TroopWebHost
   // has no idea they exist, so this file is the only copy there is.

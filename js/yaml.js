@@ -47,13 +47,22 @@ function tokenize(text) {
   return out;
 }
 
+// A quote character only quotes when it OPENS the scalar — that is, at position
+// zero. Anywhere else it is an ordinary character, which is what makes a name
+// like "Ranger's Fund" or an account with an inch mark in it survive the round
+// trip. Treating every apostrophe as an opening quote would swallow the rest of
+// the line looking for a partner that is never coming, and the file the app
+// itself had just written would refuse to load. parseScalar reads quotes the
+// same way, so the three stay consistent.
+const opensQuote = (c, i) => i === 0 && (c === '"' || c === "'");
+
 /** Split "key: value" at the first colon that is outside quotes. */
 function splitKey(content, line) {
   let quote = null;
   for (let i = 0; i < content.length; i++) {
     const c = content[i];
     if (quote) { if (c === quote) quote = null; continue; }
-    if (c === '"' || c === "'") { quote = c; continue; }
+    if (opensQuote(c, i)) { quote = c; continue; }
     if (c === ':' && (i === content.length - 1 || content[i + 1] === ' ')) {
       return [content.slice(0, i).trim(), content.slice(i + 1).trim()];
     }
@@ -67,7 +76,7 @@ function stripComment(s) {
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (quote) { if (c === quote) quote = null; continue; }
-    if (c === '"' || c === "'") { quote = c; continue; }
+    if (opensQuote(c, i)) { quote = c; continue; }
     if (c === '#' && i > 0 && s[i - 1] === ' ') return s.slice(0, i).trim();
   }
   return s;
