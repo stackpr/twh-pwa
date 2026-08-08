@@ -65,10 +65,23 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   const section = label => body.append(el('tr', { class: 'section' },
     el('th', { class: 'label', scope: 'row', colspan: cols.length + 1, text: label })));
 
+  // An account row that is zero in every column, history included, is printed
+  // nowhere. The account is still classified, still captured in the snapshot and
+  // still counted into Total Assets \u2014 it simply has nothing to say on this
+  // sheet, and a page of dashes is how a reader learns to stop reading the
+  // rows. Only account lines are dropped this way: a section subtotal at zero
+  // is a statement about the section, and Other Future Events at zero says
+  // there are none, which is worth reading.
+  const hasFigure = values => values.some(v => v !== null && v !== undefined && Math.abs(v) >= 0.005);
+  const acctRow = (label, name, v) => {
+    const values = [v, ...snapAcct(name)];
+    if (hasFigure(values)) row(label, values, 'detail');
+  };
+
   const noncashNames = new Set(bs.noncash.map(([k]) => k));
   section('Assets');
   for (const [name, v] of bs.assets) {
-    row(name + (noncashNames.has(name) ? ' \u2020' : ''), [v, ...snapAcct(name)], 'detail');
+    acctRow(name + (noncashNames.has(name) ? ' \u2020' : ''), name, v);
   }
   row('Total Assets', [bs.totalAssets, ...snapVal('total_assets')], 'subtotal');
 
@@ -81,12 +94,12 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   row('Net Scout Balances', [bs.netScout, ...snapVal('scout_net')], 'subtotal');
 
   section('Liabilities');
-  for (const [name, v] of bs.liabilityAccounts) row(name, [v, ...snapAcct(name)], 'detail');
+  for (const [name, v] of bs.liabilityAccounts) acctRow(name, name, v);
   row('Other Future Events (Net)', [bs.otherFutureEventsNet, ...snapVal('other_future_events')], 'detail');
   // Displayed under its short label, looked up by the full account name — the
   // snapshot is keyed the way the export names the account, not the way the
   // balance sheet prints it.
-  for (const [name, v] of bs.pseudo) row(prettyPseudo(name), [v, ...snapAcct(name)], 'detail');
+  for (const [name, v] of bs.pseudo) acctRow(prettyPseudo(name), name, v);
   row('Total Liabilities', [bs.totalLiabilities, ...snapVal('total_liabilities')], 'subtotal');
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols.length + 1 })));
@@ -181,20 +194,33 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
     : `${mi.fiscalYearLabel} to date \u2014 ${mi.months[0].label} to ${mi.months.at(-1).label}, as of ${fmtDate(mi.asOf)}`;
   mount.append(rptHead('Income Statement \u2014 Monthly', period, troopName));
 
+  // Columns run Total, Budget, Remaining, then the months newest first.
+  //
   // Budget and Remaining appear together or not at all: a remaining figure with
   // nothing to remain from is noise, and a budget with no arithmetic done on it
   // is a number the reader has to check by hand.
-  const cols = mi.months.length + 2 + (mi.hasBudget ? 2 : 0);
+  //
+  // The fiscal year to date and what remains of the budget are the figures a
+  // treasurer is at the meeting to give, and last month is the one being asked
+  // about; a chronological run put all three at the far right, past a year of
+  // history, on the report that is already the widest. The months stay in
+  // chronological order everywhere else — mi.months is what the totals are
+  // computed from and what the period heading is written from — so this is a
+  // display order and nothing more.
+  const months = [...mi.months].reverse();
+  const cols = months.length + 2 + (mi.hasBudget ? 2 : 0);
   const table = el('table', { class: 'rpt compact' });
   table.append(el('thead', {}, el('tr', {},
     th('', 'label'),
-    ...mi.months.map(m => th(m.label, 'num')),
     th('Total', 'num'),
-    ...(mi.hasBudget ? [th('Budget', 'num budget'), th('Remaining', 'num budget')] : []))));
+    ...(mi.hasBudget ? [th('Budget', 'num budget'), th('Remaining', 'num budget')] : []),
+    // A rule before the first month separates the fiscal-year-to-date block
+    // from the history behind it, now that the two are adjacent.
+    ...months.map((m, i) => th(m.label, 'num' + (i ? '' : ' periodstart'))))));
 
   const body = el('tbody');
   const dataRow = (label, r, cls) => {
-    const cells = [...r.cols.map(v => num(v)), num(r.total)];
+    const cells = [num(r.total)];
     if (mi.hasBudget) {
       // An unbudgeted row is left blank rather than shown as zero. Zero is a
       // decision \u2014 "we planned to spend nothing here" \u2014 and a blank is not.
@@ -207,6 +233,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
         cells.push(remaining);
       }
     }
+    cells.push(...[...r.cols].reverse().map((v, i) => num(v, i ? '' : 'periodstart')));   // months, newest first
     body.append(el('tr', { class: cls }, el('th', { class: 'label', scope: 'row', text: label }), ...cells));
   };
 

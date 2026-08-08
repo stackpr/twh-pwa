@@ -200,6 +200,9 @@ label.inline { font-size: .85rem; font-weight: 600; }
 
 /* budget columns on the income statement */
 table.rpt th.budget, table.rpt td.budget { border-left: 1px solid var(--line); }
+/* Monthly income reads Total, Budget, Remaining, then the months newest first.
+   This rules off the fiscal-year-to-date block from the month history. */
+table.rpt th.periodstart, table.rpt td.periodstart { border-left: 1px solid var(--line); }
 
 table.cfg { border-collapse: collapse; font-size: .85rem; margin-bottom: 1rem; }
 table.cfg th, table.cfg td { padding: .2rem .6rem; text-align: left; border-bottom: 1px solid var(--line); }
