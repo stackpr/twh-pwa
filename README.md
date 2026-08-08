@@ -415,43 +415,12 @@ both and every report renders immediately, snapshots included.
 
 ## Transaction types
 
-The transaction types TroopWebHost emits, with the legs each populates. Your
-troop may use a subset, or types not listed here; the app does not enumerate
-types, it reads whichever columns are populated.
-`TA` = troop account, `P` = person, `F` = fund, `E` = event; `Dr`/`Cr` = debit/credit side.
+The app does not enumerate transaction types. It reads whichever of the leg
+columns a row populates — troop account, person, fund and event, each with a
+debit and a credit side — so a type your troop uses that no other troop does
+needs no code change and no configuration.
 
-| Transaction Type | Legs |
-|---|---|
-| Charge Scout an Event Fee | P·Dr, F·Cr, E·Cr |
-| Deposit to Scout Account | TA·Cr, P·Cr |
-| Individual Fundraising (Event) | P·Cr, F·Dr, E·Dr |
-| Expense (Non-Event) paid by Troop | TA·Dr, F·Dr |
-| Transfer Between Scout Accounts | P·Dr, P·Cr |
-| Expense (Event) paid by Troop | TA·Dr, F·Dr, E·Dr |
-| Grubmaster | P·Cr, F·Dr, E·Dr |
-| Charge Scout a Non-Event Fee | P·Dr, F·Cr |
-| Transfer Between Troop Accounts | TA·Dr, TA·Cr |
-| Reimburse Expense (Event) to Scout Account | P·Cr, F·Dr, E·Dr |
-| Deposit To Troop Account | TA·Cr, F·Cr |
-| Other Income | TA·Cr, F·Cr |
-| Return money to Scout from Scout Account | TA·Dr, P·Dr |
-| Donation | P·Dr, P·Cr, F·Cr |
-| Campership | P·Dr, P·Cr, F·Dr |
-| Popcorn to Scout Account | P·Cr (F·Dr on 3) |
-| Membership/Recharter from Scout Account | TA·Dr, P·Dr, F·Dr, F·Cr |
-| Reimburse Expense (Non-Event) to Scout Account | P·Cr, F·Dr |
-| \*Add to Scout Account | P·Cr only |
-| Reimburse Expense (Event) to Scout as Payment | TA·Dr, P·Dr, P·Cr, F·Dr, E·Dr |
-| Expense (External Event) paid by Troop from Scout Account | TA·Dr, P·Dr, F·Dr, F·Cr, E·Dr, E·Cr |
-| Reimburse Expense (Non-Event) to Scout as Payment | TA·Dr, P·Dr, P·Cr, F·Dr |
-| Cash given to Scoutmaster | P·Dr, P·Cr |
-| Expense (Non-Event) paid by Troop from Scout Account | TA·Dr, P·Dr, F·Dr |
-| Expense (Event) paid by Troop from Scout Account | TA·Dr, P·Dr, F·Dr, E·Dr |
-| Transfer Between Funds | F·Dr, F·Cr |
-| Refund Fee (Non-Event) to Scout Account | P·Cr, F·Dr |
-| Other Income to Scout Account | TA·Cr, P·Cr, F·Cr |
-
-Notes that matter for reading the reports:
+What does matter when reading the reports:
 
 - **TWH is not strict double-entry.** "Credit Troop Account" and "Credit Person"
   both mean *money in*, so an asset and a liability can rise on the same
