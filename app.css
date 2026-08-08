@@ -141,12 +141,24 @@ button.danger { color: var(--err); }
 .rpt-head h2 { text-transform: none; font-size: 1.1rem; color: var(--ink); margin-bottom: .1rem; }
 .rpt-head .sub { margin: 0 0 .9rem; color: var(--muted); font-size: .85rem; }
 
-table.rpt { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .87rem; }
-table.rpt.compact { font-size: .78rem; }
-table.rpt th, table.rpt td { padding: .22rem .45rem; text-align: left; }
-table.rpt thead th { border-bottom: 1.5px solid var(--ink); font-size: .78rem; vertical-align: bottom; }
-table.rpt th.num, table.rpt td.num { text-align: right; }
-table.rpt .label { font-weight: 400; }
+/* A report grows columns with the data: one per snapshot on the balance sheet,
+   one per event on the event statement. Left to itself the table honours
+   width:100% by squeezing instead of overflowing, and the first thing to give
+   is the account names — every row wraps to two or three lines and the columns
+   the treasurer came to compare are a smear of digits. Scrolling the table
+   sideways keeps every column at a readable width. Print undoes this: paper
+   cannot scroll, and @media print sizes the type to fit the sheet instead. */
+.rpt-scroll { overflow-x: auto; }
+
+table.rpt { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .82rem; }
+table.rpt.compact { font-size: .74rem; }
+table.rpt th, table.rpt td { padding: .18rem .35rem; text-align: left; }
+table.rpt thead th { border-bottom: 1.5px solid var(--ink); font-size: .74rem; vertical-align: bottom; }
+table.rpt th.num, table.rpt td.num { text-align: right; white-space: nowrap; }
+/* Account, fund and row names read as names, not as paragraphs. The event
+   column headings are the deliberate exception — see th.evt below, which caps
+   them narrow and stacks them on purpose. */
+table.rpt .label { font-weight: 400; white-space: nowrap; }
 table.rpt tr.detail .label { padding-left: 1.2rem; }
 table.rpt tr.section th { font-weight: 700; padding-top: .6rem; border-bottom: 1px solid var(--line); }
 table.rpt tr.subtotal { font-weight: 600; }
@@ -245,6 +257,11 @@ input.addname {
      wrap to a second line and put the monthly statement a few points over. */
   table.rpt.compact { font-size: 7pt; line-height: 1.12; }
   table.rpt th, table.rpt td { padding: .06rem .25rem; }
+  /* Paper does not scroll. A clipped balance sheet is a wrong balance sheet, so
+     the screen's scroll container is opened back up and the type carries the
+     fit. A name may wrap here; losing a column may not. */
+  .rpt-scroll { overflow-x: visible; }
+  table.rpt .label { white-space: normal; }
   table.rpt tbody tr:hover { background: none; }
   table.rpt td.neg { color: #000; }
   /* Rules and the double underline under a grand total are structure, not

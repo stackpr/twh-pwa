@@ -137,9 +137,18 @@ function renderBudgetPanel() {
 /* ---- printing ----------------------------------------------------- */
 
 // Which way up each report wants the paper. The two statements carry a column
-// per event or per month and are unreadable squeezed into portrait; the balance
-// sheet is one narrow column of figures and would waste half a landscape sheet.
+// per event or per month and are unreadable squeezed into portrait.
 const ORIENTATION = { balance: 'portrait', event: 'landscape', monthly: 'landscape' };
+
+// The balance sheet is the exception that changes shape. With no history it is
+// one narrow column of figures and would waste half a landscape sheet; every
+// snapshot adds a column, and a few years of them make it the widest report
+// there is. Five is where a portrait sheet runs out at the printed type size.
+const PORTRAIT_SNAPSHOT_LIMIT = 5;
+const orientationFor = target =>
+  (target === 'balance' && Object.keys(state.snapshots).length > PORTRAIT_SNAPSHOT_LIMIT)
+    ? 'landscape'
+    : (ORIENTATION[target] || 'portrait');
 
 /**
  * Set the paper for the next print job.
@@ -156,7 +165,7 @@ function setPageSize(orientation) {
 
 function printReport(target) {
   document.body.dataset.printTarget = target;
-  setPageSize(ORIENTATION[target] || 'portrait');
+  setPageSize(orientationFor(target));
   window.print();
 }
 
@@ -368,6 +377,29 @@ function chartUsage() {
   return { funds, accounts };
 }
 
+/**
+ * Push the current parameters back into their controls.
+ *
+ * The controls write into `state.cfg.params` as they are changed, so they are
+ * normally the source of truth and never need reading back. A settings file is
+ * the one thing that changes the parameters from underneath them, and a form
+ * still showing the old fiscal year while the reports use the new one is a
+ * disagreement a treasurer has no way to resolve.
+ */
+function syncParamInputs() {
+  const p = state.cfg.params;
+  const set = (sel, v) => { const n = $(sel); if (n) n.value = v ?? ''; };
+  set('#troopName', p.troopName);
+  set('#activitySince', p.activitySince);
+  set('#pastEvents', p.pastEventsShown);
+  set('#months', p.monthsShown);
+  set('#asOf', p.asOf);
+  set('#fiscalYearStart', p.fiscalYearStart);
+  const legacy = $('#legacyMode');
+  if (legacy) legacy.checked = p.legacyMode;
+  $('#legacy-note').hidden = !p.legacyMode;
+}
+
 function reloadFromLedger() {
   // Some parameters — legacy mode, the hash salt — change how the ledger itself
   // is built, and the export is not retained, so those need the file again.
@@ -537,18 +569,48 @@ function bind() {
         + (errors.length > 12 ? `\n\n(+${errors.length - 12} more)` : ''));
       return;
     }
-    state.cfg = config;
+    // Two parameters decide how the ledger itself is built, so changing either
+    // needs the export again — and the export is never retained. Everything
+    // else, the whole chart of accounts included, applies to the ledger already
+    // in memory. This used to reload the page unconditionally, which threw away
+    // an export imported moments earlier and left the reports empty: the
+    // snapshots had loaded, but there was nothing to show them beside.
+    const was = { legacyMode: state.cfg.params.legacyMode, hashSalt: state.cfg.params.hashSalt };
+    // The parameter inputs were bound to the params object that existed at
+    // startup, so the new values are copied INTO it. Swapping the object would
+    // leave every control on the Settings tab writing to a config the reports
+    // no longer read.
+    Object.assign(state.cfg.params, config.params);
+    state.cfg.fundCategories = config.fundCategories;
+    state.cfg.accountClass = config.accountClass;
+    state.cfg.budgets = config.budgets;
     state.snapshots = snapshots;
-    saveConfig(state.cfg);
+    state.budgetYear = null;
     saveSnapshots(state.snapshots);
+    syncParamInputs();
+
+    const rebuild = !!state.ledger
+      && (was.legacyMode !== state.cfg.params.legacyMode || was.hashSalt !== state.cfg.params.hashSalt);
+    if (rebuild) {
+      state.ledger = null;
+      state.review = null;
+      setReportsShown(false);
+    }
+    afterChartEdit();   // saves the config, revalidates it, and redraws everything
+    if (state.ledger) $('#asOf').value = isoDate(state.asOf);
+
     const counts = `${Object.keys(config.fundCategories).length} funds, `
       + `${Object.keys(config.accountClass).length} accounts, `
       + `${Object.keys(snapshots).length} snapshot(s)`;
-    alert(`Settings loaded: ${counts}.`
-      + (warnings.length ? `\n\nNotes:\n${warnings.slice(0, 8).join('\n')}` : '')
-      + '\n\nDrop the transaction export to produce the reports.');
-    showTab('import'); // the export is dropped there, and the reload lands on it
-    location.reload();
+    const next = state.ledger
+      ? 'The reports have been recomputed against these settings.'
+      : rebuild
+        ? 'Legacy mode or the hash salt changed, which alters how the ledger is built. '
+          + 'Drop the transaction export again to produce the reports.'
+        : 'Drop the transaction export to produce the reports.';
+    alert(`Settings loaded: ${counts}.\n\n${next}`
+      + (warnings.length ? `\n\nNotes:\n${warnings.slice(0, 8).join('\n')}` : ''));
+    showTab(state.ledger ? 'reports' : 'import');
   });
   // cache — every destructive action lives on one tab, so a treasurer on a
   // shared computer has a single place to go before walking away.

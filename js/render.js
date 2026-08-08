@@ -20,6 +20,17 @@ const th = (v, cls = '', scope = 'col') => el('th', { class: cls, scope, text: v
 
 /* ------------------------------------------------------------------ */
 
+/**
+ * Wrap a report table so it scrolls sideways instead of compressing.
+ *
+ * The balance sheet gains a column per snapshot and the event statement one per
+ * event, so a report's width is set by the data, not the design. Without this
+ * the table meets its container by squeezing, and the account names — the only
+ * way to tell one row from another — are what collapses first. Print opens the
+ * container back up; see app.css.
+ */
+const scroller = table => el('div', { class: 'rpt-scroll' }, table);
+
 const rptHead = (title, sub, troopName) => el('header', { class: 'rpt-head' },
   troopName ? el('p', { class: 'org', text: troopName }) : null,
   el('h2', { text: title }),
@@ -73,7 +84,7 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   row('Assets reported in TWH (for comparison)', [bs.twhComparison, ...snapVal('twh_comparison')], 'detail');
 
   table.append(body);
-  mount.append(table);
+  mount.append(scroller(table));
 
   mount.append(el('footer', { class: 'notes' },
     el('p', { text: 'TWH ignores future events and arrears; the comparison line adds both back.' }),
@@ -137,7 +148,7 @@ export function renderEventIncome(ei, mount, troopName = '') {
   dataRow('Net Income \u2014 Total', ei.netTotal, 'total grand');
 
   table.append(body);
-  mount.append(table);
+  mount.append(scroller(table));
 
   mount.append(el('footer', { class: 'notes' },
     el('p', { text: 'Event columns are program events only; fundraising events are classified by fund category and roll into Other. Per-event figures count activity on or after the "activity since" date; earlier activity appears in Prior Period Net Income.' }),
@@ -203,7 +214,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   dataRow('Net Income \u2014 Total', mi.netTotal, 'total grand');
 
   table.append(body);
-  mount.append(table);
+  mount.append(scroller(table));
 
   const diff = mi.allTimeNet - mi.netTotal.total;
   const notes = [
