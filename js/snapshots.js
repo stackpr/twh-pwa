@@ -13,6 +13,29 @@ export const BS_ROW_KEYS = [
   'unrestricted_net_assets', 'twh_comparison',
 ];
 
+/**
+ * The account lines of a snapshot, kept in a sub-map rather than beside the
+ * totals above.
+ *
+ * The total rows are a fixed vocabulary and can be a list; account names are a
+ * troop's own, and they arrive, close and get renamed over the years, so they
+ * cannot be. Keeping them apart is also what makes the privacy boundary
+ * checkable at a glance: the three sources below are troop bank accounts, the
+ * troop's card, and troop-held funds — the `_` prefixed pseudo-accounts, which
+ * are not people. Scout balances stay aggregated in scout_prepaid and
+ * scout_arrears_total and are never itemised here. Do not widen this to
+ * bs.scouts; a per-child balance in a file meant to be emailed to a successor
+ * is the exact thing Rule 2 exists to prevent.
+ *
+ * Liability accounts are stored as displayed — already sign-inverted — so the
+ * historical column reads the same way the Current one does.
+ */
+const accountLines = bs => Object.fromEntries([
+  ...bs.assets,             // cash and non-cash together, as the section prints them
+  ...bs.liabilityAccounts,  // sign already flipped for display
+  ...bs.pseudo,             // troop-held funds
+]);
+
 export function snapshotFromReport(bs) {
   return {
     total_assets:            bs.totalAssets,
@@ -27,6 +50,7 @@ export function snapshotFromReport(bs) {
     total_liabilities:       bs.totalLiabilities,
     unrestricted_net_assets: bs.unrestricted,
     twh_comparison:          bs.twhComparison,
+    accounts:                accountLines(bs),   // last, as the settings file writes it
   };
 }
 
@@ -51,6 +75,17 @@ export function driftReport(snapshot, recomputed, tolerance = 0.005) {
     const was = snapshot[key], now = recomputed[key];
     if (was === undefined || now === undefined) continue;
     if (Math.abs(was - now) > tolerance) drift.push({ key, was, now, delta: now - was });
+  }
+  // Account lines drift too, and they are the ones that say WHERE a total moved
+  // — a subtotal that is off by the same amount as one account has answered its
+  // own question. A name present on one side only is skipped rather than
+  // reported as a swing from nothing: an account opened since, or a snapshot
+  // taken before the lines were captured, is not a back-dated correction.
+  const wasAcc = snapshot.accounts || {}, nowAcc = recomputed.accounts || {};
+  for (const name of Object.keys({ ...wasAcc, ...nowAcc }).sort()) {
+    const was = wasAcc[name], now = nowAcc[name];
+    if (was === undefined || now === undefined) continue;
+    if (Math.abs(was - now) > tolerance) drift.push({ key: name, was, now, delta: now - was });
   }
   return drift;
 }

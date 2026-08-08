@@ -43,7 +43,7 @@ import {
 } from '../js/config.js';
 import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
-import { snapshotFromReport } from '../js/snapshots.js';
+import { snapshotFromReport, driftReport } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
 import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart } from '../js/ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome } from '../js/reports.js';
@@ -156,6 +156,19 @@ console.log('== INVARIANTS ==');
 
   ok('Liability section lists only troop-held (_ prefixed) person accounts',
      bs.pseudo.every(([k]) => isPseudoAccount(k)));
+
+  // Rule 2, asserted rather than assumed, and asserted against whatever export
+  // and chart the harness was pointed at rather than only the fixture — this is
+  // the check most worth having when a treasurer runs it on their own data. A
+  // snapshot's account lines are troop bank accounts, the troop card and
+  // troop-held funds. A scout's balance is never one of them.
+  {
+    const lines = Object.keys(snapshotFromReport(bs).accounts || {});
+    ok('no snapshot account line is a scout',
+       lines.length > 0 && lines.every(k => !/^scout:/.test(k)));
+    ok('every snapshot account line is a troop account or a troop-held fund',
+       lines.every(k => k in cfg.accountClass || isPseudoAccount(k)));
+  }
 
   eq('Event Income: Other + all columns == Total',
      ei.netTotal.other + ei.netTotal.cols.reduce((a, b) => a + b, 0), ei.netTotal.total);
@@ -541,7 +554,10 @@ console.log('\n== YAML SUBSET ==');
 console.log('\n== SETTINGS FILE ==');
 {
   const cfg = mk({});
-  const snaps = { '2024-08-03': { total_assets: 1234.5, scout_arrears_count: 3, unrestricted_net_assets: -12 } };
+  const snaps = { '2024-08-03': {
+    total_assets: 1234.5, scout_arrears_count: 3, unrestricted_net_assets: -12,
+    accounts: { 'Checking': 900.25, '_UNIT, Campership (Main)': -40 },
+  } };
   const text = settingsToText(cfg, snaps);
   const back = settingsFromText(text);
 
@@ -555,6 +571,12 @@ console.log('\n== SETTINGS FILE ==');
      && back.config.params.legacyMode === cfg.params.legacyMode
      && Array.isArray(back.config.params.legacyDeductedAccounts));
   eq('round-trip preserves a snapshot figure', back.snapshots['2024-08-03'].total_assets, 1234.5);
+  eq('round-trip preserves a per-account snapshot figure',
+     back.snapshots['2024-08-03'].accounts['Checking'], 900.25);
+  eq('round-trip preserves a troop-held account line',
+     back.snapshots['2024-08-03'].accounts['_UNIT, Campership (Main)'], -40);
+  ok('an account line with a non-numeric figure is rejected',
+     settingsFromText(text.replace('Checking: 900.25', 'Checking: about 900')).errors.length > 0);
   eq('round-trip preserves an integer count', back.snapshots['2024-08-03'].scout_arrears_count, 3);
   eq('round-trip preserves a negative figure', back.snapshots['2024-08-03'].unrestricted_net_assets, -12);
   ok('currency keeps two decimal places in the file', /total_assets: 1234\.50/.test(text));
@@ -634,6 +656,42 @@ console.log('\n== GENERATED FILES ARE CURRENT ==');
     const snap = snapshotFromReport(bs);
     eq('sample snapshot matches a fresh run',
        sample.snapshots['2024-08-03'].unrestricted_net_assets, Math.round(snap.unrestricted_net_assets * 100) / 100);
+
+    // A snapshot has to hold the account lines, or the historical columns on
+    // the balance sheet are blank for every row except the subtotals — the
+    // report says Total Assets moved and cannot say which account moved.
+    const names = Object.keys(snap.accounts || {});
+    ok('a snapshot captures every asset line',
+       bs.assets.every(([k]) => names.includes(k)));
+    ok('a snapshot captures the liability accounts and troop-held funds',
+       [...bs.liabilityAccounts, ...bs.pseudo].every(([k]) => names.includes(k)));
+    eq('an account line equals its figure on the balance sheet',
+       snap.accounts[bs.assets[0][0]], bs.assets[0][1]);
+    eq('the asset lines add up to Total Assets',
+       bs.assets.reduce((s, [k]) => s + snap.accounts[k], 0), snap.total_assets);
+
+    // Drift is what makes a snapshot worth keeping: it says a published figure
+    // and the recomputed one disagree. Now that account lines are captured it
+    // has to name the account, not just the subtotal that moved with it.
+    const first = bs.assets[0][0];
+    const moved = { ...snap, accounts: { ...snap.accounts, [first]: snap.accounts[first] + 10 } };
+    const d = driftReport(moved, snap);
+    ok('drift names the account line that moved',
+       d.some(x => x.key === first && Math.abs(x.delta - -10) < 0.005));
+    ok('an unchanged account line is not reported as drift',
+       !d.some(x => x.key !== first && names.includes(x.key)));
+
+    // A blank is not a zero here either. A date captured before the account
+    // lines were recorded, or before the account existed, has no figure to
+    // compare — reporting that as a swing from nothing would bury the real
+    // corrections under noise the first time anyone loads an older file.
+    const partial = { ...snap, accounts: { ...snap.accounts } };
+    delete partial.accounts[first];
+    ok('an account missing from one side is not drift',
+       !driftReport(partial, snap).some(x => x.key === first));
+    ok('a snapshot with no account lines at all still compares its totals',
+       driftReport({ ...snap, accounts: undefined }, { ...snap, total_assets: snap.total_assets + 5 })
+         .some(x => x.key === 'total_assets'));
   }
 }
 

@@ -152,6 +152,12 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     '',
     'Added by the app when you capture a snapshot. Safe to edit or delete a',
     'whole date, but there is rarely a reason to.',
+    '',
+    'Under "accounts" each date carries the troop accounts, the card and the',
+    'troop-held funds as that balance sheet showed them. An account that has',
+    'since closed keeps its figures here, though the reports no longer have a',
+    'row to show them on. Scout balances are only ever the two whole-troop',
+    'figures above — no individual balance is written here.',
   ], 'snapshots', roundSnapshots(snapshots)));
 
   return lines.join('\r\n').replace(/(\r\n)+$/, '\r\n');
@@ -182,6 +188,15 @@ function roundSnapshots(snaps) {
       if (v === undefined) continue;
       row[key] = key.endsWith('_count') ? Math.round(v) : raw(v.toFixed(2));
     }
+    // Account lines last, under their own heading: a reader scanning for Total
+    // Assets should not have to walk past a bank account list to find it.
+    const accounts = snaps[date].accounts || {};
+    const named = {};
+    for (const name of Object.keys(accounts).sort()) {
+      const v = Number(accounts[name]);
+      if (Number.isFinite(v)) named[name] = raw(v.toFixed(2));
+    }
+    if (Object.keys(named).length) row.accounts = named;
     out[date] = row;
   }
   return out;
@@ -317,6 +332,30 @@ export function settingsFromText(text) {
       if (!row || typeof row !== 'object' || Array.isArray(row)) { errors.push(`Snapshot "${date}" has no figures under it.`); continue; }
       const clean = {};
       for (const [key, v] of Object.entries(row)) {
+        // The account lines are a nested block, and their names are the troop's
+        // own — so unlike the total rows there is no list to check them against.
+        // A name that no longer matches any account is kept rather than dropped,
+        // because it is the record of what was published. It is not displayed:
+        // the balance sheet iterates the accounts the CURRENT export has, so a
+        // closed account has no row for its history to appear in. The figures
+        // stay in the file for a reader who goes looking.
+        if (key === 'accounts') {
+          if (!v || typeof v !== 'object' || Array.isArray(v)) {
+            errors.push(`Snapshot ${date}: "accounts" is not a set of "name: figure" lines.`);
+            continue;
+          }
+          const accounts = {};
+          for (const [name, av] of Object.entries(v)) {
+            const n = Number(av);
+            if (!Number.isFinite(n)) {
+              errors.push(`Snapshot ${date}, account "${name}": "${av}" is not a number.`);
+              continue;
+            }
+            accounts[name] = n;
+          }
+          clean.accounts = accounts;
+          continue;
+        }
         if (!BS_ROW_KEYS.includes(key)) { warnings.push(`Snapshot ${date}: ignoring unknown line "${key}".`); continue; }
         const n = Number(v);
         if (!Number.isFinite(n)) { errors.push(`Snapshot ${date}, line "${key}": "${v}" is not a number.`); continue; }

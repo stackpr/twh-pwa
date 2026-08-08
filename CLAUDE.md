@@ -56,8 +56,19 @@ exception: `test/fixtures/sample-export.csv`, which is entirely synthetic.
   without the other.
 - Do not create a file whose name contains a person's name.
 - The settings file is the one artefact meant to be shared. It must stay free of
-  scout names, per-account balances, and transactions — configuration and
-  whole-troop totals only. There is a test asserting this; do not weaken it.
+  scout names, individual scout balances, and transactions — configuration,
+  whole-troop totals, and the troop's own account lines. There is a test
+  asserting this; do not weaken it.
+
+  The account lines are the balance sheet's own rows: the troop's bank accounts,
+  its card, and the `_` prefixed troop-held funds, frozen by date under
+  `accounts` inside each snapshot. They are there because a balance sheet that
+  can say Total Assets moved but not *which account* moved answers half the
+  question. They are a deliberate widening of what this file carries, made on
+  the owner's request, and the line they do not cross is a person: never
+  `bs.scouts`, never a balance keyed by a scout hash. A treasurer forwarding
+  this file is disclosing the troop's finances by institution, which is a real
+  thing to know about it — say so when you hand one over.
 
 **Never transmit anything.** This app makes zero network requests at runtime, and
 that is load-bearing rather than incidental — a third-party script sharing an
@@ -69,8 +80,9 @@ origin with a parsed export is the exact failure this design exists to prevent.
 - The CSV is read through the File API and never becomes a `Request`. Do not add
   a fetch, upload, URL parameter, form post, or cache write that carries ledger
   content.
-- `localStorage` holds configuration and balance-sheet snapshot totals only.
-  Never transactions, never names.
+- `localStorage` holds configuration and balance-sheet snapshots only — the
+  totals and the troop account lines described above. Never transactions, never
+  a person's name or balance.
 - Scout names are hashed in `buildLedger()` and the originals discarded there.
   Never widen that scope. Never render a raw name. Accounts with a leading `_`
   are troop-held funds, not people, and are intentionally left unhashed.

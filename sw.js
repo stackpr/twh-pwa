@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION on every deployment.
  */
 
-const CACHE_VERSION = 'v17';
+const CACHE_VERSION = 'v18';
 const CACHE_NAME = `troopfin-shell-${CACHE_VERSION}`;
 
 const SHELL = [

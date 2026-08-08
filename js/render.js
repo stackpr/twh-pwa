@@ -54,13 +54,21 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
       ...values.map(v => (v === null ? td('', 'num') : num(v)))));
   };
   const snapVal = key => snapDates.map(d => (snapshots[d][key] ?? null));
+  // Account lines live in a sub-map keyed by name. A date captured before the
+  // lines were recorded, or one predating the account, leaves a blank cell
+  // rather than a zero — "not captured" and "held nothing" are different
+  // claims, and the footnote below says which the blank means.
+  const snapAcct = name => snapDates.map(d => {
+    const accounts = snapshots[d].accounts;
+    return accounts && accounts[name] !== undefined ? accounts[name] : null;
+  });
   const section = label => body.append(el('tr', { class: 'section' },
     el('th', { class: 'label', scope: 'row', colspan: cols.length + 1, text: label })));
 
   const noncashNames = new Set(bs.noncash.map(([k]) => k));
   section('Assets');
   for (const [name, v] of bs.assets) {
-    row(name + (noncashNames.has(name) ? ' \u2020' : ''), [v, ...snapDates.map(() => null)], 'detail');
+    row(name + (noncashNames.has(name) ? ' \u2020' : ''), [v, ...snapAcct(name)], 'detail');
   }
   row('Total Assets', [bs.totalAssets, ...snapVal('total_assets')], 'subtotal');
 
@@ -73,9 +81,12 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   row('Net Scout Balances', [bs.netScout, ...snapVal('scout_net')], 'subtotal');
 
   section('Liabilities');
-  for (const [name, v] of bs.liabilityAccounts) row(name, [v, ...snapDates.map(() => null)], 'detail');
+  for (const [name, v] of bs.liabilityAccounts) row(name, [v, ...snapAcct(name)], 'detail');
   row('Other Future Events (Net)', [bs.otherFutureEventsNet, ...snapVal('other_future_events')], 'detail');
-  for (const [name, v] of bs.pseudo) row(prettyPseudo(name), [v, ...snapDates.map(() => null)], 'detail');
+  // Displayed under its short label, looked up by the full account name — the
+  // snapshot is keyed the way the export names the account, not the way the
+  // balance sheet prints it.
+  for (const [name, v] of bs.pseudo) row(prettyPseudo(name), [v, ...snapAcct(name)], 'detail');
   row('Total Liabilities', [bs.totalLiabilities, ...snapVal('total_liabilities')], 'subtotal');
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols.length + 1 })));

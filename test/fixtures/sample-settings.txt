@@ -160,6 +160,12 @@ budgets:
 #
 # Added by the app when you capture a snapshot. Safe to edit or delete a
 # whole date, but there is rarely a reason to.
+#
+# Under "accounts" each date carries the troop accounts, the card and the
+# troop-held funds as that balance sheet showed them. An account that has
+# since closed keeps its figures here, though the reports no longer have a
+# row to show them on. Scout balances are only ever the two whole-troop
+# figures above — no individual balance is written here.
 snapshots:
   2024-03-01:
     total_assets: 79904.54
@@ -174,6 +180,21 @@ snapshots:
     total_liabilities: 19694.50
     unrestricted_net_assets: 43037.54
     twh_comparison: 52398.64
+    accounts:
+      CD: 12109.50
+      Checking: 40475.04
+      Council Account: 2500.00
+      Credit Card: 642.75
+      Imported History: 0.00
+      Merchandise Inventory: 4925.50
+      PayPal: 907.00
+      Product Sale Cash: 18430.00
+      Venmo: 557.50
+      _CREW, Venture Crew (Main): -157.25
+      _UNIT, Campership (Main): 2571.50
+      _UNIT, Custom Order (Main): 410.00
+      _UNIT, High Adventure (Main): 2995.00
+      _UNIT, Wanderoak 2026 (Main): 0.00
   2024-06-01:
     total_assets: 79904.54
     total_noncash_assets: 4925.50
@@ -187,6 +208,21 @@ snapshots:
     total_liabilities: 18705.50
     unrestricted_net_assets: 44026.54
     twh_comparison: 52398.64
+    accounts:
+      CD: 12109.50
+      Checking: 40475.04
+      Council Account: 2500.00
+      Credit Card: 642.75
+      Imported History: 0.00
+      Merchandise Inventory: 4925.50
+      PayPal: 907.00
+      Product Sale Cash: 18430.00
+      Venmo: 557.50
+      _CREW, Venture Crew (Main): -157.25
+      _UNIT, Campership (Main): 2571.50
+      _UNIT, Custom Order (Main): 410.00
+      _UNIT, High Adventure (Main): 2995.00
+      _UNIT, Wanderoak 2026 (Main): 0.00
   2024-08-03:
     total_assets: 79904.54
     total_noncash_assets: 4925.50
@@ -200,3 +236,18 @@ snapshots:
     total_liabilities: 11351.50
     unrestricted_net_assets: 51380.54
     twh_comparison: 52398.64
+    accounts:
+      CD: 12109.50
+      Checking: 40475.04
+      Council Account: 2500.00
+      Credit Card: 642.75
+      Imported History: 0.00
+      Merchandise Inventory: 4925.50
+      PayPal: 907.00
+      Product Sale Cash: 18430.00
+      Venmo: 557.50
+      _CREW, Venture Crew (Main): -157.25
+      _UNIT, Campership (Main): 2571.50
+      _UNIT, Custom Order (Main): 410.00
+      _UNIT, High Adventure (Main): 2995.00
+      _UNIT, Wanderoak 2026 (Main): 0.00

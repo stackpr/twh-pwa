@@ -151,4 +151,10 @@ budgets: {}
 #
 # Added by the app when you capture a snapshot. Safe to edit or delete a
 # whole date, but there is rarely a reason to.
+#
+# Under "accounts" each date carries the troop accounts, the card and the
+# troop-held funds as that balance sheet showed them. An account that has
+# since closed keeps its figures here, though the reports no longer have a
+# row to show them on. Scout balances are only ever the two whole-troop
+# figures above — no individual balance is written here.
 snapshots: {}
