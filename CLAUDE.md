@@ -203,6 +203,22 @@ Module boundaries, in dependency order — keep it acyclic:
 
 `reports.js` must stay DOM-free so the test harness can import it under Node.
 
+```
+index.html            markup and controls (Import/Reports/Settings/Cache/Help)
+app.css               screen + print styles (one report per sheet)
+manifest.webmanifest  PWA manifest
+sw.js                 app-shell service worker
+_config.yml           Pages build: keeps repo-only files unpublished
+CNAME                 custom domain for the published site
+js/package.json       marks js/ as ES modules so Node can import it
+defaults.txt          starting settings file (generated)
+tools/                regenerate the two committed generated files
+test/reconcile.test.mjs            invariants + golden values
+test/fixtures/generate.mjs         synthetic export generator (seeded)
+test/fixtures/sample-export.csv    the fixture — synthetic, safe to commit
+test/fixtures/sample-settings.txt  settings to pair with it (generated)
+```
+
 ## Agents
 
 Three subagents live in `.claude/agents/`, each pinning its own model and
@@ -285,6 +301,11 @@ session does not have — do not silently leave the work on a side branch. Push
 the branch, open a pull request against `gh-pages`, and offer to merge it as the
 closing step of the task rather than treating the PR as the finish line.
 
+To run it locally, open `index.html` directly — every report works, but service
+workers do not run from `file://`, so offline install is not exercised. Serve
+the directory over http (`python3 -m http.server 8080`) when the change touches
+`sw.js` or `install.js`.
+
 Static, no build step of our own. GitHub Pages serves the repo root of whichever
 branch Pages is configured for, through its Jekyll build. All paths are relative
 so a project subpath and a custom domain both work untouched — never introduce a
@@ -350,7 +371,26 @@ keep serving the old shell. Adding or renaming a shell file means updating the
 - **Event dates come from the trailing `(MM/DD/YY)` in the event name.** Nothing
   else carries them.
 - **Troop-held accounts are the `_` prefix, not a name list.** Match the prefix;
-  never enumerate specific accounts in report code.
+  never enumerate specific accounts in report code. A troop-held fund that lost
+  its underscore in TroopWebHost is read as a scout: it lands in prepaid fees
+  and can show up in the arrears count.
+- **Single-leg entries are legitimate.** `*`-prefixed adjustment types carry one
+  leg, and so do opening-balance imports for scout accounts. Do not treat a row
+  with one leg as malformed. The *count* is the signal — the reconciliation
+  panel reports it because a jump month to month means someone posted something
+  unusual.
+- **Opening balances are usually booked through a fund**, with fiscal year
+  `Opening`. That inflates all-time fund totals, which is why every income
+  report is period-limited rather than an all-time roll-forward.
+- **Nothing reads a transaction type.** `buildLedger` looks at whichever leg
+  columns a row populates, so a type this codebase has never seen needs no code
+  change. Do not add a type table or a switch on `Transaction Type`; the one
+  place the type is kept is for the reconciliation panel's counts.
+- **Columns present but never read**: Deposit Date, For Event, Budget, Budget
+  Item Type, Group, Reconcile Debit/Credit, Added By User, and Fiscal Year.
+  Fiscal Year is populated by TroopWebHost and still unused — the fiscal year
+  the reports work in comes from `fiscalYearStart` and the transaction date, not
+  from that column. Reaching for it is usually a mistake.
 
 ## Style
 

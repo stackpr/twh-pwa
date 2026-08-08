@@ -29,11 +29,6 @@ const params = {
   // The synthetic year runs Sep 2023 - Aug 2024, so the sample shows the
   // fiscal-year statement and the budget columns without any setting up.
   fiscalYearStart: 9,
-  legacyDeductedAccounts: [
-    '_UNIT, Campership (Main)',
-    '_UNIT, High Adventure (Main)',
-    '_CREW, Venture Crew (Main)',
-  ],
 };
 // Invented round figures, budgeted by category to show the coarser of the two
 // ways in: enough for the Budget and Remaining columns to appear.

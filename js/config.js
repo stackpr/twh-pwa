@@ -66,8 +66,8 @@ export const CATEGORY_ORDER = [
 //   noncash   : counts toward Total Assets, but deducted from unrestricted net
 //               assets because it cannot be spent (e.g. inventory)
 //   liability : displayed under Liabilities, sign inverted
-// Seeded from the treatment implied by the legacy workbook. Any account
-// appearing in the export but missing here HALTS the load — see ledger.js.
+// Any account appearing in the export but missing here HALTS the load — see
+// ledger.js.
 export const DEFAULT_ACCOUNT_CLASS = {
   'Checking':                'cash',
   'CD':                      'cash',
@@ -94,11 +94,6 @@ export const DEFAULT_PARAMS = {
   // still available and gives back the rolling monthsShown window.
   fiscalYearStart: 1,
   asOf: null,                  // null = min(latest txn date, today)
-  legacyMode: false,           // reproduce spreadsheet-era defects, for diffing
-  // Under legacyMode, the troop-held accounts a predecessor spreadsheet deducted
-  // by hand from prepaid fees. Any pseudo-account NOT listed here reproduces the
-  // classic double-count. Empty means every pseudo-account is double-counted.
-  legacyDeductedAccounts: [],
   hashSalt: '',                // empty = plain MD5 (reproducible outside the app)
 };
 

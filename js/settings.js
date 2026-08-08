@@ -79,10 +79,6 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     '                          compares against. null instead gives a rolling',
     '                          window of monthsShown months, and no budget.',
     '  asOf                    report date (YYYY-MM-DD), or null for today.',
-    '  legacyMode              reproduce spreadsheet-era defects, for comparing',
-    '                          against an old workbook during a migration.',
-    '  legacyDeductedAccounts  under legacyMode only: the troop-held accounts an',
-    '                          old spreadsheet deducted by hand.',
     '  hashSalt                changes the anonymised scout identifiers. Leave',
     '                          empty unless you have a reason.',
   ], 'parameters', {
@@ -91,8 +87,6 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     monthsShown: params.monthsShown,
     fiscalYearStart: params.fiscalYearStart ?? null,
     asOf: params.asOf ?? null,
-    legacyMode: params.legacyMode,
-    legacyDeductedAccounts: params.legacyDeductedAccounts || [],
     hashSalt: params.hashSalt || '',
   }));
 

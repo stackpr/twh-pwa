@@ -395,15 +395,12 @@ function syncParamInputs() {
   set('#months', p.monthsShown);
   set('#asOf', p.asOf);
   set('#fiscalYearStart', p.fiscalYearStart);
-  const legacy = $('#legacyMode');
-  if (legacy) legacy.checked = p.legacyMode;
-  $('#legacy-note').hidden = !p.legacyMode;
 }
 
 function reloadFromLedger() {
-  // Some parameters — legacy mode, the hash salt — change how the ledger itself
-  // is built, and the export is not retained, so those need the file again.
-  // A chart-of-accounts change does not: see afterChartEdit.
+  // The hash salt changes how the ledger itself is built, and the export is not
+  // retained, so it needs the file again. A chart-of-accounts change does not:
+  // see afterChartEdit.
   $('#config-note').textContent =
     'Saved. Re-drop the export to apply it — transaction data is never kept in memory between loads.';
 }
@@ -524,17 +521,6 @@ function bind() {
     v => (v === '' ? null : Number(v)),
     () => { state.budgetYear = null; renderBudgetPanel(); });
 
-  const legacy = $('#legacyMode');
-  legacy.checked = p.legacyMode;
-  legacy.addEventListener('change', () => {
-    p.legacyMode = legacy.checked;
-    saveConfig(state.cfg);
-    $('#legacy-note').hidden = !legacy.checked;
-    reloadFromLedger();
-    rerender();
-  });
-  $('#legacy-note').hidden = !p.legacyMode;
-
   // printing
   document.querySelectorAll('[data-print]').forEach(btn => {
     btn.addEventListener('click', () => printReport(btn.dataset.print));
@@ -569,13 +555,13 @@ function bind() {
         + (errors.length > 12 ? `\n\n(+${errors.length - 12} more)` : ''));
       return;
     }
-    // Two parameters decide how the ledger itself is built, so changing either
+    // The hash salt decides how the ledger itself is built, so changing it
     // needs the export again — and the export is never retained. Everything
     // else, the whole chart of accounts included, applies to the ledger already
     // in memory. This used to reload the page unconditionally, which threw away
     // an export imported moments earlier and left the reports empty: the
     // snapshots had loaded, but there was nothing to show them beside.
-    const was = { legacyMode: state.cfg.params.legacyMode, hashSalt: state.cfg.params.hashSalt };
+    const wasSalt = state.cfg.params.hashSalt;
     // The parameter inputs were bound to the params object that existed at
     // startup, so the new values are copied INTO it. Swapping the object would
     // leave every control on the Settings tab writing to a config the reports
@@ -589,8 +575,7 @@ function bind() {
     saveSnapshots(state.snapshots);
     syncParamInputs();
 
-    const rebuild = !!state.ledger
-      && (was.legacyMode !== state.cfg.params.legacyMode || was.hashSalt !== state.cfg.params.hashSalt);
+    const rebuild = !!state.ledger && wasSalt !== state.cfg.params.hashSalt;
     if (rebuild) {
       state.ledger = null;
       state.review = null;
@@ -605,7 +590,7 @@ function bind() {
     const next = state.ledger
       ? 'The reports have been recomputed against these settings.'
       : rebuild
-        ? 'Legacy mode or the hash salt changed, which alters how the ledger is built. '
+        ? 'The hash salt changed, which alters how the ledger is built. '
           + 'Drop the transaction export again to produce the reports.'
         : 'Drop the transaction export to produce the reports.';
     alert(`Settings loaded: ${counts}.\n\n${next}`

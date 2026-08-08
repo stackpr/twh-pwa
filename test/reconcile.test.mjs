@@ -20,8 +20,8 @@
 //   INVARIANTS hold for any well-formed export. They are the properties the
 //   reports must never violate — Other + columns == Total, net income equals
 //   revenue minus expenses, liabilities equal the sum of their parts, totals
-//   independent of the column limit, and the documented differences between
-//   legacy and corrected mode. These run against whatever file you point at.
+//   independent of the column limit. These run against whatever file you point
+//   at.
 //
 //   GOLDEN values are pinned to test/fixtures/sample-export.csv, which is
 //   SYNTHETIC — invented scouts, events, amounts and dates. Real troop data is
@@ -65,14 +65,6 @@ const FIXTURE_PARAMS = {
   // covers exactly it. The monthly golden values are the same twelve months
   // either way, which is what keeps them comparable across this change.
   fiscalYearStart: 9,
-  // Legacy mode needs the hand-maintained deduction list a predecessor
-  // spreadsheet would have carried. Two of the fixture's troop-held accounts are
-  // deliberately absent from it, which is what reproduces the double-count.
-  legacyDeductedAccounts: [
-    '_UNIT, Campership (Main)',
-    '_UNIT, High Adventure (Main)',
-    '_CREW, Venture Crew (Main)',
-  ],
 };
 
 // A troop's own chart of accounts, when one was handed in. Refusing a settings
@@ -135,7 +127,7 @@ function build(over) {
 
 console.log('== INVARIANTS ==');
 {
-  const { cfg, ledger, asOf } = build({ legacyMode: false });
+  const { cfg, ledger, asOf } = build({});
   const bs = balanceSheet(ledger, cfg, asOf);
   const ei = eventIncome(ledger, cfg, asOf);
   const mi = monthlyIncome(ledger, cfg, asOf);
@@ -208,13 +200,13 @@ console.log('== INVARIANTS ==');
      ei.columns.every(c => c.kind === 'program'));
 
   // The column limit is a page-fit control, never an accounting change.
-  const wide = build({ legacyMode: false, pastEventsShown: 30 });
+  const wide = build({ pastEventsShown: 30 });
   const eiWide = eventIncome(wide.ledger, wide.cfg, wide.asOf);
   eq('Totals independent of pastEventsShown', eiWide.netTotal.total, ei.netTotal.total);
   eq('Future total independent of pastEventsShown', eiWide.futureTotal, ei.futureTotal);
 
   // The balance sheet is not date-filtered: future pre-charges are already in it.
-  const later = build({ legacyMode: false, asOf: '2030-01-01' });
+  const later = build({ asOf: '2030-01-01' });
   const bsLater = balanceSheet(later.ledger, later.cfg, later.asOf);
   eq('Total Assets unaffected by as-of date', bsLater.totalAssets, bs.totalAssets);
   ok('Future-event liability shrinks as events pass',
@@ -494,9 +486,9 @@ console.log('\n== YAML SUBSET ==');
     '  name: "Troop 000"',
     'parameters:',
     '  pastEventsShown: 8      # trailing comment',
-    '  legacyMode: false',
+    '  aFlag: false',
     '  asOf: null',
-    '  legacyDeductedAccounts: []',
+    '  anEmptyList: []',
     '  hashSalt: ""',
     'list:',
     '  - alpha',
@@ -507,10 +499,10 @@ console.log('\n== YAML SUBSET ==');
   ].join('\n'));
   ok('nested maps parse', doc.troop.name === 'Troop 000');
   ok('integers stay integers', doc.parameters.pastEventsShown === 8);
-  ok('booleans stay booleans', doc.parameters.legacyMode === false);
+  ok('booleans stay booleans', doc.parameters.aFlag === false);
   ok('null parses as null', doc.parameters.asOf === null);
-  ok('empty list parses as []', Array.isArray(doc.parameters.legacyDeductedAccounts)
-     && doc.parameters.legacyDeductedAccounts.length === 0);
+  ok('empty list parses as []', Array.isArray(doc.parameters.anEmptyList)
+     && doc.parameters.anEmptyList.length === 0);
   ok('empty quoted string stays a string', doc.parameters.hashSalt === '');
   ok('sequences parse', doc.list[0] === 'alpha' && doc.list[1] === 'quoted: with colon');
   ok('quoted key containing a colon parses', doc.funds['Odd: Name'] === 'Program Revenue');
@@ -586,8 +578,9 @@ console.log('\n== SETTINGS FILE ==');
      Object.keys(back.config.accountClass).length, Object.keys(cfg.accountClass).length);
   ok('round-trip preserves parameter types',
      back.config.params.pastEventsShown === cfg.params.pastEventsShown
-     && back.config.params.legacyMode === cfg.params.legacyMode
-     && Array.isArray(back.config.params.legacyDeductedAccounts));
+     && typeof back.config.params.pastEventsShown === 'number'
+     && typeof back.config.params.hashSalt === 'string'
+     && back.config.params.asOf === cfg.params.asOf);
   eq('round-trip preserves a snapshot figure', back.snapshots['2024-08-03'].total_assets, 1234.5);
   eq('round-trip preserves a per-account snapshot figure',
      back.snapshots['2024-08-03'].accounts['Checking'], 900.25);
@@ -713,30 +706,13 @@ console.log('\n== GENERATED FILES ARE CURRENT ==');
   }
 }
 
-console.log('\n== LEGACY vs CORRECTED ==');
-{
-  const c = build({ legacyMode: false });
-  const l = build({ legacyMode: true });
-  const bsC = balanceSheet(c.ledger, c.cfg, c.asOf);
-  const bsL = balanceSheet(l.ledger, l.cfg, l.asOf);
-
-  eq('Assets identical in both modes', bsL.totalAssets, bsC.totalAssets);
-  eq('Liabilities identical in both modes', bsL.totalLiabilities, bsC.totalLiabilities);
-  ok('Legacy counts more accounts in arrears (pseudo accounts included)',
-     bsL.arrearsCount >= bsC.arrearsCount);
-  ok('Legacy understates net scout balances (arrears double-counted)',
-     bsL.netScout < bsC.netScout);
-  ok('Legacy therefore overstates unrestricted net assets',
-     bsL.unrestricted > bsC.unrestricted);
-}
-
 /* ================================================================== */
 /* GOLDEN — pinned to the synthetic fixture                            */
 /* ================================================================== */
 
 if (isFixture) {
   console.log('\n== GOLDEN (synthetic fixture) ==');
-  const { cfg, ledger, asOf } = build({ legacyMode: false });
+  const { cfg, ledger, asOf } = build({});
   const rec = reconcile(ledger, cfg);
   const bs = balanceSheet(ledger, cfg, asOf);
   const ei = eventIncome(ledger, cfg, asOf);
@@ -778,13 +754,6 @@ if (isFixture) {
   eq('MI Program Expenses', mi.sections.find(s => s.key === 'Program Expenses').subtotal.total, 20379.65);
   eq('MI Net Program', mi.netProgram.total, -731.90);
   eq('MI Net Total', mi.netTotal.total, 7143.10);
-
-  const l = build({ legacyMode: true });
-  const bsL = balanceSheet(l.ledger, l.cfg, l.asOf);
-  eq('legacy prepaid', bsL.prepaid, 12657.00);
-  eq('legacy arrears count', bsL.arrearsCount, 9);
-  eq('legacy net scout balances', bsL.netScout, 8628.35);
-  eq('legacy unrestricted net assets', bsL.unrestricted, 54999.19);
 } else {
   console.log('\n(golden values skipped — external export)');
 }

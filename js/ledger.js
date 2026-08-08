@@ -76,12 +76,11 @@ export function buildLedger(records, cfg) {
     const amount = parseAmount(r['Amount']);
     const debitEvent = r['Debit Event'], creditEvent = r['Credit Event'];
 
-    // Event attribution: prefer the debit side; fall back to credit.
-    // When both are present they are always the same event in practice, so the
-    // transaction is attributed to it. (The legacy workbook blanked this case,
-    // silently dropping those rows from the by-event report.)
-    let event = debitEvent || creditEvent || null;
-    if (params.legacyMode && debitEvent && creditEvent && debitEvent === creditEvent) event = null;
+    // Event attribution: prefer the debit side; fall back to credit. When both
+    // are present they are always the same event in practice, so the
+    // transaction is attributed to it rather than to neither — leaving it
+    // unattributed would drop the row from the by-event report entirely.
+    const event = debitEvent || creditEvent || null;
     if (event) eventNames.add(event);
 
     const txn = {
@@ -113,8 +112,9 @@ export function buildLedger(records, cfg) {
     if (r['Debit Fund'])  { push('fund', r['Debit Fund'],  -amount); if (!(r['Debit Fund']  in cfg.fundCategories)) unknownFunds.add(r['Debit Fund']); }
   });
 
-  // Hard stops. A silently-dropped account or fund is the failure mode that made
-  // the legacy workbook untrustworthy; refuse to render rather than under-report.
+  // Hard stops. A silently-dropped account or fund is the failure mode that
+  // makes spreadsheet-era tooling untrustworthy: a figure quietly counted as
+  // zero reads exactly like a figure that is zero. Refuse to render instead.
   if (unknownFunds.size)
     errors.push(`Fund(s) not present in the category map: ${[...unknownFunds].join(', ')}. Add them under Configuration before the reports can be produced.`);
   if (unknownAccounts.size)

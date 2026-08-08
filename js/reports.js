@@ -31,8 +31,7 @@ const monthLabel = d => d.toLocaleString('en-US', { month: 'short', year: '2-dig
  * the report and drives the future/past event split; it does not filter legs.
  */
 export function balanceSheet(ledger, cfg, asOf) {
-  const { accountClass, params } = cfg;
-  const legacy = params.legacyMode;
+  const { accountClass } = cfg;
 
   // Every account in the chart starts at zero, whether or not the export
   // touched it. An account a troop has configured is an account it holds, and
@@ -72,27 +71,17 @@ export function balanceSheet(ledger, cfg, asOf) {
     .sort((a, b) => a[0].localeCompare(b[0]));
   const scouts = [...personBal.entries()].filter(([k]) => !isPseudoAccount(k));
 
-  let prepaid, arrearsTotal, arrearsCount, netScout;
-  if (legacy) {
-    // Reproduces the spreadsheet-era treatment: prepaid fees are all person legs
-    // minus a hand-maintained list of troop-held accounts. Any pseudo-account
-    // missing from that list gets double-counted — the classic defect. Arrears
-    // are counted across every account, pseudo ones included.
-    const allPersons = [...personBal.values()].reduce((s, v) => s + v, 0);
-    const deducted = (params.legacyDeductedAccounts || [])
-      .reduce((s, k) => s + (personBal.get(k) || 0), 0);
-    prepaid = allPersons - deducted;
-    const neg = [...personBal.entries()].filter(([, v]) => v < -0.005);
-    arrearsCount = neg.length;
-    arrearsTotal = neg.reduce((s, [, v]) => s + v, 0);
-    netScout = prepaid + arrearsTotal;   // arrears counted twice, as in the original
-  } else {
-    prepaid = scouts.filter(([, v]) => v > 0).reduce((s, [, v]) => s + v, 0);
-    const neg = scouts.filter(([, v]) => v < -0.005);
-    arrearsCount = neg.length;
-    arrearsTotal = neg.reduce((s, [, v]) => s + v, 0);
-    netScout = prepaid + arrearsTotal;   // == total scout net obligation
-  }
+  // Prepaid fees are what the scouts are collectively in credit for, arrears
+  // what they are collectively behind on, and the two are kept apart because a
+  // troop with 16,000 prepaid and 900 in arrears is in a different position
+  // from one holding 15,100 evenly. Troop-held funds are excluded from both:
+  // they sit under Liabilities on their own lines and counting them here as
+  // well would double them.
+  const prepaid = scouts.filter(([, v]) => v > 0).reduce((s, [, v]) => s + v, 0);
+  const inArrears = scouts.filter(([, v]) => v < -0.005);
+  const arrearsCount = inArrears.length;
+  const arrearsTotal = inArrears.reduce((s, [, v]) => s + v, 0);
+  const netScout = prepaid + arrearsTotal;   // == total scout net obligation
 
   // --- deferred revenue on events that haven't happened yet ---
   const futureEvents = ledger.events.filter(e => e.date && e.date > asOf);
