@@ -185,10 +185,12 @@ snapshots:
       Checking: 40475.04
       Council Account: 2500.00
       Credit Card: 642.75
+      High Adventure Checking: 0.00
       Imported History: 0.00
       Merchandise Inventory: 4925.50
       PayPal: 907.00
       Product Sale Cash: 18430.00
+      Trailer Fund: 0.00
       Venmo: 557.50
       _CREW, Venture Crew (Main): -157.25
       _UNIT, Campership (Main): 2571.50
@@ -213,10 +215,12 @@ snapshots:
       Checking: 40475.04
       Council Account: 2500.00
       Credit Card: 642.75
+      High Adventure Checking: 0.00
       Imported History: 0.00
       Merchandise Inventory: 4925.50
       PayPal: 907.00
       Product Sale Cash: 18430.00
+      Trailer Fund: 0.00
       Venmo: 557.50
       _CREW, Venture Crew (Main): -157.25
       _UNIT, Campership (Main): 2571.50
@@ -241,10 +245,12 @@ snapshots:
       Checking: 40475.04
       Council Account: 2500.00
       Credit Card: 642.75
+      High Adventure Checking: 0.00
       Imported History: 0.00
       Merchandise Inventory: 4925.50
       PayPal: 907.00
       Product Sale Cash: 18430.00
+      Trailer Fund: 0.00
       Venmo: 557.50
       _CREW, Venture Crew (Main): -157.25
       _UNIT, Campership (Main): 2571.50

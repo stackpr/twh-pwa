@@ -168,6 +168,24 @@ console.log('== INVARIANTS ==');
        lines.length > 0 && lines.every(k => !/^scout:/.test(k)));
     ok('every snapshot account line is a troop account or a troop-held fund',
        lines.every(k => k in cfg.accountClass || isPseudoAccount(k)));
+
+    // A snapshot has to be complete or a historical column goes blank the year
+    // an account sat idle, and a blank there means "not captured". Every account
+    // in the chart gets a figure, zero included.
+    ok('every account in the chart appears on the balance sheet',
+       Object.keys(cfg.accountClass).every(k =>
+         bs.assets.some(([n]) => n === k) || bs.liabilityAccounts.some(([n]) => n === k)));
+    ok('every account in the chart is captured in a snapshot',
+       Object.keys(cfg.accountClass).every(k => lines.includes(k)));
+    ok('an account the export never touches is carried as zero, not dropped',
+       (() => {
+         const idle = { ...cfg, accountClass: { ...cfg.accountClass, 'Dormant Savings': 'cash' } };
+         const b = balanceSheet(ledger, idle, asOf);
+         const row = b.assets.find(([n]) => n === 'Dormant Savings');
+         return !!row && row[1] === 0
+           && snapshotFromReport(b).accounts['Dormant Savings'] === 0
+           && Math.abs(b.totalAssets - bs.totalAssets) < 0.005;   // and it moves no total
+       })());
   }
 
   eq('Event Income: Other + all columns == Total',

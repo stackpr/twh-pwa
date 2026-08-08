@@ -34,7 +34,16 @@ export function balanceSheet(ledger, cfg, asOf) {
   const { accountClass, params } = cfg;
   const legacy = params.legacyMode;
 
-  const accountBal = new Map();
+  // Every account in the chart starts at zero, whether or not the export
+  // touched it. An account a troop has configured is an account it holds, and
+  // "we hold this and it is empty" is a different statement from silence — a
+  // dormant savings account missing from the balance sheet reads as one nobody
+  // remembered, which is the reading this app exists to make impossible. It
+  // also makes the snapshot complete: a capture writes a figure for every
+  // account, so the historical columns cannot go blank the year an account
+  // happens to sit idle. Troop-held (`_`) accounts cannot be seeded the same
+  // way — they are not in the chart, so there is no list of them to read.
+  const accountBal = new Map(Object.keys(accountClass).map(k => [k, 0]));
   const personBal = new Map();
   for (const l of ledger.legs) {
     const target = l.kind === 'asset' ? accountBal : l.kind === 'person' ? personBal : null;
