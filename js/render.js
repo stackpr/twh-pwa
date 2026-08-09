@@ -158,7 +158,7 @@ export function renderEventIncome(ei, mount, troopName = '') {
     ...ei.priorPeriod.map(v => num(v))));
 
   for (const sec of ei.sections) {
-    if (!sec.funds.length) continue;
+    if (!sec.funds.length && Math.abs(sec.subtotal.total) < 0.005) continue;
     body.append(el('tr', { class: 'section' },
       el('th', { class: 'label', scope: 'row', colspan: 5 + nCols, text: sec.key })));
     for (const f of sec.funds) dataRow(f.label, f, 'detail');
@@ -236,7 +236,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   };
 
   for (const sec of mi.sections) {
-    if (!sec.funds.length) continue;
+    if (!sec.funds.length && sec.subtotal.budget === null && Math.abs(sec.subtotal.total) < 0.005) continue;
     body.append(el('tr', { class: 'section' },
       el('th', { class: 'label', scope: 'row', colspan: cols, text: sec.key })));
     for (const f of sec.funds) dataRow(f.label, f, 'detail');

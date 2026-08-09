@@ -258,8 +258,12 @@ input.addname {
   table.rpt { font-size: 8pt; line-height: 1.25; }
   /* The wide statements are tighter still: at paper width the long fund names
      wrap to a second line and put the monthly statement a few points over. */
-  table.rpt.compact { font-size: 7pt; line-height: 1.12; }
-  table.rpt th, table.rpt td { padding: .06rem .25rem; }
+  table.rpt.compact { font-size: 7pt; line-height: 1.05; }
+  /* Vertical padding goes entirely on paper: at 7pt the line box already
+     separates the rows, and the space bought back is a row and a half per
+     inch — which is the difference between a statement landing on one sheet
+     and spilling a header and two net lines onto a second. */
+  table.rpt th, table.rpt td { padding: 0 .25rem; }
   /* Paper does not scroll. A clipped balance sheet is a wrong balance sheet, so
      the screen's scroll container is opened back up and the type carries the
      fit. A name may wrap here; losing a column may not. */
