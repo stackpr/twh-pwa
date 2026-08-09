@@ -201,18 +201,18 @@ export function renderEventIncome(ei, mount, troopName = '') {
   head.append(el('tr', {},
     th('', 'label'), th('YTD', 'num rule'), th('Other', 'num rule'),
     ...pastOf(ei.columns).map(evtTh),
-    th('YTD+Future', 'num rule'), th('Future Events', 'num rule'),
+    th('YTD + Future', 'num rule'), th('Future', 'num rule'),
     ...futureOf(ei.columns).map(evtTh)));
   table.append(head);
 
   const body = el('tbody');
   const dataRow = (label, r, cls) => body.append(el('tr', { class: cls },
     el('th', { class: 'label', scope: 'row', text: label }),
-    num(r.exclFuture ?? (r.total - futureSum(r, ei)), 'rule'),
+    num(r.total - r.future, 'rule'),
     num(r.other, 'rule'),
     ...pastOf(r.cols).map((v, i) => num(v, i ? '' : 'rule')),
     num(r.total, 'rule'),
-    num(futureSum(r, ei), 'rule'),
+    num(r.future, 'rule'),
     ...futureOf(r.cols).map((v, i) => num(v, i ? '' : 'rule'))));
 
   body.append(el('tr', { class: 'detail' },
@@ -244,11 +244,10 @@ export function renderEventIncome(ei, mount, troopName = '') {
     ei.pastOmitted > 0
       ? `${ei.pastOmitted} older event${ei.pastOmitted === 1 ? '' : 's'} in Other, not shown as columns; totals unaffected.`
       : null,
+    ei.futureOmitted > 0
+      ? `${ei.futureOmitted} later event${ei.futureOmitted === 1 ? '' : 's'} counted in Future but not shown as columns.`
+      : null,
   ].filter(Boolean).map(t => el('p', { text: t }))));
-}
-
-function futureSum(r, ei) {
-  return r.cols.slice(0, ei.futureCount).reduce((s, v) => s + v, 0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -342,16 +341,28 @@ export function renderFiscalYearComparison(fy, mount, troopName = '') {
   mount.append(rptHead('Fiscal Year Comparison',
     `${fy.labels.at(-1)} \u2013 ${fy.labels[0]}`, troopName));
 
-  const cols = fy.years.length + 1;
+  // Each year, then its budget where one was kept. A rule before every year
+  // keeps the pairs from reading as one run of figures.
+  const cols = 1 + fy.years.length + fy.budgetYears.filter(Boolean).length;
   const table = el('table', { class: 'rpt compact' });
   table.append(el('thead', {}, el('tr', {},
     th('', 'label'),
-    ...fy.labels.map((l, i) => th(l.replace(/^FY /, '') + (i === 0 && fy.partialYear ? ' \u2020' : ''), 'num')))));
+    ...fy.labels.flatMap((l, i) => [
+      th(l.replace(/^FY /, '') + (i === 0 && fy.partialYear ? ' \u2020' : ''), 'num rule'),
+      ...(fy.budgetYears[i] ? [th('Budget', 'num budget')] : []),
+    ]))));
 
   const body = el('tbody');
   const dataRow = (label, r, cls) => body.append(el('tr', { class: cls },
     el('th', { class: 'label', scope: 'row', text: label }),
-    ...r.cols.map(v => num(v))));
+    ...r.cols.flatMap((v, i) => [
+      num(v, 'rule'),
+      // Blank, not zero: a line nobody budgeted is not a line budgeted at zero.
+      ...(fy.budgetYears[i]
+        ? [r.budgets && r.budgets[i] !== null && r.budgets[i] !== undefined
+            ? num(r.budgets[i], 'budget') : td('', 'num budget')]
+        : []),
+    ])));
 
   for (const sec of fy.sections) {
     if (!sec.funds.length) continue;

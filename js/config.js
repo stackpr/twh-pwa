@@ -153,6 +153,10 @@ export const DEFAULT_PARAMS = {
   troopName: '',               // optional label printed above each report
   activitySince: '2025-09-01', // drives prior-period split and per-event columns
   pastEventsShown: 8,          // most recent N past program events, for one-page fit
+  // Soonest N future events. Like pastEventsShown this is page fit and nothing
+  // more: the Future column is every event still to come whether or not it got
+  // a column, so trimming columns never moves money into Other.
+  futureEventsShown: 4,
   monthsShown: 12,             // rolling window for Monthly Income
   // Month the fiscal year starts, 1-12. Defaults to January: most troops run a
   // calendar year, and a budget needs a period to be a budget for. null is

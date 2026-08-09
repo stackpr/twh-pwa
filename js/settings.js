@@ -71,6 +71,8 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     '  pastEventsShown         how many past events get a column on the event',
     '                          income statement. Purely a page-fit control —',
     '                          totals never change with it.',
+    '  futureEventsShown       the same, for events still to come. The Future',
+    '                          column counts every one of them regardless.',
     '  monthsShown             months in the monthly income statement, when no',
     '                          fiscal year is set.',
     '  fiscalYearStart         month your fiscal year begins, 1-12. Defaults to',
@@ -87,6 +89,7 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
   ], 'parameters', {
     activitySince: params.activitySince,
     pastEventsShown: params.pastEventsShown,
+    futureEventsShown: params.futureEventsShown,
     monthsShown: params.monthsShown,
     fiscalYearStart: params.fiscalYearStart ?? null,
     asOf: params.asOf ?? null,

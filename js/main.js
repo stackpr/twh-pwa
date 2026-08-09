@@ -407,6 +407,7 @@ function syncParamInputs() {
   set('#troopName', p.troopName);
   set('#activitySince', p.activitySince);
   set('#pastEvents', p.pastEventsShown);
+  set('#futureEvents', p.futureEventsShown);
   set('#months', p.monthsShown);
   set('#asOf', p.asOf);
   set('#fiscalYearStart', p.fiscalYearStart);
@@ -527,6 +528,7 @@ function bind() {
   bindParam('#troopName', 'troopName', String);
   bindParam('#activitySince', 'activitySince', String);
   bindParam('#pastEvents', 'pastEventsShown');
+  bindParam('#futureEvents', 'futureEventsShown');
   bindParam('#months', 'monthsShown');
   // Blank means every year in the export; a year means start there.
   bindParam('#earliestFY', 'earliestFiscalYear', v => (v === '' ? null : Number(v)));

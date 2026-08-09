@@ -181,8 +181,37 @@ console.log('== INVARIANTS ==');
        })());
   }
 
-  eq('Event Income: Other + all columns == Total',
-     ei.netTotal.other + ei.netTotal.cols.reduce((a, b) => a + b, 0), ei.netTotal.total);
+  // Total splits three ways and only three ways: the future events, the past
+  // events with a column, and Other. Trimming columns is a page-fit control, so
+  // it may move a PAST event into Other and may never move a future one — the
+  // Future column counts every event still to come, column or no column.
+  eq('Event Income: Other + shown past columns + Future == Total',
+     ei.netTotal.other
+     + ei.netTotal.cols.slice(ei.futureCount).reduce((a, b) => a + b, 0)
+     + ei.netTotal.future,
+     ei.netTotal.total);
+  eq('Event Income: YTD == Total less the future events',
+     ei.exclFuture, ei.netTotal.total - ei.netTotal.future);
+  // With nothing omitted the shown future columns ARE the Future column; with
+  // something omitted they are a strict part of it. Asserting the first case
+  // where it applies is the check that has teeth.
+  ok('Event Income: the shown future columns account for Future when none are omitted',
+     ei.futureOmitted > 0
+     || Math.abs(ei.netTotal.cols.slice(0, ei.futureCount).reduce((a, b) => a + b, 0)
+                 - ei.netTotal.future) < 0.005);
+
+  // With every column trimmed away, Total is unmoved and the whole period is
+  // Other plus Future. This is the assertion that catches a page-fit control
+  // quietly becoming a filter.
+  {
+    const none = eventIncome(ledger, mk({ pastEventsShown: 0, futureEventsShown: 0 }), asOf);
+    eq('trimming every column moves no total', none.netTotal.total, ei.netTotal.total);
+    eq('and Future still counts every future event', none.netTotal.future, ei.netTotal.future);
+    eq('and the period is then just Other plus Future',
+       none.netTotal.other + none.netTotal.future, none.netTotal.total);
+    eq('and every past event is reported as omitted', none.futureOmitted + none.pastOmitted,
+       ei.futureCount + (ei.columns.length - ei.futureCount) + ei.pastOmitted + ei.futureOmitted);
+  }
 
   eq('Event Income: net total == program + fundraising + other',
      ei.netTotal.total, ei.nets.reduce((s, n) => s + n.total, 0));
@@ -359,6 +388,31 @@ console.log('\n== FISCAL YEAR COMPARISON ==');
 
   ok('with no fiscal year configured there is nothing to compare',
      fiscalYearComparison(base.ledger, mk({ fiscalYearStart: null }), base.asOf).years.length === 0);
+
+  // A budget column beside a year, but only where a budget was kept. A column
+  // of blanks for the years before anyone budgeted is a column of nothing.
+  {
+    const FY = fiscalYearOf(base.asOf, SEP);
+    const withB = { ...mk({ fiscalYearStart: SEP }), budgets: { [FY]: { 'Program Revenue': 40000, 'Program Expenses': 10000 } } };
+    const b = fiscalYearComparison(base.ledger, withB, base.asOf);
+    ok('a year with a budget gets a budget column', b.budgetYears[0] === true);
+    ok('a year without one does not',
+       b.budgetYears.slice(1).every(v => v === false));
+    eq('the section budget is the one that was entered',
+       b.sections.find(s => s.key === 'Program Revenue').subtotal.budgets[0], 40000);
+    ok('an unbudgeted section carries none',
+       b.sections.find(s => s.key === 'Other Income').subtotal.budgets[0] === null);
+    eq('the net line is budgeted revenue less budgeted expenses',
+       b.nets.find(n => n.group === 'program').budgets[0], 40000 - 10000);
+    ok('a year with no budget carries none on any row',
+       b.nets.every(n => n.budgets.slice(1).every(v => v === null)));
+
+    // The budget never touches an actual.
+    const plain = fiscalYearComparison(base.ledger, mk({ fiscalYearStart: SEP }), base.asOf);
+    eq('adding a budget moves no figure', b.netTotal.cols[0], plain.netTotal.cols[0]);
+    ok('with no budgets at all there are no budget columns',
+       plain.budgetYears.every(v => v === false));
+  }
 }
 
 console.log('\n== CHART REVIEW (new and unused names) ==');

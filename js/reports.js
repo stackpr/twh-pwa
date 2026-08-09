@@ -118,22 +118,32 @@ export function selectEventColumns(ledger, cfg, asOf, since) {
   const withActivity = ledger.events
     .filter(e => e.kind === 'program' && e.date)
     .filter(e => !active || active.has(e.name));
-  const future = withActivity.filter(e => e.date > asOf).sort((a, b) => a.date - b.date);
+  const futureAll = withActivity.filter(e => e.date > asOf).sort((a, b) => a.date - b.date);
   const pastAll = withActivity.filter(e => e.date <= asOf).sort((a, b) => b.date - a.date);
   const past = pastAll.slice(0, Math.max(0, cfg.params.pastEventsShown));
-  return { future, past, pastOmitted: pastAll.length - past.length };
+  const future = futureAll.slice(0, Math.max(0, cfg.params.futureEventsShown));
+  return {
+    future, past, futureAll,
+    pastOmitted: pastAll.length - past.length,
+    futureOmitted: futureAll.length - future.length,
+  };
 }
 
 export function eventIncome(ledger, cfg, asOf) {
   const since = new Date(cfg.params.activitySince + 'T00:00:00');
-  const { future, past, pastOmitted } = selectEventColumns(ledger, cfg, asOf, since);
+  const { future, past, futureAll, pastOmitted, futureOmitted } = selectEventColumns(ledger, cfg, asOf, since);
   const columns = [...future, ...past];
   const colIndex = new Map(columns.map((e, ix) => [e.name, ix]));
+  // The Future column is every event still to come, whether or not it got a
+  // column of its own. Limiting the columns is a page-fit control, and a
+  // page-fit control that moved money into Other would be changing the figures
+  // to fit the paper.
+  const futureNames = new Set(futureAll.map(e => e.name));
 
   // fund -> { total, other, cols[] }  (all values are raw signed leg sums)
   const acc = new Map();
   const bucket = fund => {
-    if (!acc.has(fund)) acc.set(fund, { total: 0, cols: new Array(columns.length).fill(0) });
+    if (!acc.has(fund)) acc.set(fund, { total: 0, future: 0, cols: new Array(columns.length).fill(0) });
     return acc.get(fund);
   };
 
@@ -145,11 +155,18 @@ export function eventIncome(ledger, cfg, asOf) {
     if (l.date < since) continue;
     const b = bucket(l.key);
     b.total += l.amount;
+    if (l.event && futureNames.has(l.event)) b.future += l.amount;
     if (l.event && colIndex.has(l.event)) {
       b.cols[colIndex.get(l.event)] += l.amount;
     }
   }
-  for (const b of acc.values()) b.other = b.total - b.cols.reduce((s, v) => s + v, 0);
+  // Other is what is left of the period once the future events and the past
+  // events with columns are taken out: non-event activity, plus any past event
+  // whose column was trimmed for the page.
+  for (const b of acc.values()) {
+    const shownPast = b.cols.slice(future.length).reduce((s, v) => s + v, 0);
+    b.other = b.total - b.future - shownPast;
+  }
 
   // Prior-period net income per column: all-time event net minus current-period net.
   const priorPeriod = columns.map(e => {
@@ -170,6 +187,7 @@ export function eventIncome(ledger, cfg, asOf) {
         label: f,
         total: sign * b.total,
         other: sign * b.other,
+        future: sign * b.future,
         cols: b.cols.map(v => sign * v),
       }));
     return { key, isRevenue, funds, subtotal: sumRows(funds, columns.length) };
@@ -180,9 +198,10 @@ export function eventIncome(ledger, cfg, asOf) {
     const signOf = s => (s.isRevenue ? 1 : -1);
     const total = rows.reduce((s, sec) => s + signOf(sec) * sec.subtotal.total, 0);
     const other = rows.reduce((s, sec) => s + signOf(sec) * sec.subtotal.other, 0);
+    const future = rows.reduce((s, sec) => s + signOf(sec) * sec.subtotal.future, 0);
     const cols = columns.map((_, i) =>
       rows.reduce((s, sec) => s + signOf(sec) * sec.subtotal.cols[i], 0));
-    return { total, other, cols };
+    return { total, other, future, cols };
   };
 
   // One net line per group, in CATEGORY_ORDER's order, so adding a category to
@@ -192,16 +211,16 @@ export function eventIncome(ledger, cfg, asOf) {
   const netTotal = {
     total: nets.reduce((s, n) => s + n.total, 0),
     other: nets.reduce((s, n) => s + n.other, 0),
+    future: nets.reduce((s, n) => s + n.future, 0),
     cols: columns.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)),
   };
 
   const futureCount = future.length;
-  const futureTotal = netTotal.cols.slice(0, futureCount).reduce((s, v) => s + v, 0);
 
   return {
-    asOf, since, columns, futureCount, pastOmitted, priorPeriod,
+    asOf, since, columns, futureCount, pastOmitted, futureOmitted, priorPeriod,
     sections, nets, netTotal,
-    futureTotal, exclFuture: netTotal.total - futureTotal,
+    futureTotal: netTotal.future, exclFuture: netTotal.total - netTotal.future,
   };
 }
 
@@ -209,6 +228,7 @@ function sumRows(rows, ncols) {
   return {
     total: rows.reduce((s, r) => s + r.total, 0),
     other: rows.reduce((s, r) => s + r.other, 0),
+    future: rows.reduce((s, r) => s + r.future, 0),
     cols: Array.from({ length: ncols }, (_, i) => rows.reduce((s, r) => s + r.cols[i], 0)),
   };
 }
@@ -381,28 +401,57 @@ export function fiscalYearComparison(ledger, cfg, asOf) {
     acc.get(l.key)[ix] += l.amount;
   }
 
+  // A budget column beside a year, but only where a budget was actually
+  // entered: a column of blanks for the years before anyone kept one is a
+  // column of nothing, and this report is already the widest thing on the page.
+  const budgets = years.map(y => (cfg.budgets || {})[String(y)] || null);
+  const budgetYears = budgets.map(b =>
+    !!b && Object.values(b).some(v => Number.isFinite(v) && v !== 0));
+
   const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
     const sign = sectionSign(isRevenue);
+    const inCategory = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === key);
     const funds = [...acc.entries()]
       .filter(([f]) => cfg.fundCategories[f] === key)
       .filter(([, cols]) => cols.some(v => Math.abs(v) > 0.005))
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([f, cols]) => ({ label: f, cols: cols.map(v => sign * v) }));
-    const subtotal = { cols: years.map((_, i) => funds.reduce((s, r) => s + r.cols[i], 0)) };
+      .map(([f, cols]) => ({
+        label: f,
+        cols: cols.map(v => sign * v),
+        budgets: budgets.map((b, i) => (budgetYears[i] ? budgetFor(b, f) : null)),
+      }));
+    const subtotal = {
+      cols: years.map((_, i) => funds.reduce((s, r) => s + r.cols[i], 0)),
+      budgets: budgets.map((b, i) => (budgetYears[i] ? sectionBudget(b, key, inCategory) : null)),
+    };
     return { key, isRevenue, funds, subtotal };
   });
 
   const netOf = keys => {
     const rows = sections.filter(s => keys.includes(s.key));
     const sg = s => (s.isRevenue ? 1 : -1);
-    return { cols: years.map((_, i) => rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.cols[i], 0)) };
+    return {
+      cols: years.map((_, i) => rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.cols[i], 0)),
+      // Same rule as the monthly statement: a net line's budget exists only if
+      // one of its sections was budgeted, and half a budget stays visibly half.
+      budgets: years.map((_, i) => {
+        const parts = rows.map(sec => sec.subtotal.budgets[i]).filter(v => v !== null);
+        return parts.length ? rows.reduce((s, sec) => s + sg(sec) * (sec.subtotal.budgets[i] || 0), 0) : null;
+      }),
+    };
   };
   const nets = NET_LINES.map(({ group, label }) =>
     ({ group, label, ...netOf(categoriesInGroup(group)) }));
-  const netTotal = { cols: years.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)) };
+  const netTotal = {
+    cols: years.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)),
+    budgets: years.map((_, i) => {
+      const parts = nets.map(n => n.budgets[i]).filter(v => v !== null);
+      return parts.length ? parts.reduce((s, v) => s + v, 0) : null;
+    }),
+  };
 
   return {
-    asOf, years, startMonth, omitted, sections, nets, netTotal,
+    asOf, years, startMonth, omitted, sections, nets, netTotal, budgetYears,
     labels: years.map(y => fiscalYearLabel(y, startMonth)),
     partialYear: years.length ? years[0] === current : false,
   };

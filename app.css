@@ -172,7 +172,7 @@ table.rpt tr.spacer td { height: .5rem; padding: 0; }
 table.rpt td.neg { color: var(--err); }
 /* Group headings read like the column headings beside them and start at the
    left edge of their span, where the eye is already looking. */
-table.rpt th.group { text-align: left; border-bottom: 1px solid var(--line); font-weight: 600; }
+table.rpt th.group { text-align: left; border-bottom: 1px solid var(--ink); font-weight: 600; }
 /* A rule before each summary column and before each event group, and none
    between the events inside a group: the divisions that mean something are the
    ones between what is summarised and what is itemised. */
@@ -300,7 +300,6 @@ input.addname {
      the screen's scroll container is opened back up and the type carries the
      fit. A name may wrap here; losing a column may not. */
   .rpt-scroll { overflow-x: visible; }
-  table.rpt .label { white-space: normal; }
   table.rpt tbody tr:hover { background: none; }
   table.rpt td.neg { color: #000; }
   /* Rules and the double underline under a grand total are structure, not

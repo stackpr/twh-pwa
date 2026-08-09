@@ -25,6 +25,8 @@ troop:
 #   pastEventsShown         how many past events get a column on the event
 #                           income statement. Purely a page-fit control —
 #                           totals never change with it.
+#   futureEventsShown       the same, for events still to come. The Future
+#                           column counts every one of them regardless.
 #   monthsShown             months in the monthly income statement, when no
 #                           fiscal year is set.
 #   fiscalYearStart         month your fiscal year begins, 1-12. Defaults to
@@ -41,6 +43,7 @@ troop:
 parameters:
   activitySince: 2025-09-01
   pastEventsShown: 8
+  futureEventsShown: 4
   monthsShown: 12
   fiscalYearStart: 1
   asOf: null
