@@ -8,9 +8,9 @@ const LS_KEY = 'troopfin.config.v1';
 // These are defaults, not a schema. Every troop's TroopWebHost fund list is
 // different. Replace this map with your own — either by editing this file, or
 // at runtime through Settings → Load settings file, which is the intended route
-// and requires no code change. The six category names on the right ARE
-// fixed: they drive the income-statement sections and the program/fundraising
-// split for event columns.
+// and requires no code change. The category names on the right ARE fixed: they
+// drive the income-statement sections, which figures net together, and the
+// program/fundraising split for event columns. See CATEGORY_ORDER.
 export const FUND_CATEGORIES = {
   'Registration Revenue':                  'Program Revenue',
   'Registration (Summer Camp) Revenue':    'Program Revenue',
@@ -30,15 +30,17 @@ export const FUND_CATEGORIES = {
   'Troop-Funded Program Expense':          'Program Expenses',
   'Crew Revenue (from Scout)':             'Program Revenue',
   'Crew Funds Utilized':                   'Program Revenue',
-  'Crew Expense':                          'Program Expenses',
-  'General Donation':                      'Fundraising Revenue',
-  'Campership Donation':                   'Fundraising Revenue',
-  'Popcorn Revenue':                       'Fundraising Revenue',
-  'Product Sale Revenue':                     'Fundraising Revenue',
-  'Concessions Fundraising (from Venue)':      'Fundraising Revenue',
-  'Popcorn Expense':                       'Fundraising Expenses',
-  'Product Sale Expense':                     'Fundraising Expenses',
-  'Concessions Fundraising (to Scout)':      'Fundraising Expenses',
+  'Crew Expense':                          'Scout Program Expenses',
+  'General Donation':                      'Unit Fundraising Revenue',
+  'Campership Donation':                   'Unit Fundraising Revenue',
+  // Proceeds credited to the participating scout's account rather than kept by
+  // the unit: revenue in, the same amount straight back out, netting near zero.
+  'Popcorn Revenue':                       'Scout Fundraising Revenue',
+  'Product Sale Revenue':                  'Scout Fundraising Revenue',
+  'Concessions Fundraising (from Venue)':  'Scout Fundraising Revenue',
+  'Popcorn Expense':                       'Scout Fundraising Expenses',
+  'Product Sale Expense':                  'Scout Fundraising Expenses',
+  'Concessions Fundraising (to Scout)':    'Scout Fundraising Expenses',
   'Interest and Dividends':                'Other Income',
   'Administrative Expenses':               'Other Expenses',
   'Campership Expense':                    'Other Expenses',
@@ -49,16 +51,79 @@ export const FUND_CATEGORIES = {
 };
 
 // Presentation order and sign for income-statement sections.
+//
 // isRevenue drives whether the displayed figure is the raw signed leg total
 // (credit-positive) or negated so expenses print positive.
+//
+// `group` is what nets: every category in a group becomes one Net Income line,
+// and it is also what decides whether an event is a program event or a
+// fundraiser. It is a field rather than a prefix on the name because the two
+// used to be the same thing and quietly stopped being — a category called
+// "Scout Fundraising Revenue" does not begin with "Fundraising", and matching on
+// that would have dropped it out of the net silently.
+//
+// Two groups carry more than one category, and both exist so a treasurer can see
+// a figure against its own budget without moving it out of the total it belongs
+// in:
+//
+//   program           Scout Program Expenses is spending the scouts themselves
+//                     direct. It is budgeted and reported separately, and still
+//                     nets into Net Income — Scouting Program.
+//   scoutFundraising  fundraising whose proceeds pass through to scout accounts.
+//                     It usually nets to about nothing, which is the point of
+//                     keeping it away from the unit's own fundraising.
 export const CATEGORY_ORDER = [
-  { key: 'Program Revenue',      isRevenue: true  },
-  { key: 'Program Expenses',     isRevenue: false },
-  { key: 'Fundraising Revenue',  isRevenue: true  },
-  { key: 'Fundraising Expenses', isRevenue: false },
-  { key: 'Other Income',         isRevenue: true  },
-  { key: 'Other Expenses',       isRevenue: false },
+  { key: 'Program Revenue',            isRevenue: true,  group: 'program' },
+  { key: 'Program Expenses',           isRevenue: false, group: 'program' },
+  { key: 'Scout Program Expenses',     isRevenue: false, group: 'program' },
+  { key: 'Unit Fundraising Revenue',   isRevenue: true,  group: 'unitFundraising' },
+  { key: 'Unit Fundraising Expenses',  isRevenue: false, group: 'unitFundraising' },
+  { key: 'Scout Fundraising Revenue',  isRevenue: true,  group: 'scoutFundraising' },
+  { key: 'Scout Fundraising Expenses', isRevenue: false, group: 'scoutFundraising' },
+  { key: 'Other Income',               isRevenue: true,  group: 'other' },
+  { key: 'Other Expenses',             isRevenue: false, group: 'other' },
 ];
+
+/** The categories that net into one Net Income line, in presentation order. */
+export const categoriesInGroup = group =>
+  CATEGORY_ORDER.filter(c => c.group === group).map(c => c.key);
+
+/** Net Income lines, in the order they print. */
+export const NET_LINES = [
+  { group: 'program',          label: 'Scouting Program' },
+  { group: 'unitFundraising',  label: 'Unit Fundraising' },
+  { group: 'scoutFundraising', label: 'Scout Fundraising' },
+  { group: 'other',            label: 'Other' },
+];
+
+// Categories this app used to have, and where a fund carrying one now belongs.
+// A settings file written before the split still loads: the fund is moved and
+// the move is REPORTED, never silently applied — see settings.js and main.js.
+// Unit fundraising is the destination because that is what the single
+// "Fundraising" pair meant before scout-level fundraising had anywhere else to
+// go; a troop that passes proceeds to scouts moves those funds across once, on
+// the Settings tab.
+export const RENAMED_CATEGORIES = {
+  'Fundraising Revenue':  'Unit Fundraising Revenue',
+  'Fundraising Expenses': 'Unit Fundraising Expenses',
+};
+
+/**
+ * Rewrite any renamed category in a fund map, reporting what moved.
+ *
+ * Returns the new map plus a list of `{ fund, from, to }`. Nothing is dropped:
+ * a category this app has never heard of is left exactly as it is, so the
+ * validation in ledger.js can name it rather than this function guessing.
+ */
+export function migrateCategories(fundCategories) {
+  const out = {}, moved = [];
+  for (const [fund, cat] of Object.entries(fundCategories || {})) {
+    const to = RENAMED_CATEGORIES[cat];
+    if (to) { out[fund] = to; moved.push({ fund, from: cat, to }); }
+    else out[fund] = cat;
+  }
+  return { fundCategories: out, moved };
+}
 
 // EXAMPLE ACCOUNT CLASSIFICATION. Same as above: defaults, replace with your own.
 // Troop account -> balance sheet placement.
@@ -201,8 +266,15 @@ export function loadConfig() {
     // reappears on the next visit — and would leave a troop that adopted their
     // own chart carrying example funds they never had. Parameters do merge:
     // those are named settings, and a release that adds one needs its default.
+    // A chart saved before a category was renamed is migrated on the way out of
+    // storage, so the reports never meet a category no section claims — that
+    // fund's legs would simply stop appearing, which is the silent
+    // under-reporting this app exists to prevent. main.js reports what moved.
+    const savedFunds = saved.fundCategories
+      ? migrateCategories(saved.fundCategories).fundCategories
+      : structuredClone(FUND_CATEGORIES);
     return {
-      fundCategories: saved.fundCategories ? { ...saved.fundCategories } : structuredClone(FUND_CATEGORIES),
+      fundCategories: savedFunds,
       accountClass:   saved.accountClass   ? { ...saved.accountClass }   : structuredClone(DEFAULT_ACCOUNT_CLASS),
       params:         { ...DEFAULT_PARAMS, ...(saved.params || {}) },
       budgets:        saved.budgets ? { ...saved.budgets } : {},
@@ -246,6 +318,10 @@ const EXPENSE_WORDS = /\b(expense|expenses|cost|costs|purchase|purchases|paid|pa
 const REVENUE_WORDS = /\b(revenue|revenues|income|proceeds|sales|sale|dues|fee|fees|deposit|deposits|collected|received)\b/i;
 const FUNDRAISING_WORDS = /\b(fundrais\w*|donation|donations|sponsor\w*|popcorn|wreath\w*|product sale|concession\w*|raffle|auction|car wash|bake sale|camp ?card|coupon|scouting for food)\b/i;
 const OTHER_WORDS = /\b(admin\w*|interest|dividend|dividends|bank|service charge|insurance|charter|recharter|adult training|passthru|pass-through|scholarship)\b/i;
+// Marks a fundraiser whose proceeds land in the seller's account rather than the
+// unit's. TroopWebHost fund names are free text, so this will miss; the guess is
+// reviewed on the Import tab either way.
+const SCOUT_SHARE_WORDS = /\b(to scout|to scouts|scout share|scout portion|scout credit|scout account|individual)\b/i;
 
 /**
  * Guess a fund's category from its name and its net in the export.
@@ -263,7 +339,20 @@ export function guessFundCategory(name, net = 0) {
     : net < 0;
 
   if (OTHER_WORDS.test(n)) return isExpense ? 'Other Expenses' : 'Other Income';
-  if (FUNDRAISING_WORDS.test(n)) return isExpense ? 'Fundraising Expenses' : 'Fundraising Revenue';
+  if (FUNDRAISING_WORDS.test(n)) {
+    // Unit or scout fundraising. Only the name can tell them apart, and it
+    // usually does: a fund whose proceeds go to the seller is named for it
+    // ("… (to Scout)", "Scout Popcorn"). Unit is the fallback because a
+    // fundraiser is the unit's until someone says otherwise, and the guess is
+    // shown for confirmation either way.
+    const toScout = SCOUT_SHARE_WORDS.test(n);
+    if (toScout) return isExpense ? 'Scout Fundraising Expenses' : 'Scout Fundraising Revenue';
+    return isExpense ? 'Unit Fundraising Expenses' : 'Unit Fundraising Revenue';
+  }
+  // Scout Program Expenses is never guessed. It means "the scouts decide what
+  // this is spent on", which is a fact about how a troop runs, not about a
+  // fund's name — inventing it would put spending under a budget line nobody
+  // set. A treasurer moves the fund there once, on the Settings tab.
   return isExpense ? 'Program Expenses' : 'Program Revenue';
 }
 

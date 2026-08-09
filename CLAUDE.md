@@ -33,8 +33,12 @@ That includes places it is easy to let one slip:
   troop's financial records. Describe the shape of the problem instead.
 - Test fixtures. See Rule 2.
 
-The six category names in `CATEGORY_ORDER` are the one fixed vocabulary, because
-they drive the income-statement sections and the program/fundraising split.
+The category names in `CATEGORY_ORDER` are the one fixed vocabulary, because
+they drive the income-statement sections and the program/fundraising split. Each
+carries a `group`, and the group — never a prefix on the name — is what decides
+which categories net together and whether an event is a program event. Renaming
+or adding one means adding to `RENAMED_CATEGORIES` so existing settings files
+migrate and say so.
 Everything else is configuration.
 
 ## Rule 2 — No personal data in the repo, and none on the wire

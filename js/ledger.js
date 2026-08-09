@@ -5,7 +5,18 @@
 // the sign at presentation only, in exactly one place (reports.js:sectionSign).
 
 import { md5 } from './csv.js';
-import { guessFundCategory, guessAccountClass, budgetYearsFor } from './config.js';
+import {
+  guessFundCategory, guessAccountClass, budgetYearsFor, CATEGORY_NAMES, categoriesInGroup,
+} from './config.js';
+
+// An event is a program event or a fundraiser, and nothing else — the event
+// income statement has one Other column, not one per fundraising group. Derived
+// from CATEGORY_ORDER rather than from the category names, which stopped sharing
+// a prefix when unit and scout fundraising were split apart.
+const PROGRAM_CATEGORIES = new Set(categoriesInGroup('program'));
+const FUNDRAISING_CATEGORIES = new Set([
+  ...categoriesInGroup('unitFundraising'), ...categoriesInGroup('scoutFundraising'),
+]);
 
 export const REQUIRED_COLUMNS = [
   'Transaction Type', 'Date', 'Amount',
@@ -159,8 +170,8 @@ export function classifyEvents(ledger, cfg) {
     for (const l of ledger.legs) {
       if (l.kind !== 'fund' || l.event !== e.name) continue;
       const cat = cfg.fundCategories[l.key] || '';
-      if (cat.startsWith('Program')) program++;
-      else if (cat.startsWith('Fundraising')) fundraising++;
+      if (PROGRAM_CATEGORIES.has(cat)) program++;
+      else if (FUNDRAISING_CATEGORIES.has(cat)) fundraising++;
     }
     e.kind = program >= fundraising ? 'program' : 'fundraising';
   }
@@ -178,12 +189,23 @@ export function classifyEvents(ledger, cfg) {
  * prevent.
  */
 export function validateChart(ledger, cfg) {
-  const unknownFunds = new Set(), unknownAccounts = new Set();
+  const unknownFunds = new Set(), unknownAccounts = new Set(), badCategories = new Map();
   for (const l of ledger.legs) {
-    if (l.kind === 'fund' && !(l.key in cfg.fundCategories)) unknownFunds.add(l.key);
-    else if (l.kind === 'asset' && !(l.key in cfg.accountClass)) unknownAccounts.add(l.key);
+    if (l.kind === 'fund') {
+      if (!(l.key in cfg.fundCategories)) { unknownFunds.add(l.key); continue; }
+      // A fund mapped to a category no section claims is worse than an
+      // unclassified one: it looks configured, and its legs are counted into
+      // nothing. This is what a hand-edited settings file written against an
+      // older category list produces, so it halts the same way.
+      const cat = cfg.fundCategories[l.key];
+      if (!CATEGORY_NAMES.includes(cat)) badCategories.set(l.key, cat);
+    } else if (l.kind === 'asset' && !(l.key in cfg.accountClass)) unknownAccounts.add(l.key);
   }
-  return { unknownFunds: [...unknownFunds].sort(), unknownAccounts: [...unknownAccounts].sort() };
+  return {
+    unknownFunds: [...unknownFunds].sort(),
+    unknownAccounts: [...unknownAccounts].sort(),
+    badCategories: [...badCategories.entries()].sort((a, b) => a[0].localeCompare(b[0])),
+  };
 }
 
 /**

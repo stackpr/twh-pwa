@@ -144,9 +144,29 @@ listed for you to confirm.
 
 **Troop accounts** are classified as `cash` (a bank account), `noncash`
 (something owned but not spendable, like inventory) or `liability` (a credit
-card). **Funds** map to one of six fixed categories: Program Revenue, Program
-Expenses, Fundraising Revenue, Fundraising Expenses, Other Income, Other
-Expenses.
+card). **Funds** map to one of nine fixed categories:
+
+| category | nets into |
+|---|---|
+| Program Revenue | Net Income — Scouting Program |
+| Program Expenses | Net Income — Scouting Program |
+| Scout Program Expenses | Net Income — Scouting Program |
+| Unit Fundraising Revenue | Net Income — Unit Fundraising |
+| Unit Fundraising Expenses | Net Income — Unit Fundraising |
+| Scout Fundraising Revenue | Net Income — Scout Fundraising |
+| Scout Fundraising Expenses | Net Income — Scout Fundraising |
+| Other Income | Net Income — Other |
+| Other Expenses | Net Income — Other |
+
+**Scout Program Expenses** is for funds the scouts themselves decide how to
+spend. It gets its own budget line so you can see their spend against it, and
+still counts inside Net Income — Scouting Program.
+
+**Scout Fundraising** is fundraising whose proceeds are credited to the selling
+scout's account rather than kept by the unit — popcorn and product sales,
+usually. Revenue in, the same amount straight back out, so it nets to about
+nothing. Keeping it apart is what stops it flattering the unit's own
+fundraising.
 
 **Fiscal year.** Set the month your year begins. Monthly Income then covers the
 fiscal year to date, which is what makes its total comparable to an annual

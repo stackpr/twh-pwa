@@ -17,7 +17,7 @@
 // to a successor; a transaction export never is.
 
 import { parseYAML, stringifyYAML, YamlError, raw } from './yaml.js';
-import { CATEGORY_NAMES, DEFAULT_PARAMS } from './config.js';
+import { CATEGORY_NAMES, DEFAULT_PARAMS, RENAMED_CATEGORIES } from './config.js';
 import { BS_ROW_KEYS } from './snapshots.js';
 
 export const SETTINGS_VERSION = 1;
@@ -106,12 +106,17 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
   lines.push(...block([
     'Your chart of accounts: each TroopWebHost fund and its category.',
     '',
-    'Allowed categories (these six names are fixed):',
+    'Allowed categories (this list is fixed):',
     ...CATEGORY_NAMES.map(c => `  ${c}`),
     '',
+    'Scout Program Expenses is spending the scouts themselves direct; it gets',
+    'its own budget line and still nets into Net Income - Scouting Program.',
+    'Scout Fundraising is fundraising whose proceeds are credited to scout',
+    'accounts rather than kept by the unit, so it nets to about nothing.',
+    '',
     'This also decides which events get a column on the event income statement.',
-    'An event whose activity is mostly Program-category is a program event; one',
-    'that is mostly Fundraising-category is not, and rolls into Other.',
+    'An event whose activity is mostly program is a program event; one that is',
+    'mostly fundraising, of either kind, is not, and rolls into Other.',
     '',
     'Every fund appearing in the export must be listed here, or the reports will',
     'refuse to run.',
@@ -121,7 +126,7 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     'Budgets, by the calendar year each fiscal year starts in. The year',
     'beginning September 2024 is 2024, whatever your troop calls it.',
     '',
-    'Each line is a fund name or one of the six category names above:',
+    'Each line is a fund name or one of the category names above:',
     '',
     '  Program Expenses: 12000     the whole category',
     '  Food Expense: 3000          one fund inside it',
@@ -276,12 +281,23 @@ export function settingsFromText(text) {
 
   const fundCategories = {};
   if (doc.funds && typeof doc.funds === 'object' && !Array.isArray(doc.funds)) {
+    const renamed = [];
     for (const [name, cat] of Object.entries(doc.funds)) {
+      // A category this app used to have is moved rather than rejected: a
+      // settings file is a treasurer's only copy of their chart, and refusing
+      // to open it after a rename would strand them. The move is reported.
+      const now = RENAMED_CATEGORIES[cat];
+      if (now) { fundCategories[name] = now; renamed.push(name); continue; }
       if (!CATEGORY_NAMES.includes(cat)) {
         errors.push(`Fund "${name}" is set to category "${cat}", which is not one of: ${CATEGORY_NAMES.join(', ')}.`);
         continue;
       }
       fundCategories[name] = cat;
+    }
+    if (renamed.length) {
+      const pairs = Object.entries(RENAMED_CATEGORIES).map(([a, b]) => `"${a}" is now "${b}"`).join('; ');
+      warnings.push(`${pairs}. Moved ${renamed.length} fund(s): ${renamed.sort().join(', ')}. `
+        + 'Check each one — fundraising whose proceeds go to scout accounts belongs under Scout Fundraising.');
     }
   } else {
     errors.push('Missing a "funds:" section listing each fund and its category.');

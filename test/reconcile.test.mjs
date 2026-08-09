@@ -38,6 +38,7 @@ import { fileURLToPath } from 'node:url';
 import { parseCSV } from '../js/csv.js';
 import {
   FUND_CATEGORIES, DEFAULT_ACCOUNT_CLASS, DEFAULT_PARAMS, CATEGORY_NAMES,
+  CATEGORY_ORDER, NET_LINES, categoriesInGroup, RENAMED_CATEGORIES, migrateCategories,
   guessFundCategory, guessAccountClass, fiscalYearOf, fiscalYearLabel,
   budgetYearsFor, mergeBudgetLine,
 } from '../js/config.js';
@@ -184,14 +185,23 @@ console.log('== INVARIANTS ==');
      ei.netTotal.other + ei.netTotal.cols.reduce((a, b) => a + b, 0), ei.netTotal.total);
 
   eq('Event Income: net total == program + fundraising + other',
-     ei.netTotal.total, ei.netProgram.total + ei.netFundraising.total + ei.netOther.total);
+     ei.netTotal.total, ei.nets.reduce((s, n) => s + n.total, 0));
 
-  eq('Event Income: net program == revenue - expenses', ei.netProgram.total,
-     ei.sections.find(s => s.key === 'Program Revenue').subtotal.total
-     - ei.sections.find(s => s.key === 'Program Expenses').subtotal.total);
+  // Each net line is the signed sum of its own group's sections, and every
+  // section belongs to exactly one net line — so nothing can be counted twice
+  // or fall between two of them, whatever the category list grows into.
+  for (const n of ei.nets) {
+    eq(`Event Income: net ${n.label} == its sections`, n.total,
+       categoriesInGroup(n.group).reduce((s, key) => {
+         const sec = ei.sections.find(x => x.key === key);
+         return s + (sec.isRevenue ? 1 : -1) * sec.subtotal.total;
+       }, 0));
+  }
+  eq('Event Income: every section belongs to exactly one net line',
+     NET_LINES.reduce((s, l) => s + categoriesInGroup(l.group).length, 0), CATEGORY_ORDER.length);
 
   eq('Monthly Income: net total == program + fundraising + other',
-     mi.netTotal.total, mi.netProgram.total + mi.netFundraising.total + mi.netOther.total);
+     mi.netTotal.total, mi.nets.reduce((s, n) => s + n.total, 0));
 
   eq('Monthly Income: total column == sum of month columns',
      mi.netTotal.total, mi.netTotal.cols.reduce((a, b) => a + b, 0));
@@ -251,9 +261,14 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
   // A budget on a category and on one fund inside it. The fund is whichever one
   // the export actually spent under; naming one would tie this to a chart.
   const anExpenseFund = fy.sections.find(s => s.key === 'Program Expenses').funds[0].label;
+  // Every category in the program group, or the net line is partially budgeted
+  // — which is its own assertion further down. The extra ones are budgeted at
+  // zero so the arithmetic below stays about Program Revenue and Expenses.
+  const restOfProgram = Object.fromEntries(categoriesInGroup('program')
+    .filter(k => k !== 'Program Revenue' && k !== 'Program Expenses').map(k => [k, 0]));
   const withBudget = {
     ...noBudget,
-    budgets: { [FY]: { 'Program Expenses': 10000, [anExpenseFund]: 1500, 'Program Revenue': 40000 } },
+    budgets: { [FY]: { 'Program Expenses': 10000, [anExpenseFund]: 1500, 'Program Revenue': 40000, ...restOfProgram } },
   };
   const b = monthlyIncome(base.ledger, withBudget, base.asOf);
   ok('a budget for the year on show turns the columns on', b.hasBudget === true);
@@ -264,9 +279,14 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
      progExp.funds.filter(f => f.label !== anExpenseFund).every(f => f.budget === null));
   eq('the section adds the category figure to the funds budgeted inside it',
      progExp.subtotal.budget, 11500);
+  const netProgram = b.nets.find(n => n.group === 'program');
   eq('net program budget is budgeted revenue less budgeted expenses',
-     b.netProgram.budget, 40000 - 11500);
-  ok('a fully budgeted net line is not flagged partial', b.netProgram.budgetPartial === false);
+     netProgram.budget, 40000 - 11500);
+  ok('a fully budgeted net line is not flagged partial', netProgram.budgetPartial === false);
+  ok('leaving one category of a group unbudgeted flags the net line partial',
+     monthlyIncome(base.ledger, { ...noBudget, budgets: { [FY]: { 'Program Revenue': 40000, 'Program Expenses': 10000 } } },
+       base.asOf).nets.find(n => n.group === 'program').budgetPartial
+     === (categoriesInGroup('program').length > 2));
 
   // Remaining is what the renderer prints; assert the arithmetic it relies on.
   eq('remaining is budget less the fiscal year to date',
@@ -275,8 +295,9 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
   // Half a budget must stay visibly half.
   const oneSided = { ...noBudget, budgets: { [FY]: { 'Other Income': 100 } } };
   const os = monthlyIncome(base.ledger, oneSided, base.asOf);
-  ok('a net line budgeted on one side only is flagged', os.netOther.budgetPartial === true);
-  eq('and counts only the side that was budgeted', os.netOther.budget, 100);
+  const osOther = os.nets.find(n => n.group === 'other');
+  ok('a net line budgeted on one side only is flagged', osOther.budgetPartial === true);
+  eq('and counts only the side that was budgeted', osOther.budget, 100);
   ok('an unbudgeted section stays null',
      os.sections.find(s => s.key === 'Program Revenue').subtotal.budget === null);
 
@@ -382,6 +403,16 @@ console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
   ok('an unused name added or removed changes nothing',
      validateChart(ledger, spare).unknownFunds.length === 0);
 
+  // A fund pointed at a category no section claims is the hazard a rename
+  // creates: it looks configured, so nothing asks about it, and its legs are
+  // counted into nothing. It halts like an unclassified fund does.
+  const miscategorised = { ...cfg, fundCategories: { ...cfg.fundCategories, [usedFund]: 'Retired Category' } };
+  const bad = validateChart(ledger, miscategorised);
+  eq('a fund set to a category that does not exist is caught', bad.badCategories.length, 1);
+  ok('and both the fund and the category are named',
+     bad.badCategories[0][0] === usedFund && bad.badCategories[0][1] === 'Retired Category');
+  ok('a correctly categorised chart reports none', validateChart(ledger, cfg).badCategories.length === 0);
+
   // A fund the export uses cannot be removed through the UI at all; the check
   // above is the backstop for a settings file that removes one by hand.
   // A fund that is NOT in the export can go, but its budget may not go with it.
@@ -429,8 +460,15 @@ console.log('\n== CLASSIFICATION GUESSES ==');
   const g = (name, net = 0) => guessFundCategory(name, net);
   ok('"Expense" in the name means an expense', g('Camping (Weekend) Expense', 500) === 'Program Expenses');
   ok('"Revenue" in the name means revenue', g('Registration Revenue', -20) === 'Program Revenue');
-  ok('a fundraiser word picks the fundraising section', g('Popcorn Revenue') === 'Fundraising Revenue');
-  ok('fundraising expense too', g('Popcorn Expense') === 'Fundraising Expenses');
+  ok('a fundraiser word picks the fundraising section', g('Popcorn Revenue') === 'Unit Fundraising Revenue');
+  ok('fundraising expense too', g('Popcorn Expense') === 'Unit Fundraising Expenses');
+  ok('proceeds named for the seller go to scout fundraising',
+     g('Concessions Fundraising (to Scout)', -100) === 'Scout Fundraising Expenses');
+  ok('and its revenue side too', g('Individual Fundraising', 100) === 'Scout Fundraising Revenue');
+  ok('Scout Program Expenses is never guessed',
+     CATEGORY_NAMES.every(c => c !== 'Scout Program Expenses'
+       || ![['Crew Expense', -100], ['Scout Managed Expense', -100], ['Anything', -1]]
+            .some(([n, v]) => g(n, v) === 'Scout Program Expenses')));
   ok('administrative words pick Other', g('Administrative Expenses') === 'Other Expenses');
   ok('interest is Other Income', g('Interest and Dividends', 12) === 'Other Income');
   // With no word to go on, the sign of the fund's net in the export decides.
@@ -438,8 +476,8 @@ console.log('\n== CLASSIFICATION GUESSES ==');
   ok('unnamed negative net guesses an expense', g('Something New', -250) === 'Program Expenses');
   // A section word must not be read as a side word. Money donated by the troop
   // and money donated to it share the noun and point opposite ways.
-  ok('a donation received is revenue', g('General Donation', 400) === 'Fundraising Revenue');
-  ok('a donation made is an expense', g('Donations by Troop', -400) === 'Fundraising Expenses');
+  ok('a donation received is revenue', g('General Donation', 400) === 'Unit Fundraising Revenue');
+  ok('a donation made is an expense', g('Donations by Troop', -400) === 'Unit Fundraising Expenses');
 
   ok('a card is a liability', guessAccountClass('Credit Card') === 'liability');
   ok('inventory is non-cash', guessAccountClass('Merchandise Inventory') === 'noncash');
@@ -454,10 +492,28 @@ console.log('\n== CLASSIFICATION GUESSES ==');
 
   // The shipped example chart is the closest thing to a labelled set: the guess
   // should agree with most of it. Pinned low — this is a heuristic, not a rule.
+  // Two categories record a decision a troop made, not something a fund's name
+  // says: which fundraisers pass their proceeds to the sellers, and which funds
+  // the scouts themselves control. Measuring the heuristic against those would
+  // be measuring it against information it is never given, so the agreement
+  // rate is taken over the names it can actually read. The policy categories
+  // get their own assertions below, which is the stronger claim anyway.
+  const POLICY_CATEGORIES = new Set([
+    'Scout Program Expenses', 'Scout Fundraising Revenue', 'Scout Fundraising Expenses',
+  ]);
+  const guessOf = ([n, c]) => g(n, c.includes('Expense') ? -100 : 100);
   const shipped = Object.entries(FUND_CATEGORIES);
-  const agree = shipped.filter(([n, c]) => g(n, c.includes('Expense') ? -100 : 100) === c).length;
-  ok(`guess agrees with ${agree}/${shipped.length} of the shipped example chart`,
-     agree >= shipped.length * 0.75);
+  const readable = shipped.filter(([, c]) => !POLICY_CATEGORIES.has(c));
+  const agree = readable.filter(e => guessOf(e) === e[1]).length;
+  ok(`guess agrees with ${agree}/${readable.length} of the names it can read`,
+     agree >= readable.length * 0.8);
+
+  ok('Scout Program Expenses is never guessed',
+     shipped.every(e => guessOf(e) !== 'Scout Program Expenses'));
+  ok('scout fundraising is guessed only from an explicit marker in the name',
+     shipped.filter(e => guessOf(e).startsWith('Scout Fundraising'))
+       .every(([n]) => /to scout|scout share|scout portion|scout credit|scout account|individual/i.test(n)));
+  ok('every guess is a real category', shipped.every(e => CATEGORY_NAMES.includes(guessOf(e))));
 }
 
 console.log('\n== EVENT RECLASSIFICATION ==');
@@ -468,7 +524,7 @@ console.log('\n== EVENT RECLASSIFICATION ==');
   const moved = {
     ...cfg,
     fundCategories: Object.fromEntries(Object.entries(cfg.fundCategories)
-      .map(([f, c]) => [f, c === 'Program Revenue' ? 'Fundraising Revenue' : c])),
+      .map(([f, c]) => [f, c === 'Program Revenue' ? 'Unit Fundraising Revenue' : c])),
   };
   const fresh = buildLedger(records, moved);
   classifyEvents(ledger, moved);
@@ -627,12 +683,44 @@ console.log('\n== SETTINGS FILE ==');
                 && r.config.budgets['2023']['Not A Fund'] === 10; })());
   ok('no fiscal year round-trips as none',
      settingsFromText(settingsToText(mk({ fiscalYearStart: null }), {})).config.params.fiscalYearStart === null);
+  // Written against an explicitly budget-free config rather than whatever mk()
+  // happens to carry: with a settings file on the command line, mk() inherits
+  // that file's budget and the premise silently stops being true.
   ok('a settings file with no budget has an empty budget section',
-     settingsFromText(text).config.budgets && Object.keys(settingsFromText(text).config.budgets).length === 0);
+     (() => {
+       const r = settingsFromText(settingsToText({ ...mk({}), budgets: {} }, {}));
+       return r.config.budgets && Object.keys(r.config.budgets).length === 0;
+     })());
   ok('the budget carries no scout identifiers', !/scout:[0-9a-f]{8}/.test(bText));
   ok('every shipped fund maps to a known category',
      Object.values(cfg.fundCategories).every(c => CATEGORY_NAMES.includes(c)));
   ok('settings file carries no scout identifiers', !/scout:[0-9a-f]{8}/.test(text));
+
+  // A settings file written before a category was renamed is the case every
+  // existing user meets exactly once. It must open, move the funds, and say so
+  // — refusing would strand a treasurer whose only copy of the chart this is,
+  // and moving silently would put spending under a heading nobody chose.
+  {
+    const [oldName, newName] = Object.entries(RENAMED_CATEGORIES)[0];
+    const older = text.replace(`Registration Revenue: Program Revenue`,
+                               `Registration Revenue: ${oldName}`);
+    const r = settingsFromText(older);
+    ok('a settings file using a renamed category still loads', r.errors.length === 0);
+    ok('and the fund lands in the category that replaced it',
+       r.config.fundCategories['Registration Revenue'] === newName);
+    ok('and the move is reported, naming the fund',
+       r.warnings.some(w => w.includes(oldName) && w.includes(newName) && w.includes('Registration Revenue')));
+
+    // The same rewrite happens to a chart coming back out of localStorage,
+    // where there is no settings file to warn about.
+    const m = migrateCategories({ 'A Fund': oldName, 'B Fund': 'Other Income' });
+    ok('migrateCategories rewrites only what was renamed',
+       m.fundCategories['A Fund'] === newName && m.fundCategories['B Fund'] === 'Other Income');
+    ok('and reports what it moved',
+       m.moved.length === 1 && m.moved[0].fund === 'A Fund' && m.moved[0].to === newName);
+    ok('a category it has never heard of is left alone for validation to name',
+       migrateCategories({ 'C Fund': 'Not A Category' }).fundCategories['C Fund'] === 'Not A Category');
+  }
 
   const bad = k => settingsFromText(text.replace('Registration Revenue: Program Revenue', k));
   ok('unknown fund category is rejected',
@@ -744,15 +832,24 @@ if (isFixture) {
   eq('EI past columns', ei.columns.length - ei.futureCount, 8);
   eq('EI past events omitted', ei.pastOmitted, 3);
   eq('EI Program Revenue', ei.sections.find(s => s.key === 'Program Revenue').subtotal.total, 35453.75);
-  eq('EI Program Expenses', ei.sections.find(s => s.key === 'Program Expenses').subtotal.total, 31267.15);
-  eq('EI Net Program', ei.netProgram.total, 4186.60);
+  // 148.00 of what used to sit in Program Expenses is now reported as
+  // Scout Program Expenses. Net Scouting Program is unchanged, which is the
+  // whole point of the split: a separate budget line, the same total.
+  eq('EI Program Expenses', ei.sections.find(s => s.key === 'Program Expenses').subtotal.total, 31119.15);
+  eq('EI Scout Program Expenses', ei.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 148.00);
+  eq('EI Net Program', ei.nets.find(n => n.group === 'program').total, 4186.60);
+  eq('EI Net Unit Fundraising', ei.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
+  eq('EI Net Scout Fundraising', ei.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);
   eq('EI Net Total', ei.netTotal.total, 12061.60);
   eq('EI Future total', ei.futureTotal, 4889.50);
 
   eq('MI months', mi.months.length, 12);
   eq('MI Program Revenue', mi.sections.find(s => s.key === 'Program Revenue').subtotal.total, 19647.75);
-  eq('MI Program Expenses', mi.sections.find(s => s.key === 'Program Expenses').subtotal.total, 20379.65);
-  eq('MI Net Program', mi.netProgram.total, -731.90);
+  eq('MI Program Expenses', mi.sections.find(s => s.key === 'Program Expenses').subtotal.total, 20231.65);
+  eq('MI Scout Program Expenses', mi.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 148.00);
+  eq('MI Net Program', mi.nets.find(n => n.group === 'program').total, -731.90);
+  eq('MI Net Unit Fundraising', mi.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
+  eq('MI Net Scout Fundraising', mi.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);
   eq('MI Net Total', mi.netTotal.total, 7143.10);
 } else {
   console.log('\n(golden values skipped — external export)');

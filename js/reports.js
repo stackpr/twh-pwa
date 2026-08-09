@@ -4,7 +4,8 @@
 // Sign is flipped in exactly one place: sectionSign().
 
 import {
-  CATEGORY_ORDER, fiscalYearOf, fiscalYearStartDate, fiscalYearLabel, budgetFor, sectionBudget,
+  CATEGORY_ORDER, NET_LINES, categoriesInGroup,
+  fiscalYearOf, fiscalYearStartDate, fiscalYearLabel, budgetFor, sectionBudget,
 } from './config.js';
 import { isPseudoAccount } from './ledger.js';
 
@@ -184,13 +185,14 @@ export function eventIncome(ledger, cfg, asOf) {
     return { total, other, cols };
   };
 
-  const netProgram = netOf('Program Revenue', 'Program Expenses');
-  const netFundraising = netOf('Fundraising Revenue', 'Fundraising Expenses');
-  const netOther = netOf('Other Income', 'Other Expenses');
+  // One net line per group, in CATEGORY_ORDER's order, so adding a category to
+  // a group changes what nets without changing anything here.
+  const nets = NET_LINES.map(({ group, label }) =>
+    ({ group, label, ...netOf(...categoriesInGroup(group)) }));
   const netTotal = {
-    total: netProgram.total + netFundraising.total + netOther.total,
-    other: netProgram.other + netFundraising.other + netOther.other,
-    cols: columns.map((_, i) => netProgram.cols[i] + netFundraising.cols[i] + netOther.cols[i]),
+    total: nets.reduce((s, n) => s + n.total, 0),
+    other: nets.reduce((s, n) => s + n.other, 0),
+    cols: columns.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)),
   };
 
   const futureCount = future.length;
@@ -198,7 +200,7 @@ export function eventIncome(ledger, cfg, asOf) {
 
   return {
     asOf, since, columns, futureCount, pastOmitted, priorPeriod,
-    sections, netProgram, netFundraising, netOther, netTotal,
+    sections, nets, netTotal,
     futureTotal, exclFuture: netTotal.total - futureTotal,
   };
 }
@@ -306,22 +308,21 @@ export function monthlyIncome(ledger, cfg, asOf) {
       budgetPartial: parts.length > 0 && parts.length < rows.length,
     };
   };
-  const netProgram = netOf(['Program Revenue', 'Program Expenses']);
-  const netFundraising = netOf(['Fundraising Revenue', 'Fundraising Expenses']);
-  const netOther = netOf(['Other Income', 'Other Expenses']);
-  const netBudgets = [netProgram, netFundraising, netOther].map(n => n.budget).filter(v => v !== null);
+  const nets = NET_LINES.map(({ group, label }) =>
+    ({ group, label, ...netOf(categoriesInGroup(group)) }));
+  const netBudgets = nets.map(n => n.budget).filter(v => v !== null);
   const netTotal = {
-    cols: months.map((_, i) => netProgram.cols[i] + netFundraising.cols[i] + netOther.cols[i]),
-    total: netProgram.total + netFundraising.total + netOther.total,
+    cols: months.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)),
+    total: nets.reduce((s, n) => s + n.total, 0),
     budget: netBudgets.length ? netBudgets.reduce((s, v) => s + v, 0) : null,
-    budgetPartial: [netProgram, netFundraising, netOther].some(n => n.budgetPartial)
-      || (netBudgets.length > 0 && netBudgets.length < 3),
+    budgetPartial: nets.some(n => n.budgetPartial)
+      || (netBudgets.length > 0 && netBudgets.length < nets.length),
   };
 
   const allTimeNet = sections.reduce((s, sec) => s + (sec.isRevenue ? 1 : -1) * sec.subtotal.allTime, 0);
 
   return {
-    asOf, months, sections, netProgram, netFundraising, netOther, netTotal, allTimeNet,
+    asOf, months, sections, nets, netTotal, allTimeNet,
     // Fiscal-year framing, null when no fiscal year is configured.
     fiscalYear,
     fiscalYearLabel: fiscalYear === null ? null : fiscalYearLabel(fiscalYear, startMonth),

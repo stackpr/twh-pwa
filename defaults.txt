@@ -68,17 +68,25 @@ accounts:
 
 # Your chart of accounts: each TroopWebHost fund and its category.
 #
-# Allowed categories (these six names are fixed):
+# Allowed categories (this list is fixed):
 #   Program Revenue
 #   Program Expenses
-#   Fundraising Revenue
-#   Fundraising Expenses
+#   Scout Program Expenses
+#   Unit Fundraising Revenue
+#   Unit Fundraising Expenses
+#   Scout Fundraising Revenue
+#   Scout Fundraising Expenses
 #   Other Income
 #   Other Expenses
 #
+# Scout Program Expenses is spending the scouts themselves direct; it gets
+# its own budget line and still nets into Net Income - Scouting Program.
+# Scout Fundraising is fundraising whose proceeds are credited to scout
+# accounts rather than kept by the unit, so it nets to about nothing.
+#
 # This also decides which events get a column on the event income statement.
-# An event whose activity is mostly Program-category is a program event; one
-# that is mostly Fundraising-category is not, and rolls into Other.
+# An event whose activity is mostly program is a program event; one that is
+# mostly fundraising, of either kind, is not, and rolls into Other.
 #
 # Every fund appearing in the export must be listed here, or the reports will
 # refuse to run.
@@ -87,30 +95,30 @@ funds:
   Adult Training Expense: Other Expenses
   Advancement Expense: Program Expenses
   COH Expense: Program Expenses
-  Campership Donation: Fundraising Revenue
+  Campership Donation: Unit Fundraising Revenue
   Campership Expense: Other Expenses
   Camping (High Adventure) Expense: Program Expenses
   Camping (Summer Camp) Expense: Program Expenses
   Camping (Weekend) Expense: Program Expenses
-  Concessions Fundraising (from Venue): Fundraising Revenue
-  Concessions Fundraising (to Scout): Fundraising Expenses
-  Crew Expense: Program Expenses
+  Concessions Fundraising (from Venue): Scout Fundraising Revenue
+  Concessions Fundraising (to Scout): Scout Fundraising Expenses
+  Crew Expense: Scout Program Expenses
   Crew Funds Utilized: Program Revenue
   Crew Revenue (from Scout): Program Revenue
   Custom Order (Passthru): Other Expenses
   Donations by Troop: Other Expenses
   Equipment/Merch Expense: Program Expenses
   Food Expense: Program Expenses
-  General Donation: Fundraising Revenue
+  General Donation: Unit Fundraising Revenue
   Interest and Dividends: Other Income
   Member Fees (Passthru): Other Expenses
   Merch Revenue: Program Revenue
   Misc Program Expense: Program Expenses
   Misc Revenue: Program Revenue
-  Popcorn Expense: Fundraising Expenses
-  Popcorn Revenue: Fundraising Revenue
-  Product Sale Expense: Fundraising Expenses
-  Product Sale Revenue: Fundraising Revenue
+  Popcorn Expense: Scout Fundraising Expenses
+  Popcorn Revenue: Scout Fundraising Revenue
+  Product Sale Expense: Scout Fundraising Expenses
+  Product Sale Revenue: Scout Fundraising Revenue
   Registration (High Adventure) Revenue: Program Revenue
   Registration (Summer Camp) Revenue: Program Revenue
   Registration Revenue: Program Revenue
@@ -121,7 +129,7 @@ funds:
 # Budgets, by the calendar year each fiscal year starts in. The year
 # beginning September 2024 is 2024, whatever your troop calls it.
 #
-# Each line is a fund name or one of the six category names above:
+# Each line is a fund name or one of the category names above:
 #
 #   Program Expenses: 12000     the whole category
 #   Food Expense: 3000          one fund inside it

@@ -36,8 +36,13 @@ const budgets = {
   2023: {
     'Program Revenue': 32000,
     'Program Expenses': 26000,
-    'Fundraising Revenue': 30000,
-    'Fundraising Expenses': 22000,
+    // Budgeted separately from Program Expenses and still inside Net Income —
+    // Scouting Program, which is what the category exists to show.
+    'Scout Program Expenses': 500,
+    'Unit Fundraising Revenue': 4000,
+    'Unit Fundraising Expenses': 500,
+    'Scout Fundraising Revenue': 30000,
+    'Scout Fundraising Expenses': 22000,
     'Other Expenses': 1500,
   },
 };

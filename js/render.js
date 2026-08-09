@@ -166,9 +166,7 @@ export function renderEventIncome(ei, mount, troopName = '') {
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: 5 + nCols })));
-  dataRow('Net Income \u2014 Scouting Program', ei.netProgram, 'total');
-  dataRow('Net Income \u2014 Fundraising', ei.netFundraising, 'total');
-  dataRow('Net Income \u2014 Other', ei.netOther, 'total');
+  for (const n of ei.nets) dataRow(`Net Income \u2014 ${n.label}`, n, 'total');
   dataRow('Net Income \u2014 Total', ei.netTotal, 'total grand');
 
   table.append(body);
@@ -246,9 +244,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols })));
-  dataRow('Net Income \u2014 Scouting Program', mi.netProgram, 'total');
-  dataRow('Net Income \u2014 Fundraising', mi.netFundraising, 'total');
-  dataRow('Net Income \u2014 Other', mi.netOther, 'total');
+  for (const n of mi.nets) dataRow(`Net Income \u2014 ${n.label}`, n, 'total');
   dataRow('Net Income \u2014 Total', mi.netTotal, 'total grand');
 
   table.append(body);
@@ -265,7 +261,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   }
   if (mi.hasBudget) {
     notes.push(`Budget is for ${mi.fiscalYearLabel} in full; Remaining is budget less the fiscal year to date. Budgets are held in this app only \u2014 TroopWebHost has no record of them. A blank means no budget was set for that line.`);
-    if ([mi.netProgram, mi.netFundraising, mi.netOther, mi.netTotal].some(n => n.budgetPartial)) {
+    if ([...mi.nets, mi.netTotal].some(n => n.budgetPartial)) {
       notes.push('A net line marked \u2020 is budgeted on one side only; its counterpart section has no budget and is not being treated as zero.');
     }
   }
@@ -630,7 +626,7 @@ export function renderConfig(cfg, mount, { usage, onChange, onAdd, onRemove }) {
     adder('account', ACCOUNT_CLASSES, 'New troop account, exactly as TroopWebHost spells it'),
     el('h3', { text: 'Funds' }),
     el('p', { class: 'hint', text: 'Your troop\'s funds, and the category each one reports under. The category drives both the income-statement section and whether an event counts as program or fundraising activity. Add or remove funds here as TroopWebHost gains and loses them; whatever is listed is what the settings file carries.' }),
-    el('p', { class: 'hint', text: 'The six category names are fixed — they are the sections of the income statement — but which funds exist, and where each one sits, is entirely yours. Importing an export adds anything missing with a guessed category and offers to remove what has gone; this table is the same list, edited by hand.' }),
+    el('p', { class: 'hint', text: 'The category names are fixed — they are the sections of the income statement — but which funds exist, and where each one sits, is entirely yours. Importing an export adds anything missing with a guessed category and offers to remove what has gone; this table is the same list, edited by hand.' }),
     funds,
     adder('fund', CATEGORY_NAMES, 'New fund, exactly as TroopWebHost spells it'));
 }

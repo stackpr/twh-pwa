@@ -260,12 +260,16 @@ function afterChartEdit() {
     // An edit can uncover a name as surely as an import can — remove a fund the
     // export uses and its legs would otherwise stop being counted. Same halt,
     // same reason: nothing disappears quietly.
-    const { unknownFunds, unknownAccounts } = validateChart(state.ledger, state.cfg);
+    const { unknownFunds, unknownAccounts, badCategories } = validateChart(state.ledger, state.cfg);
     if (unknownFunds.length) {
       errors.push(`Fund(s) in the loaded export with no category: ${unknownFunds.join(', ')}.`);
     }
     if (unknownAccounts.length) {
       errors.push(`Troop account(s) in the loaded export with no classification: ${unknownAccounts.join(', ')}.`);
+    }
+    if (badCategories.length) {
+      errors.push('Fund(s) set to a category this app does not have: '
+        + badCategories.map(([f, c]) => `${f} → "${c}"`).join(', ') + '.');
     }
     renderErrors(errors.length
       ? [...errors, 'Add them back to the chart of accounts, or re-import the export to have them classified by guess.']
