@@ -13,7 +13,7 @@ import {
 } from './snapshots.js';
 import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
-  renderBalanceSheet, renderEventIncome, renderMonthlyIncome,
+  renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderNotes,
   renderReconciliation, renderErrors, renderConfig, renderChartReview, renderBudget,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
@@ -58,7 +58,7 @@ function loadRecords(records) {
     ledger = buildLedger(records, state.cfg);
   }
 
-  renderErrors(ledger.errors, $('#errors'));
+  renderErrors(ledger.errors, $('#errors'), () => showTab('settings'));
   if (ledger.errors.length) {
     // Errors are rendered on the Import tab, next to the file that caused them.
     // The review is dropped rather than shown: a halted load produces no legs —
@@ -69,6 +69,10 @@ function loadRecords(records) {
     state.review = null;
     setReportsShown(false);
     renderReview();
+    // The errors all say to go and fix the chart of accounts, and the button
+    // beside them goes there, so the chart has to be the current one when it
+    // arrives — adoptNewNames may have just added to it.
+    renderSettingsPanel();
     return;
   }
   state.ledger = ledger;
@@ -273,7 +277,7 @@ function afterChartEdit() {
     }
     renderErrors(errors.length
       ? [...errors, 'Add them back to the chart of accounts, or re-import the export to have them classified by guess.']
-      : [], $('#errors'));
+      : [], $('#errors'), () => showTab('settings'));
     setReportsShown(!errors.length);
     if (errors.length) {
       renderGuessNote();
@@ -298,9 +302,16 @@ function rerender() {
 
   const org = cfg.params.troopName || '';
   const bs = balanceSheet(state.ledger, cfg, state.asOf);
-  renderBalanceSheet(bs, state.snapshots, $('#report-balance'), org);
-  renderEventIncome(eventIncome(state.ledger, cfg, state.asOf), $('#report-event'), org);
-  renderMonthlyIncome(monthlyIncome(state.ledger, cfg, state.asOf), $('#report-monthly'), org);
+  // Each report returns its explanatory notes rather than printing them under
+  // its own table; they are collected onto one appendix sheet at the end.
+  renderNotes([
+    { key: 'balance', title: 'Balance Sheet',
+      notes: renderBalanceSheet(bs, state.snapshots, $('#report-balance'), org) },
+    { key: 'event', title: 'Income Statement by Event',
+      notes: renderEventIncome(eventIncome(state.ledger, cfg, state.asOf), $('#report-event'), org) },
+    { key: 'monthly', title: 'Income Statement by Month',
+      notes: renderMonthlyIncome(monthlyIncome(state.ledger, cfg, state.asOf), $('#report-monthly'), org) },
+  ], $('#report-notes'));
 
   renderDrift(bs);
 }
