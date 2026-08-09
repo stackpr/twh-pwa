@@ -116,26 +116,15 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   table.append(body);
   mount.append(scroller(table));
 
-  // A note that explains a symbol printed in the table stays with the table: a
-  // reader meeting \u2020 needs it on the page in front of them, not three sheets
-  // away. Everything else is commentary and goes to the appendix.
-  if (bs.noncash.length) {
-    mount.append(el('footer', { class: 'notes' },
-      el('p', { text: '\u2020 Non-cash: included in Total Assets but deducted from Unrestricted Net Assets, since it cannot be spent.' })));
-  }
-
-  return [
-    'TWH ignores future events and arrears; the comparison line adds both back.',
-    bs.noncash.length
-      ? 'Inventory carrying values are maintained manually in TroopWebHost and are not derived from the ledger.'
-      : null,
-    bs.futureEventNames.length
-      ? 'Other Future Events (Net) is the all-time net position of events that have not yet occurred: ' + bs.futureEventNames.join('; ') + '.'
-      : null,
-    snapDates.length
-      ? 'Snapshot columns are figures as published on those dates. Blank cells were not captured in that snapshot. Only the balance sheet is snapshotted; the income statements are always recomputed and will move if back-dated entries are added.'
-      : null,
-  ].filter(Boolean);
+  // Notes are one line each, and each is a sentence a reader needs to trust the
+  // figure above it. Anything longer belongs in the Help tab, which is where the
+  // reasoning lives; a report is not the place to explain itself at length, and
+  // every line here is a line the table does not get.
+  mount.append(el('footer', { class: 'notes' }, [
+    bs.noncash.length ? '\u2020 Non-cash: in Total Assets, deducted from Unrestricted.' : null,
+    'TWH omits future events and arrears; the comparison line adds both back.',
+    snapDates.length ? 'Dated columns are figures as published; blanks were not captured.' : null,
+  ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
 // Troop-held accounts are named "_<PREFIX>, Label (Main)" by convention; strip
@@ -149,6 +138,21 @@ const prettyPseudo = name => name.replace(/^_[^,]*,\s*/, '').replace(/\s*\(Main\
 // particular unit's habits would be the wrong kind of list, and anything not
 // matched is simply left alone.
 const EVENT_SUFFIX = /(?:\s+|^)(?:(?:troop|unit|patrol)\s+)?(?:campout|camp-out|outing|trip|event|activity|weekend)$/i;
+
+/**
+ * A fund's name under its own section heading.
+ *
+ * Under "Program Expenses" every row already says Expense, and under a revenue
+ * heading every row says Revenue; the word is repeated down the whole column
+ * and pushes the ones that matter into a second line. So it is dropped where
+ * the section already carries it — never down to nothing, because a fund named
+ * only "Expense" has nothing else to be called.
+ */
+export function shortFundLabel(name, isRevenue) {
+  const re = isRevenue ? /\s*\b(?:revenues?|income)\s*$/i : /\s*\bexpenses?\s*$/i;
+  const short = String(name).replace(re, '').trim();
+  return short || name;
+}
 
 /** The event name as a column heading: its trailing date kept, its filler dropped. */
 export function shortEventName(name) {
@@ -218,12 +222,14 @@ export function renderEventIncome(ei, mount, troopName = '') {
     td('', 'num rule'), td('', 'num rule'),
     ...futureOf(ei.priorPeriod).map((v, i) => num(v, i ? '' : 'rule'))));
 
+  // The section heading carries the section's own figures. It used to head a
+  // block and then repeat itself as a "Total" row at the foot of it, which cost
+  // a row per section — nine of them on a statement fighting for one page — to
+  // say a name the reader had just read.
   for (const sec of ei.sections) {
     if (!sec.funds.length && Math.abs(sec.subtotal.total) < 0.005) continue;
-    body.append(el('tr', { class: 'section' },
-      el('th', { class: 'label', scope: 'row', colspan: 5 + nCols, text: sec.key })));
-    for (const f of sec.funds) dataRow(f.label, f, 'detail');
-    dataRow('Total', sec.subtotal, 'subtotal');
+    dataRow(sec.key, sec.subtotal, 'section');
+    for (const f of sec.funds) dataRow(shortFundLabel(f.label, sec.isRevenue), f, 'detail');
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: 5 + nCols })));
@@ -233,14 +239,12 @@ export function renderEventIncome(ei, mount, troopName = '') {
   table.append(body);
   mount.append(scroller(table));
 
-  return [
-    'YTD covers activity on or after the start of the period, excluding events that have not happened yet; YTD+Future adds those back. Other is activity in the period attributed to no event column.',
-    'Event headings drop the words every event name ends with \u2014 campout, trip, outing \u2014 and keep the date that identifies them.',
-    'Event columns are program events only; fundraising events are classified by fund category and roll into Other. Per-event figures count activity on or after the start of the period; earlier activity appears in Prior Period Net Income.',
+  mount.append(el('footer', { class: 'notes' }, [
+    'YTD excludes events not yet held; YTD+Future adds them. Columns are program events; fundraisers and non-event activity are in Other.',
     ei.pastOmitted > 0
-      ? `${ei.pastOmitted} older past event${ei.pastOmitted === 1 ? '' : 's'} not shown as columns; their activity is included in Other, so totals are unaffected by the column limit.`
+      ? `${ei.pastOmitted} older event${ei.pastOmitted === 1 ? '' : 's'} in Other, not shown as columns; totals unaffected.`
       : null,
-  ].filter(Boolean);
+  ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
 function futureSum(r, ei) {
@@ -301,10 +305,8 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
 
   for (const sec of mi.sections) {
     if (!sec.funds.length && sec.subtotal.budget === null && Math.abs(sec.subtotal.total) < 0.005) continue;
-    body.append(el('tr', { class: 'section' },
-      el('th', { class: 'label', scope: 'row', colspan: cols, text: sec.key })));
-    for (const f of sec.funds) dataRow(f.label, f, 'detail');
-    dataRow('Total', sec.subtotal, 'subtotal');
+    dataRow(sec.key, sec.subtotal, 'section');
+    for (const f of sec.funds) dataRow(shortFundLabel(f.label, sec.isRevenue), f, 'detail');
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols })));
@@ -314,55 +316,64 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   table.append(body);
   mount.append(scroller(table));
 
-  // The \u2020 marker is explained beside the table it appears in; see the balance
-  // sheet's note for the reasoning.
   const partial = [...mi.nets, mi.netTotal].some(n => n.budgetPartial);
-  if (mi.hasBudget && partial) {
-    mount.append(el('footer', { class: 'notes' }, el('p', {
-      text: '\u2020 Budgeted on one side only; the counterpart section has no budget and is not treated as zero.',
-    })));
-  }
-
-  // What the Total column leaves out, said once and positively. The old note
-  // printed the arithmetic difference against an all-time figure that appears
-  // on no report, which read as a discrepancy rather than as a definition.
-  const scope = mi.fiscalYear === null
-    ? `Total column sums the ${mi.months.length} months shown`
-    : `Total column sums the fiscal year to date \u2014 ${mi.months.length} month${mi.months.length === 1 ? '' : 's'}`;
-  return [
-    `${scope}. It excludes activity dated outside that window, including transactions posted to events that have not happened yet and the opening-balance import.`,
+  mount.append(el('footer', { class: 'notes' }, [
+    `Total is the ${mi.months.length} month${mi.months.length === 1 ? '' : 's'} shown; it excludes future events and anything before them.`,
     mi.hasBudget
-      ? `Budget is for ${mi.fiscalYearLabel} in full; Remaining is budget less the fiscal year to date. Budgets are held in this app only \u2014 TroopWebHost has no record of them. A blank means no budget was set for that line.`
+      ? `Budget is ${mi.fiscalYearLabel} in full, held in this app only; a blank is no budget set.`
       : null,
-  ].filter(Boolean);
+    mi.hasBudget && partial ? '\u2020 Budgeted on one side only; the other side is not treated as zero.' : null,
+  ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
 /* ------------------------------------------------------------------ */
 
 /**
- * The appendix: every report's explanatory notes, on their own sheet.
+ * Year against year, newest column first.
  *
- * They used to sit under each table, where they cost three or four lines of a
- * report already fighting for one page, and where a reader who had already read
- * them once met them again every month. Notes that explain a SYMBOL stay with
- * their table — see renderBalanceSheet — because a reader meeting one needs it
- * in front of them, not three sheets away.
- *
- * Each group is tagged with the report it belongs to so that printing one
- * report brings only its own notes; see the print rules in app.css.
+ * The leftmost column is the year in progress, so it is a part-year figure
+ * sitting beside whole ones. That is the comparison a treasurer wants and also
+ * the one that misleads if it goes unsaid, so the column is marked and the mark
+ * is explained in a line under the table.
  */
-export function renderNotes(groups, mount) {
+export function renderFiscalYearComparison(fy, mount, troopName = '') {
   mount.replaceChildren();
-  const any = groups.some(g => g.notes.length);
-  mount.hidden = !any;
-  if (!any) return;
-  mount.append(el('header', { class: 'rpt-head' }, el('h2', { text: 'Notes' })));
-  for (const { key, title, notes } of groups) {
-    if (!notes.length) continue;
-    mount.append(el('section', { class: 'notegroup', 'data-for': key },
-      el('h3', { text: title }),
-      el('ul', { class: 'notelist' }, notes.map(t => el('li', { text: t })))));
+  if (!fy.years.length) { mount.hidden = true; return; }
+  mount.hidden = false;
+
+  mount.append(rptHead('Fiscal Year Comparison',
+    `${fy.labels.at(-1)} \u2013 ${fy.labels[0]}`, troopName));
+
+  const cols = fy.years.length + 1;
+  const table = el('table', { class: 'rpt compact' });
+  table.append(el('thead', {}, el('tr', {},
+    th('', 'label'),
+    ...fy.labels.map((l, i) => th(l.replace(/^FY /, '') + (i === 0 && fy.partialYear ? ' \u2020' : ''), 'num')))));
+
+  const body = el('tbody');
+  const dataRow = (label, r, cls) => body.append(el('tr', { class: cls },
+    el('th', { class: 'label', scope: 'row', text: label }),
+    ...r.cols.map(v => num(v))));
+
+  for (const sec of fy.sections) {
+    if (!sec.funds.length) continue;
+    dataRow(sec.key, sec.subtotal, 'section');
+    for (const f of sec.funds) dataRow(shortFundLabel(f.label, sec.isRevenue), f, 'detail');
   }
+
+  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols })));
+  for (const n of fy.nets) dataRow(`Net Income \u2014 ${n.label}`, n, 'total');
+  dataRow('Net Income \u2014 Total', fy.netTotal, 'total grand');
+
+  table.append(body);
+  mount.append(scroller(table));
+
+  mount.append(el('footer', { class: 'notes' }, [
+    fy.partialYear ? '\u2020 Year in progress, compared against complete years.' : null,
+    fy.omitted > 0
+      ? `${fy.omitted} earlier year${fy.omitted === 1 ? '' : 's'} not shown; set the earliest year on the Settings tab.`
+      : null,
+  ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
 export function renderReconciliation(rec, ledger, mount) {

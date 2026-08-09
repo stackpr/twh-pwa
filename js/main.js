@@ -6,14 +6,14 @@ import {
   budgetYearsFor, mergeBudgetLine,
 } from './config.js';
 import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents, validateChart } from './ledger.js';
-import { balanceSheet, eventIncome, monthlyIncome } from './reports.js';
+import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from './reports.js';
 import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
   driftReport, isoDate, fmtMoney, download,
 } from './snapshots.js';
 import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
-  renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderNotes,
+  renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderFiscalYearComparison,
   renderReconciliation, renderErrors, renderConfig, renderChartReview, renderBudget,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
@@ -142,7 +142,7 @@ function renderBudgetPanel() {
 
 // Which way up each report wants the paper. The two statements carry a column
 // per event or per month and are unreadable squeezed into portrait.
-const ORIENTATION = { balance: 'portrait', event: 'landscape', monthly: 'landscape' };
+const ORIENTATION = { balance: 'portrait', event: 'landscape', monthly: 'landscape', fy: 'landscape' };
 
 // The balance sheet is the exception that changes shape. With no history it is
 // one narrow column of figures and would waste half a landscape sheet; every
@@ -302,16 +302,13 @@ function rerender() {
 
   const org = cfg.params.troopName || '';
   const bs = balanceSheet(state.ledger, cfg, state.asOf);
-  // Each report returns its explanatory notes rather than printing them under
-  // its own table; they are collected onto one appendix sheet at the end.
-  renderNotes([
-    { key: 'balance', title: 'Balance Sheet',
-      notes: renderBalanceSheet(bs, state.snapshots, $('#report-balance'), org) },
-    { key: 'event', title: 'Income Statement by Event',
-      notes: renderEventIncome(eventIncome(state.ledger, cfg, state.asOf), $('#report-event'), org) },
-    { key: 'monthly', title: 'Income Statement by Month',
-      notes: renderMonthlyIncome(monthlyIncome(state.ledger, cfg, state.asOf), $('#report-monthly'), org) },
-  ], $('#report-notes'));
+  renderBalanceSheet(bs, state.snapshots, $('#report-balance'), org);
+  renderEventIncome(eventIncome(state.ledger, cfg, state.asOf), $('#report-event'), org);
+  renderMonthlyIncome(monthlyIncome(state.ledger, cfg, state.asOf), $('#report-monthly'), org);
+  renderFiscalYearComparison(fiscalYearComparison(state.ledger, cfg, state.asOf), $('#report-fy'), org);
+  // The section, not just its mount: an empty bordered panel with a print
+  // button in it is worse than no panel.
+  $('.report[data-report="fy"]').hidden = $('#report-fy').hidden;
 
   renderDrift(bs);
 }
@@ -410,6 +407,7 @@ function syncParamInputs() {
   set('#months', p.monthsShown);
   set('#asOf', p.asOf);
   set('#fiscalYearStart', p.fiscalYearStart);
+  set('#earliestFY', p.earliestFiscalYear);
 }
 
 function reloadFromLedger() {
@@ -527,6 +525,8 @@ function bind() {
   bindParam('#activitySince', 'activitySince', String);
   bindParam('#pastEvents', 'pastEventsShown');
   bindParam('#months', 'monthsShown');
+  // Blank means every year in the export; a year means start there.
+  bindParam('#earliestFY', 'earliestFiscalYear', v => (v === '' ? null : Number(v)));
   // The as-of date decides which fiscal year the reports cover, so the budget
   // editor follows it rather than the calendar.
   bindParam('#asOf', 'asOf', String, () => setTimeout(renderBudgetPanel, 0));

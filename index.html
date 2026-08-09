@@ -115,6 +115,10 @@
           <input type="number" id="months" min="1" max="24" step="1">
           <span class="hint">Only used when the fiscal year is set to <em>Not set</em>, on the Settings tab.</span>
         </label>
+        <label>Earliest year compared
+          <input type="number" id="earliestFY" min="1900" max="2200" step="1" placeholder="all years">
+          <span class="hint">First fiscal year on the year comparison. Blank shows every year; set it past the years your records were still being migrated.</span>
+        </label>
       </div>
     </section>
 
@@ -146,10 +150,14 @@
       <div id="report-monthly"></div>
     </section>
 
-    <!-- The appendix. Explanatory notes for all three reports on one sheet, so
-         each statement keeps its page for figures. Notes that explain a symbol
-         printed in a table stay with that table instead; see js/render.js. -->
-    <section class="report" data-report="notes" id="report-notes" hidden></section>
+    <!-- Year against year. Hidden when no fiscal year is configured: without one
+         there are no years to compare. -->
+    <section class="report" data-report="fy">
+      <div class="no-print rpt-actions">
+        <button data-print="fy">Print year comparison</button>
+      </div>
+      <div id="report-fy"></div>
+    </section>
 
   </div>
 

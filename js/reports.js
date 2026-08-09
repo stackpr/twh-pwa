@@ -329,3 +329,81 @@ export function monthlyIncome(ledger, cfg, asOf) {
     hasBudget,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Fiscal Year Comparison                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The same statement as Monthly Income, with a fiscal year per column instead
+ * of a month: the year in progress on the left, older years to the right.
+ *
+ * Reading left to right is reading backwards in time on purpose. The question a
+ * treasurer is answering at a meeting is "how are we doing", and the answer is
+ * the leftmost column; last year is the thing it is compared against, and the
+ * year before that is context. A chronological run puts the answer at the far
+ * edge of the widest report in the app.
+ *
+ * `earliestFiscalYear` drops the years before it entirely. A troop's first years
+ * in TroopWebHost are usually a partial migration, and a column of those beside
+ * real years invites a comparison that means nothing. Which year is the first
+ * trustworthy one is a judgement the ledger cannot make, so it is asked for.
+ *
+ * Needs a fiscal year to be configured: without one there are no years to
+ * compare, and the caller gets `years: []` to render nothing from.
+ */
+export function fiscalYearComparison(ledger, cfg, asOf) {
+  const startMonth = cfg.params.fiscalYearStart;
+  if (!startMonth) return { years: [], sections: [], nets: [], netTotal: null, omitted: 0, startMonth: null };
+
+  const current = fiscalYearOf(asOf, startMonth);
+  const earliest = Number.isFinite(cfg.params.earliestFiscalYear) ? cfg.params.earliestFiscalYear : null;
+
+  // Only years the export actually has fund activity in: an empty column is a
+  // year the troop did not exist, not a year it earned nothing.
+  const present = new Set();
+  for (const l of ledger.legs) {
+    if (l.kind !== 'fund') continue;
+    const y = fiscalYearOf(l.date, startMonth);
+    if (y !== null && y <= current) present.add(y);
+  }
+  const all = [...present].sort((a, b) => b - a);          // newest first
+  const years = earliest === null ? all : all.filter(y => y >= earliest);
+  const omitted = all.length - years.length;
+  const yIndex = new Map(years.map((y, i) => [y, i]));
+
+  const acc = new Map();
+  for (const l of ledger.legs) {
+    if (l.kind !== 'fund') continue;
+    const ix = yIndex.get(fiscalYearOf(l.date, startMonth));
+    if (ix === undefined) continue;
+    if (!acc.has(l.key)) acc.set(l.key, new Array(years.length).fill(0));
+    acc.get(l.key)[ix] += l.amount;
+  }
+
+  const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
+    const sign = sectionSign(isRevenue);
+    const funds = [...acc.entries()]
+      .filter(([f]) => cfg.fundCategories[f] === key)
+      .filter(([, cols]) => cols.some(v => Math.abs(v) > 0.005))
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([f, cols]) => ({ label: f, cols: cols.map(v => sign * v) }));
+    const subtotal = { cols: years.map((_, i) => funds.reduce((s, r) => s + r.cols[i], 0)) };
+    return { key, isRevenue, funds, subtotal };
+  });
+
+  const netOf = keys => {
+    const rows = sections.filter(s => keys.includes(s.key));
+    const sg = s => (s.isRevenue ? 1 : -1);
+    return { cols: years.map((_, i) => rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.cols[i], 0)) };
+  };
+  const nets = NET_LINES.map(({ group, label }) =>
+    ({ group, label, ...netOf(categoriesInGroup(group)) }));
+  const netTotal = { cols: years.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)) };
+
+  return {
+    asOf, years, startMonth, omitted, sections, nets, netTotal,
+    labels: years.map(y => fiscalYearLabel(y, startMonth)),
+    partialYear: years.length ? years[0] === current : false,
+  };
+}

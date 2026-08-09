@@ -158,7 +158,11 @@ table.rpt th.num, table.rpt td.num { text-align: right; white-space: nowrap; }
    them narrow and stacks them on purpose. */
 table.rpt .label { font-weight: 400; white-space: nowrap; }
 table.rpt tr.detail .label { padding-left: 1.2rem; }
-table.rpt tr.section th { font-weight: 700; padding-top: .6rem; border-bottom: 1px solid var(--line); }
+/* A section row is a heading and a subtotal at once, so it is ruled above like
+   a subtotal and set bold like a heading. */
+table.rpt tr.section { font-weight: 700; }
+table.rpt tr.section td, table.rpt tr.section th { border-top: 1px solid var(--line); padding-top: .45rem; }
+table.rpt tr.section th.label { font-weight: 700; }
 table.rpt tr.subtotal { font-weight: 600; }
 table.rpt tr.subtotal td, table.rpt tr.subtotal th { border-top: 1px solid var(--line); }
 table.rpt tr.total { font-weight: 700; }
@@ -209,11 +213,6 @@ table.rpt th.budget, table.rpt td.budget { border-left: 1px solid var(--line); }
    This rules off the fiscal-year-to-date block from the month history. */
 table.rpt th.periodstart, table.rpt td.periodstart { border-left: 1px solid var(--line); }
 
-/* The appendix sheet. */
-.notegroup { margin: 0 0 1rem; }
-.notegroup h3 { margin: 0 0 .3rem; font-size: .9rem; }
-.notelist { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .82rem; }
-.notelist li { margin: .2rem 0; }
 
 table.cfg { border-collapse: collapse; font-size: .85rem; margin-bottom: 1rem; }
 table.cfg th, table.cfg td { padding: .2rem .6rem; text-align: left; border-bottom: 1px solid var(--line); }
@@ -271,25 +270,9 @@ input.addname {
   body[data-print-target] .report { display: none; }
   body[data-print-target="balance"] .report[data-report="balance"],
   body[data-print-target="event"]   .report[data-report="event"],
-  body[data-print-target="monthly"] .report[data-report="monthly"] { display: block; page-break-after: auto; }
+  body[data-print-target="monthly"] .report[data-report="monthly"],
+  body[data-print-target="fy"]      .report[data-report="fy"] { display: block; page-break-after: auto; }
 
-  /* The appendix follows whichever report was asked for, carrying only that
-     report's notes. Printing one statement should not hand someone three
-     statements' worth of commentary. */
-  body[data-print-target="balance"] .report[data-report="notes"],
-  body[data-print-target="event"]   .report[data-report="notes"],
-  body[data-print-target="monthly"] .report[data-report="notes"] { display: block; page-break-before: always; }
-  body[data-print-target="balance"] .notegroup:not([data-for="balance"]),
-  body[data-print-target="event"]   .notegroup:not([data-for="event"]),
-  body[data-print-target="monthly"] .notegroup:not([data-for="monthly"]) { display: none; }
-  /* One group on the sheet needs no heading telling you which report it is. */
-  body[data-print-target] .notegroup h3 { display: none; }
-
-  /* The appendix is the last sheet whatever was printed, and it is the only
-     report section that may be portrait-shaped on a landscape page: it is
-     prose, not a table. */
-  .report[data-report="notes"] { page-break-before: always; page-break-after: auto; }
-  .notelist { font-size: 8pt; max-width: 46em; }
 
   /* Sized so a full six-section income statement clears one sheet: at screen
      line height the monthly statement ran about 12% over, which costs a whole
@@ -303,6 +286,10 @@ input.addname {
      inch — which is the difference between a statement landing on one sheet
      and spilling a header and two net lines onto a second. */
   table.rpt th, table.rpt td { padding: 0 .25rem; }
+  /* On paper the rule above a section is separation enough; the extra lead is
+     a row and a half per statement once there are nine sections. */
+  table.rpt tr.section td, table.rpt tr.section th { padding-top: 0; }
+  .notes { margin-top: .35rem; }
   /* Paper does not scroll. A clipped balance sheet is a wrong balance sheet, so
      the screen's scroll container is opened back up and the type carries the
      fit. A name may wrap here; losing a column may not. */

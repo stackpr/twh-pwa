@@ -33,6 +33,9 @@ troop:
 #                           compares against. null instead gives a rolling
 #                           window of monthsShown months, and no budget.
 #   asOf                    report date (YYYY-MM-DD), or null for today.
+#   earliestFiscalYear      first year on the year-on-year comparison, or
+#                           null for every year in the export. Set it past
+#                           the years your records were still being migrated.
 #   hashSalt                changes the anonymised scout identifiers. Leave
 #                           empty unless you have a reason.
 parameters:
@@ -41,6 +44,7 @@ parameters:
   monthsShown: 12
   fiscalYearStart: 9
   asOf: 2024-08-03
+  earliestFiscalYear: null
   hashSalt: ""
 
 # Troop accounts, and where each belongs on the balance sheet.

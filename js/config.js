@@ -159,6 +159,13 @@ export const DEFAULT_PARAMS = {
   // still available and gives back the rolling monthsShown window.
   fiscalYearStart: 1,
   asOf: null,                  // null = min(latest txn date, today)
+  // Earliest fiscal year the year-on-year comparison will show, or null for
+  // every year in the export. A troop's first years in TroopWebHost are usually
+  // a partial migration — opening balances booked in a lump, a season entered
+  // by hand — and a column of those beside real years invites a comparison
+  // nobody should make. Naming the first trustworthy year is a judgement only
+  // the treasurer can make, so the app asks rather than guessing.
+  earliestFiscalYear: null,
   hashSalt: '',                // empty = plain MD5 (reproducible outside the app)
 };
 

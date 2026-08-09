@@ -47,7 +47,7 @@ import { settingsToText, settingsFromText } from '../js/settings.js';
 import { snapshotFromReport, driftReport } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
 import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart } from '../js/ledger.js';
-import { balanceSheet, eventIncome, monthlyIncome } from '../js/reports.js';
+import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from '../js/reports.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE = path.join(here, 'fixtures', 'sample-export.csv');
@@ -318,6 +318,47 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
 
   // The figures themselves must not move because a budget was entered.
   eq('a budget changes no actual', b.netTotal.total, fy.netTotal.total);
+}
+
+console.log('\n== FISCAL YEAR COMPARISON ==');
+{
+  const SEP = 9;
+  const base = build({ fiscalYearStart: SEP });
+  const fy = fiscalYearComparison(base.ledger, base.cfg, base.asOf);
+
+  ok('years run newest first', fy.years.every((y, i) => i === 0 || y < fy.years[i - 1]));
+  ok('the leftmost year is the one the as-of date falls in',
+     fy.years[0] === fiscalYearOf(base.asOf, SEP));
+  ok('the year in progress is marked as partial', fy.partialYear === true);
+  ok('a label is given for every column', fy.labels.length === fy.years.length);
+
+  // The same arithmetic the monthly statement satisfies, one column at a time.
+  for (let i = 0; i < fy.years.length; i++) {
+    eq(`FY ${fy.years[i]}: net total == the four net lines`,
+       fy.netTotal.cols[i], fy.nets.reduce((s, n) => s + n.cols[i], 0));
+    eq(`FY ${fy.years[i]}: each section total == its funds`,
+       fy.sections.reduce((s, sec) => s + sec.subtotal.cols[i], 0),
+       fy.sections.reduce((s, sec) => s + sec.funds.reduce((t, f) => t + f.cols[i], 0), 0));
+  }
+
+  // The column for the fiscal year the monthly statement covers must agree with
+  // it: same ledger, same year, same definition of a fiscal year.
+  const mi = monthlyIncome(base.ledger, base.cfg, base.asOf);
+  eq('the current year column agrees with the monthly statement',
+     fy.netTotal.cols[0], mi.netTotal.total);
+
+  // earliestFiscalYear drops columns and says how many it dropped. It must not
+  // change any figure in the columns that remain — it is a display window, not
+  // a filter on the ledger.
+  const cut = fy.years.length > 1 ? fy.years[0] : fy.years[0];
+  const limited = fiscalYearComparison(base.ledger, mk({ fiscalYearStart: SEP, earliestFiscalYear: cut }), base.asOf);
+  eq('setting the earliest year drops the years before it',
+     limited.years.length, fy.years.filter(y => y >= cut).length);
+  eq('and reports how many it dropped', limited.omitted, fy.years.length - limited.years.length);
+  eq('and moves no figure in the years kept', limited.netTotal.cols[0], fy.netTotal.cols[0]);
+
+  ok('with no fiscal year configured there is nothing to compare',
+     fiscalYearComparison(base.ledger, mk({ fiscalYearStart: null }), base.asOf).years.length === 0);
 }
 
 console.log('\n== CHART REVIEW (new and unused names) ==');

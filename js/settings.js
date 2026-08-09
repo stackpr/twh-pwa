@@ -79,6 +79,9 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     '                          compares against. null instead gives a rolling',
     '                          window of monthsShown months, and no budget.',
     '  asOf                    report date (YYYY-MM-DD), or null for today.',
+    '  earliestFiscalYear      first year on the year-on-year comparison, or',
+    '                          null for every year in the export. Set it past',
+    '                          the years your records were still being migrated.',
     '  hashSalt                changes the anonymised scout identifiers. Leave',
     '                          empty unless you have a reason.',
   ], 'parameters', {
@@ -87,6 +90,7 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     monthsShown: params.monthsShown,
     fiscalYearStart: params.fiscalYearStart ?? null,
     asOf: params.asOf ?? null,
+    earliestFiscalYear: params.earliestFiscalYear ?? null,
     hashSalt: params.hashSalt || '',
   }));
 
@@ -236,6 +240,18 @@ export function settingsFromText(text) {
       if (!(k in DEFAULT_PARAMS)) { warnings.push(`Ignoring unknown parameter "${k}".`); continue; }
       // fiscalYearStart is a month number or nothing at all, so it fits neither
       // the numeric branch (null is legal) nor the string one (13 is not).
+      // Null is a real value here — "every year" — so it cannot ride the generic
+      // numeric branch, which would keep it and then String() it into "null".
+      if (k === 'earliestFiscalYear') {
+        if (v === null || v === '') { params[k] = null; continue; }
+        const y = Number(v);
+        if (!Number.isInteger(y) || y < 1900 || y > 2200) {
+          errors.push(`Parameter "earliestFiscalYear" should be a four-digit year, or null, found "${v}".`);
+          continue;
+        }
+        params[k] = y;
+        continue;
+      }
       if (k === 'fiscalYearStart') {
         if (v === null || v === '') { params[k] = null; continue; }
         const m = Number(v);
