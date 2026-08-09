@@ -1,6 +1,6 @@
 // render.js — DOM rendering. Produces the printable tables.
 
-import { fmtMoney, fmtInt, fmtDate } from './snapshots.js';
+import { fmtMoney, fmtInt, fmtDate, fmtShortDate } from './snapshots.js';
 import { CATEGORY_NAMES, ACCOUNT_CLASSES, fiscalYearLabel, budgetYearsFor } from './config.js';
 
 const el = (tag, attrs = {}, ...kids) => {
@@ -15,7 +15,42 @@ const el = (tag, attrs = {}, ...kids) => {
 };
 
 const td = (v, cls = '') => el('td', { class: cls, text: v });
-const num = (v, cls = '') => el('td', { class: 'num ' + cls + (v < -0.005 ? ' neg' : ''), text: fmtMoney(v) });
+
+// Whether figures print with cents. A module-level setting rather than an
+// argument threaded through every cell: it is a property of the whole printed
+// page, main.js sets it once before a render, and passing it down forty call
+// sites would obscure the code that does the work.
+let showCents = true;
+export const setShowCents = on => { showCents = on !== false; };
+
+const num = (v, cls = '') =>
+  el('td', { class: 'num ' + cls + (v < -0.005 ? ' neg' : ''), text: fmtMoney(v, showCents) });
+
+/**
+ * Do these parts still add to this total once every one of them is rounded?
+ *
+ * With cents shown they always do. Rounded to whole dollars they need not: nine
+ * rows each half a dollar under print a dollar low apiece while their total
+ * rounds up. That is arithmetic, not an error, and the reports say so — but
+ * only on a report where it actually happened, because a standing disclaimer
+ * about a discrepancy that is not there teaches a reader to ignore the notes.
+ */
+const roundsCleanly = (parts, whole) => showCents
+  || Math.abs(parts.reduce((s, v) => s + Math.round(v), 0) - Math.round(whole)) < 0.5;
+
+/** Tracks whether rounding pulled any subtotal off its parts on this report. */
+function roundingWatch() {
+  let drifted = false;
+  return {
+    check(parts, whole) { if (!roundsCleanly(parts, whole)) drifted = true; },
+    get note() {
+      return drifted
+        ? 'Figures are rounded to whole dollars, so a total may differ from its parts by a dollar or two.'
+        : null;
+    },
+  };
+}
+
 const th = (v, cls = '', scope = 'col') => el('th', { class: cls, scope, text: v });
 
 /* ------------------------------------------------------------------ */
@@ -49,7 +84,8 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   mount.append(rptHead('Balance Sheet', fmtDate(bs.asOf), troopName));   // a position, so one date
 
   const table = el('table', { class: 'rpt' });
-  const cols = ['Current', ...snapDates];
+  const cols = ['Current', ...snapDates.map(fmtShortDate)];
+  const round = roundingWatch();
   table.append(el('thead', {}, el('tr', {},
     th('', 'label'), ...cols.map(c => th(c, 'num')))));
 
@@ -83,6 +119,12 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
     const values = [v, ...snapAcct(name)];
     if (hasFigure(values)) row(label, values, 'detail');
   };
+
+  // The three places a total on this sheet is the sum of rows above it.
+  round.check(bs.assets.map(([, v]) => v), bs.totalAssets);
+  round.check([bs.prepaid, bs.arrearsTotal], bs.netScout);
+  round.check([...bs.liabilityAccounts.map(([, v]) => v), bs.otherFutureEventsNet,
+               ...bs.pseudo.map(([, v]) => v)], bs.totalLiabilities);
 
   const noncashNames = new Set(bs.noncash.map(([k]) => k));
   section('Assets');
@@ -124,6 +166,7 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
     bs.noncash.length ? '\u2020 Non-cash: in Total Assets, deducted from Unrestricted.' : null,
     'TWH omits future events and arrears; the comparison line adds both back.',
     snapDates.length ? 'Dated columns are figures as published; blanks were not captured.' : null,
+    round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
@@ -176,6 +219,7 @@ export function renderEventIncome(ei, mount, troopName = '') {
   mount.append(rptHead('Income Statement by Event',
     `${fmtDate(ei.since)} \u2013 ${fmtDate(ei.asOf)}`, troopName));
 
+  const round = roundingWatch();
   const table = el('table', { class: 'rpt compact' });
   const nCols = ei.columns.length;
   // ei.columns is future-first; the sheet reads past-first, so both the headings
@@ -228,12 +272,14 @@ export function renderEventIncome(ei, mount, troopName = '') {
   // say a name the reader had just read.
   for (const sec of ei.sections) {
     if (!sec.funds.length && Math.abs(sec.subtotal.total) < 0.005) continue;
+    round.check(sec.funds.map(f => f.total), sec.subtotal.total);
     dataRow(sec.key, sec.subtotal, 'section');
     for (const f of sec.funds) dataRow(shortFundLabel(f.label, sec.isRevenue), f, 'detail');
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: 5 + nCols })));
   for (const n of ei.nets) dataRow(`Net Income \u2014 ${n.label}`, n, 'total');
+  round.check(ei.nets.map(n => n.total), ei.netTotal.total);
   dataRow('Net Income \u2014 Total', ei.netTotal, 'total grand');
 
   table.append(body);
@@ -247,6 +293,7 @@ export function renderEventIncome(ei, mount, troopName = '') {
     ei.futureOmitted > 0
       ? `${ei.futureOmitted} later event${ei.futureOmitted === 1 ? '' : 's'} counted in Future but not shown as columns.`
       : null,
+    round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
@@ -272,6 +319,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   // chronological order everywhere else — mi.months is what the totals are
   // computed from and what the period heading is written from — so this is a
   // display order and nothing more.
+  const round = roundingWatch();
   const months = [...mi.months].reverse();
   const cols = months.length + 2 + (mi.hasBudget ? 2 : 0);
   const table = el('table', { class: 'rpt compact' });
@@ -304,12 +352,15 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
 
   for (const sec of mi.sections) {
     if (!sec.funds.length && sec.subtotal.budget === null && Math.abs(sec.subtotal.total) < 0.005) continue;
+    round.check(sec.funds.map(f => f.total), sec.subtotal.total);
     dataRow(sec.key, sec.subtotal, 'section');
     for (const f of sec.funds) dataRow(shortFundLabel(f.label, sec.isRevenue), f, 'detail');
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols })));
   for (const n of mi.nets) dataRow(`Net Income \u2014 ${n.label}`, n, 'total');
+  round.check(mi.nets.map(n => n.total), mi.netTotal.total);
+  round.check(mi.netTotal.cols, mi.netTotal.total);   // the Total column against its months
   dataRow('Net Income \u2014 Total', mi.netTotal, 'total grand');
 
   table.append(body);
@@ -320,6 +371,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
     `Total is the ${mi.months.length} month${mi.months.length === 1 ? '' : 's'} shown, excluding future events and anything earlier`
       + (mi.hasBudget ? `; Budget is ${mi.fiscalYearLabel} in full, held in this app only, and a blank is no budget set.` : '.'),
     mi.hasBudget && partial ? '\u2020 Budgeted on one side only; the other side is not treated as zero.' : null,
+    round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 
@@ -343,6 +395,7 @@ export function renderFiscalYearComparison(fy, mount, troopName = '') {
 
   // Each year, then its budget where one was kept. A rule before every year
   // keeps the pairs from reading as one run of figures.
+  const round = roundingWatch();
   const cols = 1 + fy.years.length + fy.budgetYears.filter(Boolean).length;
   const table = el('table', { class: 'rpt compact' });
   table.append(el('thead', {}, el('tr', {},
@@ -366,12 +419,14 @@ export function renderFiscalYearComparison(fy, mount, troopName = '') {
 
   for (const sec of fy.sections) {
     if (!sec.funds.length) continue;
+    fy.years.forEach((_, i) => round.check(sec.funds.map(f => f.cols[i]), sec.subtotal.cols[i]));
     dataRow(sec.key, sec.subtotal, 'section');
     for (const f of sec.funds) dataRow(shortFundLabel(f.label, sec.isRevenue), f, 'detail');
   }
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols })));
   for (const n of fy.nets) dataRow(`Net Income \u2014 ${n.label}`, n, 'total');
+  fy.years.forEach((_, i) => round.check(fy.nets.map(n => n.cols[i]), fy.netTotal.cols[i]));
   dataRow('Net Income \u2014 Total', fy.netTotal, 'total grand');
 
   table.append(body);
@@ -382,6 +437,7 @@ export function renderFiscalYearComparison(fy, mount, troopName = '') {
     fy.omitted > 0
       ? `${fy.omitted} earlier year${fy.omitted === 1 ? '' : 's'} not shown; change "Earliest year compared" under Parameters.`
       : null,
+    round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
 

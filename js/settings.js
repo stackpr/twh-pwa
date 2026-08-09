@@ -84,6 +84,9 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     '  earliestFiscalYear      first year on the year-on-year comparison, or',
     '                          null for every year in the export. Set it past',
     '                          the years your records were still being migrated.',
+    '  showCents               true prints cents, false rounds to whole dollars.',
+    '                          Display only \u2014 every figure is computed to the',
+    '                          cent either way.',
     '  hashSalt                changes the anonymised scout identifiers. Leave',
     '                          empty unless you have a reason.',
   ], 'parameters', {
@@ -94,6 +97,7 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     fiscalYearStart: params.fiscalYearStart ?? null,
     asOf: params.asOf ?? null,
     earliestFiscalYear: params.earliestFiscalYear ?? null,
+    showCents: params.showCents !== false,
     hashSalt: params.hashSalt || '',
   }));
 

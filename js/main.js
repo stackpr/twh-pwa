@@ -13,7 +13,7 @@ import {
 } from './snapshots.js';
 import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
-  renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderFiscalYearComparison,
+  renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderFiscalYearComparison, setShowCents,
   renderReconciliation, renderErrors, renderConfig, renderChartReview, renderBudget,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
@@ -304,6 +304,7 @@ function rerender() {
   state.asOf = resolveAsOf(state.ledger, cfg.params);
 
   const org = cfg.params.troopName || '';
+  setShowCents(cfg.params.showCents);   // display only; every figure is computed to the cent
   const bs = balanceSheet(state.ledger, cfg, state.asOf);
   renderBalanceSheet(bs, state.snapshots, $('#report-balance'), org);
   renderEventIncome(eventIncome(state.ledger, cfg, state.asOf), $('#report-event'), org);
@@ -408,6 +409,8 @@ function syncParamInputs() {
   set('#activitySince', p.activitySince);
   set('#pastEvents', p.pastEventsShown);
   set('#futureEvents', p.futureEventsShown);
+  const cents = $('#showCents');
+  if (cents) cents.checked = p.showCents !== false;
   set('#months', p.monthsShown);
   set('#asOf', p.asOf);
   set('#fiscalYearStart', p.fiscalYearStart);
@@ -529,6 +532,14 @@ function bind() {
   bindParam('#activitySince', 'activitySince', String);
   bindParam('#pastEvents', 'pastEventsShown');
   bindParam('#futureEvents', 'futureEventsShown');
+
+  const cents = $('#showCents');
+  cents.checked = p.showCents !== false;
+  cents.addEventListener('change', () => {
+    p.showCents = cents.checked;
+    saveConfig(state.cfg);
+    rerender();
+  });
   bindParam('#months', 'monthsShown');
   // Blank means every year in the export; a year means start there.
   bindParam('#earliestFY', 'earliestFiscalYear', v => (v === '' ? null : Number(v)));

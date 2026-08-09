@@ -44,7 +44,7 @@ import {
 } from '../js/config.js';
 import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
-import { snapshotFromReport, driftReport } from '../js/snapshots.js';
+import { snapshotFromReport, driftReport, fmtMoney, fmtShortDate } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
 import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart } from '../js/ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from '../js/reports.js';
@@ -347,6 +347,37 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
 
   // The figures themselves must not move because a budget was entered.
   eq('a budget changes no actual', b.netTotal.total, fy.netTotal.total);
+}
+
+console.log('\n== NUMBER AND DATE FORMAT ==');
+{
+  ok('cents print two places', fmtMoney(1234.56) === '1,234.56');
+  ok('negatives print in parentheses', fmtMoney(-1234.56) === '(1,234.56)');
+  ok('nothing prints as a dash', fmtMoney(0) === '\u2013');
+  ok('whole dollars round', fmtMoney(1234.56, false) === '1,235');
+  ok('whole dollars keep the parentheses', fmtMoney(-1234.56, false) === '(1,235)');
+  ok('under half a dollar is nothing when rounding', fmtMoney(0.4, false) === '\u2013');
+  ok('but is a figure when showing cents', fmtMoney(0.4) === '0.40');
+
+  // Rounding is display only, so the two formats must never disagree about
+  // which side of zero a figure is on, nor about its dollars.
+  for (const v of [0.6, -0.6, 99.5, -99.5, 12345.49]) {
+    ok(`rounding ${v} keeps its sign`,
+       (fmtMoney(v, false).startsWith('(')) === (v < 0) || Math.abs(v) < 0.5);
+  }
+
+  ok('a snapshot date prints the way event dates do', fmtShortDate('2026-08-03') === '08/03/26');
+  ok('and a date it cannot read is passed through', fmtShortDate('whenever') === 'whenever');
+
+  // The disclosure exists because rounded parts need not add to a rounded
+  // total. This is that case, constructed: three rows of .4 print as nothing
+  // each while their total prints as 1.
+  const parts = [0.4, 0.4, 0.4];
+  const whole = parts.reduce((s, v) => s + v, 0);
+  ok('rounded parts can genuinely miss their rounded total',
+     parts.reduce((s, v) => s + Math.round(v), 0) !== Math.round(whole));
+  ok('and with cents they never do',
+     Math.abs(parts.reduce((s, v) => s + v, 0) - whole) < 0.005);
 }
 
 console.log('\n== FISCAL YEAR COMPARISON ==');
@@ -766,6 +797,13 @@ console.log('\n== SETTINGS FILE ==');
   eq('round-trip preserves a budget figure', bBack.config.budgets['2023']['Program Revenue'], 40000);
   eq('round-trip preserves budget cents', bBack.config.budgets['2023']['Food Expense'], 1500.5);
   ok('round-trip preserves the fiscal year start', bBack.config.params.fiscalYearStart === 9);
+  ok('round-trip preserves showCents',
+     settingsFromText(settingsToText(mk({ showCents: false }), {})).config.params.showCents === false
+     && settingsFromText(settingsToText(mk({ showCents: true }), {})).config.params.showCents === true);
+  ok('round-trip preserves the future event limit',
+     settingsFromText(settingsToText(mk({ futureEventsShown: 2 }), {})).config.params.futureEventsShown === 2);
+  ok('round-trip preserves the earliest year',
+     settingsFromText(settingsToText(mk({ earliestFiscalYear: 2021 }), {})).config.params.earliestFiscalYear === 2021);
   ok('a fiscal year start outside 1-12 is rejected',
      settingsFromText(bText.replace('fiscalYearStart: 9', 'fiscalYearStart: 13')).errors.length > 0);
   ok('a non-numeric budget figure is rejected',

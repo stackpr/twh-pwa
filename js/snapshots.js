@@ -92,11 +92,28 @@ export function driftReport(snapshot, recomputed, tolerance = 0.005) {
 
 /* ---- formatting ---- */
 
-export function fmtMoney(v) {
+/**
+ * A figure as it prints: negatives in parentheses, a dash for nothing.
+ *
+ * `cents` false rounds to whole dollars. A page of figures a treasurer is
+ * reading aloud is easier without the cents, and it buys column width on the
+ * reports that are short of it. The cost is that rounded parts need not add to
+ * a rounded total — see roundsCleanly in render.js, which watches for it and
+ * says so on the report rather than leaving a reader to find a penny that is
+ * not there.
+ */
+export function fmtMoney(v, cents = true) {
   if (v === null || v === undefined || Number.isNaN(v)) return '';
-  if (Math.abs(v) < 0.005) return '–';
-  const s = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (Math.abs(v) < (cents ? 0.005 : 0.5)) return '–';
+  const digits = cents ? 2 : 0;
+  const s = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
   return v < 0 ? `(${s})` : s;
+}
+
+/** A snapshot's date as the reports write dates elsewhere: 08/03/26. */
+export function fmtShortDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso));
+  return m ? `${m[2]}/${m[3]}/${m[1].slice(2)}` : String(iso);
 }
 
 export function fmtInt(v) {

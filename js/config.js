@@ -170,6 +170,10 @@ export const DEFAULT_PARAMS = {
   // nobody should make. Naming the first trustworthy year is a judgement only
   // the treasurer can make, so the app asks rather than guessing.
   earliestFiscalYear: null,
+  // Cents on the reports, or whole dollars. Rounding is display only: every
+  // figure is computed to the cent either way, so turning it off and on again
+  // changes nothing but the printing.
+  showCents: true,
   hashSalt: '',                // empty = plain MD5 (reproducible outside the app)
 };
 

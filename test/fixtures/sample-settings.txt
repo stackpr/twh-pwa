@@ -38,6 +38,9 @@ troop:
 #   earliestFiscalYear      first year on the year-on-year comparison, or
 #                           null for every year in the export. Set it past
 #                           the years your records were still being migrated.
+#   showCents               true prints cents, false rounds to whole dollars.
+#                           Display only — every figure is computed to the
+#                           cent either way.
 #   hashSalt                changes the anonymised scout identifiers. Leave
 #                           empty unless you have a reason.
 parameters:
@@ -48,6 +51,7 @@ parameters:
   fiscalYearStart: 9
   asOf: 2024-08-03
   earliestFiscalYear: null
+  showCents: true
   hashSalt: ""
 
 # Troop accounts, and where each belongs on the balance sheet.
