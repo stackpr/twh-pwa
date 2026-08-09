@@ -163,8 +163,11 @@ const orientationFor = target =>
  * dialog last used, and the margins are asymmetric to match the orientation.
  */
 function setPageSize(orientation) {
+  // 8mm clears every consumer printer's unprintable edge with room to spare,
+  // and the 4mm it buys back over 10mm is the difference between the monthly
+  // statement's last note landing on the sheet and starting a second one.
   $('#page-style').textContent = `@page { size: Letter ${orientation}; margin: `
-    + (orientation === 'landscape' ? '10mm 12mm' : '12mm 10mm') + '; }';
+    + (orientation === 'landscape' ? '8mm 12mm' : '10mm 10mm') + '; }';
 }
 
 function printReport(target) {

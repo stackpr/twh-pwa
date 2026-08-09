@@ -318,10 +318,8 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
 
   const partial = [...mi.nets, mi.netTotal].some(n => n.budgetPartial);
   mount.append(el('footer', { class: 'notes' }, [
-    `Total is the ${mi.months.length} month${mi.months.length === 1 ? '' : 's'} shown; it excludes future events and anything before them.`,
-    mi.hasBudget
-      ? `Budget is ${mi.fiscalYearLabel} in full, held in this app only; a blank is no budget set.`
-      : null,
+    `Total is the ${mi.months.length} month${mi.months.length === 1 ? '' : 's'} shown, excluding future events and anything earlier`
+      + (mi.hasBudget ? `; Budget is ${mi.fiscalYearLabel} in full, held in this app only, and a blank is no budget set.` : '.'),
     mi.hasBudget && partial ? '\u2020 Budgeted on one side only; the other side is not treated as zero.' : null,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
@@ -371,7 +369,7 @@ export function renderFiscalYearComparison(fy, mount, troopName = '') {
   mount.append(el('footer', { class: 'notes' }, [
     fy.partialYear ? '\u2020 Year in progress, compared against complete years.' : null,
     fy.omitted > 0
-      ? `${fy.omitted} earlier year${fy.omitted === 1 ? '' : 's'} not shown; set the earliest year on the Settings tab.`
+      ? `${fy.omitted} earlier year${fy.omitted === 1 ? '' : 's'} not shown; change "Earliest year compared" under Parameters.`
       : null,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }

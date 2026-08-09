@@ -289,7 +289,13 @@ input.addname {
   /* On paper the rule above a section is separation enough; the extra lead is
      a row and a half per statement once there are nine sections. */
   table.rpt tr.section td, table.rpt tr.section th { padding-top: 0; }
-  .notes { margin-top: .35rem; }
+  /* The rule above the net-income block separates it on paper; the blank row
+     that does the same job on screen is a row the sheet cannot spare. */
+  table.rpt tr.spacer { display: none; }
+  /* The title is a title, not a section break: on paper it needs the gap that
+     separates it from the table and no more. */
+  .rpt-head h2 { margin: 0 0 .15rem; font-size: 10pt; }
+  .notes { margin-top: .25rem; }
   /* Paper does not scroll. A clipped balance sheet is a wrong balance sheet, so
      the screen's scroll container is opened back up and the type carries the
      fit. A name may wrap here; losing a column may not. */
@@ -303,5 +309,6 @@ input.addname {
   thead { display: table-header-group; }
   tr { page-break-inside: avoid; }
   .rpt-head { break-after: avoid; }
-  .notes { font-size: 6.5pt; break-before: avoid; }
+  .notes { font-size: 6.5pt; line-height: 1.25; break-before: avoid; }
+  .notes p { margin: 0; }
 }
