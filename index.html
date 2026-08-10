@@ -70,6 +70,14 @@
       <p id="import-done" class="ok" hidden></p>
     </section>
 
+    <!-- Each export is a set of closed books; this says what moved in them
+         after they closed. Nothing shows on the first import of a session,
+         because there is no previous export to compare against. -->
+    <section id="prior-books-section" hidden>
+      <h2>Changes to closed books</h2>
+      <div id="prior-books"></div>
+    </section>
+
     <section id="import-review-section" hidden>
       <h2>Chart of accounts review</h2>
       <div id="import-review"></div>
@@ -291,11 +299,11 @@
     <section>
       <h2>What this does</h2>
       <p class="hint">
-        It reads a TroopWebHost transaction export and produces three printable reports
-        &mdash; a Balance Sheet, an Event Income statement, and a Monthly Income statement
-        &mdash; without pivot tables or hand-maintained formulas. Every figure is a sum
-        over the same set of transaction legs, so the reports cannot disagree with each
-        other.
+        It reads a TroopWebHost transaction export and produces four printable reports
+        &mdash; a Balance Sheet, an Event Income statement, a Monthly Income statement and
+        a Fiscal Year Comparison &mdash; without pivot tables or hand-maintained formulas.
+        Every figure is a sum over the same set of transaction legs, so the reports cannot
+        disagree with each other.
       </p>
 
       <h3>Monthly routine</h3>
@@ -344,6 +352,32 @@
         The settings file plus a fresh export is everything a successor needs. It holds no
         scout names, no individual balances, and no transactions, so it is safe to email; a
         transaction export never is.
+      </p>
+
+      <h3>Closed books</h3>
+      <p class="hint">
+        Each export you load is treated as a set of closed books. Load a second one later in
+        the same visit and the Import tab reports, in red, any entry dated before the day of
+        the first load that has since been <strong>edited, deleted, or back-dated in</strong>.
+        Ticking an old entry as reconciled is normal and is not reported; nothing dated on or
+        after that day is reported either, because those entries were still open &mdash; so
+        exporting twice in one day never turns that day's ordinary postings red. The first
+        export of a visit has nothing to compare against and reports nothing.
+      </p>
+      <p class="hint">
+        This is the ordinary accounting discipline: once a period has been reported, a
+        correction to it belongs in an adjusting entry dated today, not in an edit to the
+        original row. TroopWebHost will let anyone edit last spring's transaction and say
+        nothing about it, and the only sign is that this month's figures no longer match the
+        statement you printed. This is what finds that.
+      </p>
+      <p class="hint">
+        Which is why the two things worth keeping each month are the <strong>CSV export you
+        treated as final</strong> and the <strong>settings file</strong> holding that month's
+        balance-sheet snapshot. Between them they reproduce the position you reported, and
+        they are what a later export gets checked against. Keep the CSV somewhere private
+        &mdash; it carries scout names and family payment histories &mdash; and the settings
+        file wherever the PDFs go.
       </p>
 
       <h3>Fiscal year and budget</h3>

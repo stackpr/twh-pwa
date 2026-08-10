@@ -240,26 +240,44 @@ function sumRows(rows, ncols) {
 export function monthlyIncome(ledger, cfg, asOf) {
   // Two windows. Without a fiscal year the statement is a rolling monthsShown
   // months, as it always was. With one it runs from the first month of the
-  // fiscal year containing the as-of date to the as-of month — which is what
-  // makes the Total column comparable to a fiscal-year budget. Anything else
-  // would print a budget beside a total that does not cover the same period.
+  // fiscal year containing the as-of date — which is what makes the Total
+  // column comparable to a fiscal-year budget.
+  //
+  // COMPLETED months only. A month still running is a part-month, and a
+  // part-month inside the total is what makes the same total incomparable to
+  // last year's: eleven months and three days against twelve. Dropping it costs
+  // the newest column and buys a Prior YTD that means something.
   const startMonth = cfg.params.fiscalYearStart;
   const fiscalYear = fiscalYearOf(asOf, startMonth);
+  const lastDayOf = d => new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  const complete = d => lastDayOf(d) <= asOf;
   const months = [];
   if (fiscalYear !== null) {
     const start = fiscalYearStartDate(fiscalYear, startMonth);
     const span = (asOf.getFullYear() - start.getFullYear()) * 12 + asOf.getMonth() - start.getMonth();
     for (let i = 0; i <= Math.min(span, 11); i++) {
       const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
-      months.push({ key: monthKey(d), label: monthLabel(d), date: d });
+      if (complete(d)) months.push({ key: monthKey(d), label: monthLabel(d), date: d });
     }
   } else {
-    for (let i = cfg.params.monthsShown - 1; i >= 0; i--) {
-      const d = new Date(asOf.getFullYear(), asOf.getMonth() - i, 1);
-      months.push({ key: monthKey(d), label: monthLabel(d), date: d });
+    for (let i = cfg.params.monthsShown; i >= 1; i--) {
+      const d = new Date(asOf.getFullYear(), asOf.getMonth() - i + 1, 1);
+      if (complete(d)) months.push({ key: monthKey(d), label: monthLabel(d), date: d });
     }
   }
   const mIndex = new Map(months.map((m, i) => [m.key, i]));
+
+  // The same span of months one fiscal year earlier, so Prior YTD compares
+  // like with like: eleven complete months against eleven complete months.
+  // Without a fiscal year there is no "same span last year" to speak of.
+  const priorKeys = new Set();
+  if (fiscalYear !== null) {
+    const priorStart = fiscalYearStartDate(fiscalYear - 1, startMonth);
+    for (let i = 0; i < months.length; i++) {
+      priorKeys.add(monthKey(new Date(priorStart.getFullYear(), priorStart.getMonth() + i, 1)));
+    }
+  }
+  const hasPrior = priorKeys.size > 0;
 
   // The budget for the fiscal year on show, if one was entered. Budgets are
   // this app's own: TroopWebHost has no idea they exist.
@@ -268,15 +286,17 @@ export function monthlyIncome(ledger, cfg, asOf) {
 
   const acc = new Map();
   const bucket = fund => {
-    if (!acc.has(fund)) acc.set(fund, { cols: new Array(months.length).fill(0), allTime: 0 });
+    if (!acc.has(fund)) acc.set(fund, { cols: new Array(months.length).fill(0), allTime: 0, prior: 0 });
     return acc.get(fund);
   };
   for (const l of ledger.legs) {
     if (l.kind !== 'fund') continue;
     const b = bucket(l.key);
     b.allTime += l.amount;
-    const ix = mIndex.get(monthKey(l.date));
+    const key = monthKey(l.date);
+    const ix = mIndex.get(key);
     if (ix !== undefined) b.cols[ix] += l.amount;
+    if (priorKeys.has(key)) b.prior += l.amount;
   }
 
   const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
@@ -290,7 +310,7 @@ export function monthlyIncome(ledger, cfg, asOf) {
       .filter(([f]) => cfg.fundCategories[f] === key)
       .filter(([, b]) => b.cols.some(v => Math.abs(v) > 0.005))
       .map(([f]) => f);
-    const empty = { cols: new Array(months.length).fill(0), allTime: 0 };
+    const empty = { cols: new Array(months.length).fill(0), allTime: 0, prior: 0 };
     const funds = [...new Set([...active, ...budgeted])]
       .sort((a, b) => a.localeCompare(b))
       .map(f => [f, acc.get(f) || empty])
@@ -299,12 +319,14 @@ export function monthlyIncome(ledger, cfg, asOf) {
         cols: b.cols.map(v => sign * v),
         total: sign * b.cols.reduce((s, v) => s + v, 0),
         allTime: sign * b.allTime,
+        prior: hasPrior ? sign * b.prior : null,
         budget: hasBudget ? budgetFor(budget, f) : null,
       }));
     const subtotal = {
       cols: months.map((_, i) => funds.reduce((s, r) => s + r.cols[i], 0)),
       total: funds.reduce((s, r) => s + r.total, 0),
       allTime: funds.reduce((s, r) => s + r.allTime, 0),
+      prior: hasPrior ? funds.reduce((s, r) => s + r.prior, 0) : null,
       budget: hasBudget ? sectionBudget(budget, key, inCategory) : null,
     };
     return { key, isRevenue, funds, subtotal };
@@ -322,6 +344,7 @@ export function monthlyIncome(ledger, cfg, asOf) {
     return {
       cols: months.map((_, i) => rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.cols[i], 0)),
       total: rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.total, 0),
+      prior: hasPrior ? rows.reduce((s, sec) => s + sg(sec) * sec.subtotal.prior, 0) : null,
       budget: parts.length
         ? rows.reduce((s, sec) => s + sg(sec) * (sec.subtotal.budget || 0), 0)
         : null,
@@ -334,6 +357,7 @@ export function monthlyIncome(ledger, cfg, asOf) {
   const netTotal = {
     cols: months.map((_, i) => nets.reduce((s, n) => s + n.cols[i], 0)),
     total: nets.reduce((s, n) => s + n.total, 0),
+    prior: hasPrior ? nets.reduce((s, n) => s + n.prior, 0) : null,
     budget: netBudgets.length ? netBudgets.reduce((s, v) => s + v, 0) : null,
     budgetPartial: nets.some(n => n.budgetPartial)
       || (netBudgets.length > 0 && netBudgets.length < nets.length),
@@ -342,7 +366,7 @@ export function monthlyIncome(ledger, cfg, asOf) {
   const allTimeNet = sections.reduce((s, sec) => s + (sec.isRevenue ? 1 : -1) * sec.subtotal.allTime, 0);
 
   return {
-    asOf, months, sections, nets, netTotal, allTimeNet,
+    asOf, months, sections, nets, netTotal, allTimeNet, hasPrior,
     // Fiscal-year framing, null when no fiscal year is configured.
     fiscalYear,
     fiscalYearLabel: fiscalYear === null ? null : fiscalYearLabel(fiscalYear, startMonth),

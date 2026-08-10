@@ -161,7 +161,23 @@ alternative rather than implementing it quietly.
    format is an implementation detail of `yaml.js`; the treasurer edits a
    settings file in a text editor. Do not add a second extension, a format
    picker, or the word YAML to the UI copy or the Help tab.
-9. **Destructive actions live on the Cache tab.** Clearing configuration,
+9. **The closed-books baseline is session memory, and only that.** `compareImports`
+   reports what changed in entries dated before the day of the *previous* import — the
+   accounting mechanic being replicated is that a reported period is corrected by
+   an adjusting entry, not by editing the original row. Its baseline is the
+   previous export, held in `state.prior` in `main.js` and gone on reload. That is
+   forced: the baseline is a set of transactions, and Rule 2 keeps transactions
+   out of `localStorage`, out of the settings file, and off the wire. Do not
+   "improve" this by persisting the previous export, a per-row hash table, or a
+   digest of one — a hash of a row is still a record that the row existed.
+   Reconcile columns are excluded (being ticked is not a restatement) and so is
+   anything dated on or after the cutoff day (it was never closed — the cutoff is
+   exclusive so that two imports in one day do not flag that day's own postings). Nothing the comparison
+   returns may carry a person's name: `describeRow` reports *that* a scout
+   account was on the entry and never which, `Description` is omitted because a
+   treasurer types names into it, and there is a test asserting no fixture name
+   survives into the result.
+10. **Destructive actions live on the Cache tab.** Clearing configuration,
    snapshots or the offline shell is irreversible and the settings file is the
    only backup, so those buttons stay together with the explanation of what is
    held in the browser. Do not scatter them back across the other panels.
@@ -193,8 +209,9 @@ Module boundaries, in dependency order — keep it acyclic:
   Section comments are hand-written instructions for a human editor; keep them
   current when you add a parameter.
 - `ledger.js` — imports `csv.js` and `config.js`. Ingest, hashing, validation,
-  and the import-time comparison of the chart of accounts against the export
-  (`chartReview`). `classifyEvents` is split out of `buildLedger` because each
+  the import-time comparison of the chart of accounts against the export
+  (`chartReview`), and the closed-books comparison of this export against the
+  previous one (`compareImports`). `classifyEvents` is split out of `buildLedger` because each
   event's program/fundraising kind is the only part of the ledger that depends
   on the chart — which is what lets a classification be corrected without
   re-reading the export.

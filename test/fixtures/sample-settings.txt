@@ -49,7 +49,7 @@ parameters:
   futureEventsShown: 4
   monthsShown: 12
   fiscalYearStart: 9
-  asOf: 2024-08-03
+  asOf: 2024-08-31
   earliestFiscalYear: null
   showCents: true
   hashSalt: ""
@@ -240,7 +240,7 @@ snapshots:
       _UNIT, Custom Order (Main): 410.00
       _UNIT, High Adventure (Main): 2995.00
       _UNIT, Wanderoak 2026 (Main): 0.00
-  2024-08-03:
+  2024-08-31:
     total_assets: 79904.54
     total_noncash_assets: 4925.50
     scout_prepaid: 16118.40
@@ -248,10 +248,10 @@ snapshots:
     scout_arrears_total: -3871.40
     scout_net: 12247.00
     liability_accounts: 642.75
-    other_future_events: 4889.50
+    other_future_events: 4918.50
     pseudo_accounts: 5819.25
-    total_liabilities: 11351.50
-    unrestricted_net_assets: 51380.54
+    total_liabilities: 11380.50
+    unrestricted_net_assets: 51351.54
     twh_comparison: 52398.64
     accounts:
       CD: 12109.50

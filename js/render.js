@@ -67,7 +67,8 @@ const th = (v, cls = '', scope = 'col') => el('th', { class: cls, scope, text: v
 const scroller = table => el('div', { class: 'rpt-scroll' }, table);
 
 /**
- * One line: who, what, and over what period — "T16 Balance Sheet (Aug 3, 2026)".
+ * One line: who, what, and over what period — the troop name the user typed,
+ * then the report, then the date in parentheses.
  *
  * It used to be three stacked lines. On paper the unit name and the date each
  * cost a line of their own for a handful of words, and the reports are pressed
@@ -321,14 +322,17 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
   // display order and nothing more.
   const round = roundingWatch();
   const months = [...mi.months].reverse();
-  const cols = months.length + 2 + (mi.hasBudget ? 2 : 0);
+  const cols = 2 + (mi.hasBudget ? 2 : 0) + (mi.hasPrior ? 2 : 0) + months.length;
   const table = el('table', { class: 'rpt compact' });
   table.append(el('thead', {}, el('tr', {},
     th('', 'label'),
     th('Total', 'num'),
-    ...(mi.hasBudget ? [th('Budget', 'num budget'), th('Remaining', 'num budget')] : []),
+    // Budget and Remaining are one idea, so one rule before the pair.
+    ...(mi.hasBudget ? [th('Budget', 'num budget'), th('Remaining', 'num')] : []),
+    // Prior YTD and Change likewise: the comparison and its answer.
+    ...(mi.hasPrior ? [th('Prior YTD', 'num budget'), th('Change', 'num')] : []),
     // A rule before the first month separates the fiscal-year-to-date block
-    // from the history behind it, now that the two are adjacent.
+    // from the history behind it, and closes off Change.
     ...months.map((m, i) => th(m.label, 'num' + (i ? '' : ' periodstart'))))));
 
   const body = el('tbody');
@@ -338,12 +342,25 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
       // An unbudgeted row is left blank rather than shown as zero. Zero is a
       // decision \u2014 "we planned to spend nothing here" \u2014 and a blank is not.
       cells.push(r.budget === null ? td('', 'num budget') : num(r.budget, 'budget'));
+      // Budget and Remaining are one pair and are ruled off as one: the rule
+      // goes before Budget, never between the two. The header says so and the
+      // body has to agree, so Remaining is a bare num cell.
       if (r.budget === null) {
-        cells.push(td('', 'num budget'));
+        cells.push(td('', 'num'));
       } else {
-        const remaining = num(r.budget - r.total, 'budget');
+        const remaining = num(r.budget - r.total, '');
         if (r.budgetPartial) remaining.textContent += ' †';
         cells.push(remaining);
+      }
+    }
+    if (mi.hasPrior) {
+      // A row with no prior-year figure at all leaves both cells blank rather
+      // than printing a change against zero, which would read as a collapse.
+      const prior = r.prior;
+      if (prior === null || prior === undefined) {
+        cells.push(td('', 'num budget'), td('', 'num'));
+      } else {
+        cells.push(num(prior, 'budget'), num(r.total - prior));
       }
     }
     cells.push(...[...r.cols].reverse().map((v, i) => num(v, i ? '' : 'periodstart')));   // months, newest first
@@ -368,8 +385,8 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
 
   const partial = [...mi.nets, mi.netTotal].some(n => n.budgetPartial);
   mount.append(el('footer', { class: 'notes' }, [
-    `Total is the ${mi.months.length} month${mi.months.length === 1 ? '' : 's'} shown, excluding future events and anything earlier`
-      + (mi.hasBudget ? `; Budget is ${mi.fiscalYearLabel} in full, held in this app only, and a blank is no budget set.` : '.'),
+    `Total is the ${mi.months.length} completed month${mi.months.length === 1 ? '' : 's'} shown; the month in progress is excluded so Prior YTD compares like with like`
+      + (mi.hasBudget ? `. Budget is ${mi.fiscalYearLabel} in full, held in this app only; a blank is no budget set.` : '.'),
     mi.hasBudget && partial ? '\u2020 Budgeted on one side only; the other side is not treated as zero.' : null,
     round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
@@ -470,6 +487,61 @@ export function renderReconciliation(rec, ledger, mount) {
       el('summary', { text: `${ledger.warnings.length} warning(s)` }),
       el('ul', {}, ledger.warnings.map(w => el('li', { text: w })))));
   }
+}
+
+/**
+ * Changes to closed books: entries dated on or before the previous import that
+ * have since been edited, deleted, or inserted.
+ *
+ * Everything here is red on purpose. None of it is fatal — the reports render
+ * normally — but each line is a figure that has moved under a statement someone
+ * may already have printed and filed, and the remedy is an adjusting entry
+ * rather than a shrug. Being reconciled is excluded upstream, so anything shown
+ * is a real restatement.
+ */
+export function renderPriorBooks(diff, mount, section) {
+  mount.replaceChildren();
+  if (!diff) { section.hidden = true; return; }
+  section.hidden = false;
+
+  const on = fmtDate(diff.cutoff);
+  if (!diff.count) {
+    mount.append(el('p', { class: 'ok',
+      text: `Nothing dated before ${on} changed since the previous export was loaded. `
+          + `${fmtInt(diff.previousRows)} rows then, ${fmtInt(diff.rows)} now.` }));
+    return;
+  }
+
+  mount.append(el('p', { class: 'errors',
+    text: `${fmtInt(diff.count)} entr${diff.count === 1 ? 'y' : 'ies'} dated before `
+        + `${on} changed after that export was loaded. Books closed at that date should `
+        + `move by adjusting entry, not by editing the original row.` }));
+
+  const line = r => {
+    const bits = [r.date, r.type];
+    if (r.event) bits.push(r.event);
+    else if (r.fund) bits.push(r.fund);
+    else if (r.account) bits.push(r.account);
+    if (r.person) bits.push('scout account');
+    return `${r.ref ? 'Ref ' + r.ref + ' — ' : ''}${bits.join(' — ')} — ${fmtMoney(r.amount, showCents)}`;
+  };
+  const fieldText = f => f.from === undefined
+    ? `${f.field} changed`
+    : `${f.field}: ${f.from || '(blank)'} → ${f.to || '(blank)'}`;
+
+  const block = (title, rows, detail) => {
+    if (!rows.length) return;
+    mount.append(el('h3', { class: 'bad', text: `${title} (${fmtInt(rows.length)})` }),
+      el('ul', { class: 'bad' }, rows.map(r => el('li', {},
+        line(r), detail ? el('span', { class: 'hint', text: detail(r) }) : null))));
+  };
+
+  block('Edited', diff.changed, r => r.fields.map(fieldText).join('; '));
+  block('Deleted', diff.removed);
+  // Back-dated rather than "added": an entry that appeared with a date inside a
+  // period already closed. A new entry dated since the last import is ordinary
+  // activity and never reaches here.
+  block('Back-dated in', diff.added);
 }
 
 export function renderErrors(errors, mount, onGoToSettings = null) {

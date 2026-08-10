@@ -120,6 +120,13 @@ button.danger { color: var(--err); }
 .warn { padding: .7rem .9rem; background: var(--warn-bg); border-left: 4px solid var(--warn); border-radius: 4px; font-size: .87rem; }
 .ok { padding: .7rem .9rem; background: #eef6f1; border-left: 4px solid var(--ok); border-radius: 4px; font-size: .87rem; }
 
+/* Changes to closed books. Red throughout: none of it stops a report, and that
+   is exactly why it has to be hard to skim past. */
+h3.bad { color: var(--err); margin: 1rem 0 .3rem; font-size: .95rem; }
+ul.bad { margin: 0; padding-left: 1.2rem; color: var(--err); font-size: .87rem; }
+ul.bad li { margin-bottom: .3rem; }
+ul.bad .hint { display: block; color: var(--err); opacity: .8; }
+
 /* params */
 .params .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
 .params label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; font-weight: 600; }
@@ -208,6 +215,8 @@ table.cfg.budget td.num { text-align: right; font-variant-numeric: tabular-nums;
 label.inline { font-size: .85rem; font-weight: 600; }
 
 /* budget columns on the income statement */
+/* One rule before a pair of related columns, not between them: Budget and
+   Remaining are one idea, and so are Prior YTD and Change. */
 table.rpt th.budget, table.rpt td.budget { border-left: 1px solid var(--line); }
 /* Monthly income reads Total, Budget, Remaining, then the months newest first.
    This rules off the fiscal-year-to-date block from the month history. */

@@ -5,7 +5,9 @@ import {
   loadConfig, saveConfig, clearConfig, fiscalYearOf, fiscalYearLabel,
   budgetYearsFor, mergeBudgetLine,
 } from './config.js';
-import { buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents, validateChart } from './ledger.js';
+import {
+  buildLedger, reconcile, resolveAsOf, chartReview, classifyEvents, validateChart, compareImports,
+} from './ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from './reports.js';
 import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
@@ -15,6 +17,7 @@ import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.
 import {
   renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderFiscalYearComparison, setShowCents,
   renderReconciliation, renderErrors, renderConfig, renderChartReview, renderBudget,
+  renderPriorBooks,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
 
@@ -27,6 +30,12 @@ const state = {
   asOf: null,
   review: null,      // what the last import added to, or found stale in, the chart
   budgetYear: null,  // fiscal year the budget editor is showing; null = the reports'
+  // The previous export loaded in this session, and the day it was loaded: the
+  // baseline for the closed-books comparison. In memory only and gone on
+  // reload — these are transactions, and Rule 2 keeps transactions out of
+  // storage and off the wire. The first import of a session therefore has
+  // nothing to compare against, which is the intended behaviour.
+  prior: null,
 };
 
 /* ---- file intake ------------------------------------------------- */
@@ -67,6 +76,10 @@ function loadRecords(records) {
     // whole chart because the export was malformed is not a tidy-up.
     state.ledger = null;
     state.review = null;
+    // Not the previous file's comparison either: it belongs to a load that is
+    // no longer the one on screen, and state.prior deliberately stays put so
+    // the next good file still has a baseline.
+    renderPriorBooks(null, $('#prior-books'), $('#prior-books-section'));
     setReportsShown(false);
     renderReview();
     // The errors all say to go and fix the chart of accounts, and the button
@@ -78,6 +91,15 @@ function loadRecords(records) {
   state.ledger = ledger;
   state.asOf = resolveAsOf(ledger, state.cfg.params);
   $('#asOf').value = isoDate(state.asOf);
+
+  // Compare against the previous export before this one becomes the baseline —
+  // and only once the load has succeeded, so a malformed file cannot displace a
+  // good baseline. A halted load returns above without reaching here.
+  const diff = compareImports(state.prior, records);
+  renderPriorBooks(diff, $('#prior-books'), $('#prior-books-section'));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  state.prior = { records, importedOn: today };
+
   setReportsShown(true);
   $('#import-done').textContent =
     `Loaded ${records.length} transactions. The reports are on the Reports tab.`;
@@ -86,9 +108,9 @@ function loadRecords(records) {
   rerender();
   renderSettingsPanel();   // the as-of date is now known, and with it the fiscal year
   renderReview();
-  // A review is the one thing worth reading before the figures. With nothing to
-  // review the reports are what was asked for, so go straight there.
-  if (!hasReview()) showTab('reports');
+  // A review, or a restated entry, is worth reading before the figures. With
+  // neither, the reports are what was asked for, so go straight there.
+  if (!hasReview() && !(diff && diff.count)) showTab('reports');
 }
 
 /* ---- budget -------------------------------------------------------- */

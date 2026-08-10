@@ -82,6 +82,37 @@ Screen*.
    any tab — only the reports print.
 7. Press **Capture snapshot at this date**, download the settings file, and keep
    it with the PDFs.
+8. Keep the CSV too, somewhere private. Together with the settings file it
+   reproduces the position you just published — and it is what next month's
+   export gets checked against. See below.
+
+---
+
+## Closed books
+
+Each export you load is treated as a set of closed books. Load a second one in
+the same visit and the Import tab reports, in red, any entry dated before the day
+of the first load that has since been **edited, deleted, or back-dated in**.
+
+That is the ordinary discipline: once you have reported a period, a correction to
+it belongs in an adjusting entry dated today, not in an edit to the original row.
+TroopWebHost will let anyone change last spring's transaction and say nothing
+about it, and the only sign is that this month's figures no longer match the
+statement you printed and filed.
+
+Two things are deliberately *not* reported: ticking an old entry as reconciled,
+which is normal, and anything dated on or after the day of that first load, which
+was still open — you cannot close a day you are still in, so exporting twice in
+one day never turns that day's ordinary postings red. The first export of a visit
+has nothing to compare against and reports nothing.
+
+The comparison lives in memory for the visit only — the app never stores
+transactions — so the baseline is whichever export you loaded first this session.
+Which is the reason for step 8 above: the CSV you treated as final, plus the
+settings file holding that month's snapshot, are between them enough to reproduce
+everything you reported. The CSV carries scout names and family payment
+histories, so keep it where you would keep those; the settings file carries
+neither and can go wherever the PDFs go.
 
 ---
 
@@ -107,8 +138,15 @@ themselves. Covers activity since the date you set, with anything earlier on the
 no total ever changes with it.
 
 **Monthly Income** — revenue and spending by month across the fiscal year to
-date, with the total first and the most recent month next to it. If you have
-entered a budget, **Budget** and **Remaining** columns sit alongside.
+date, with the total first and the most recent month next to it. Only *completed*
+months appear, so the **Prior YTD** column beside them compares the same span of
+whole months a year earlier, and **Change** is the difference. If you have entered
+a budget, **Budget** and **Remaining** columns sit alongside.
+
+**Fiscal Year Comparison** — the same rows as Monthly Income, but a column per
+fiscal year with the current one first. Set **Earliest year compared** past the
+years your records were still being migrated, or those years will look like real
+declines.
 
 ### Snapshots and drift
 

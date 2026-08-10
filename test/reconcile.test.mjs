@@ -46,7 +46,7 @@ import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
 import { snapshotFromReport, driftReport, fmtMoney, fmtShortDate } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
-import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart } from '../js/ledger.js';
+import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart, compareImports } from '../js/ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from '../js/reports.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -58,9 +58,12 @@ const settingsPath = process.argv[3] || null;
 // the export is the fixture — the same rule as any external export.
 const isFixture = path.resolve(csvPath) === path.resolve(FIXTURE) && !settingsPath;
 
-// The fixture's synthetic troop year is Sep 2023 – Aug 2024, as of 2024-08-03.
+// The fixture's synthetic troop year is Sep 2023 – Aug 2024. The as-of date is
+// the last day of it: the monthly statement counts COMPLETED months, so a date
+// mid-August would report eleven of the twelve and the golden values would be
+// about a different period than the year the fixture describes.
 const FIXTURE_PARAMS = {
-  asOf: '2024-08-03',
+  asOf: '2024-08-31',
   activitySince: '2023-09-01',
   // The synthetic year runs Sep 2023 - Aug 2024, so a September fiscal year
   // covers exactly it. The monthly golden values are the same twelve months
@@ -254,7 +257,7 @@ console.log('== INVARIANTS ==');
 
 console.log('\n== FISCAL YEAR AND BUDGET ==');
 {
-  // The fixture's synthetic year runs Sep 2023 - Aug 2024, as of 2024-08-03,
+  // The fixture's synthetic year runs Sep 2023 - Aug 2024, as of 2024-08-31,
   // so a September fiscal year puts the whole of it in FY 2023.
   const SEP = 9;
   ok('a date after the start month is in that fiscal year',
@@ -286,6 +289,35 @@ console.log('\n== FISCAL YEAR AND BUDGET ==');
   const rolling = monthlyIncome(build({}).ledger, { ...mk({ fiscalYearStart: null }), budgets: {} }, base.asOf);
   eq('no fiscal year keeps the rolling window', rolling.months.length, DEFAULT_PARAMS.monthsShown);
   ok('no fiscal year means no fiscal framing', rolling.fiscalYear === null && rolling.hasBudget === false);
+
+  // Completed months only. A month still running would put a part-month inside
+  // a total that Prior YTD compares against whole ones.
+  {
+    const midAug = monthlyIncome(build({ asOf: '2024-08-14' }).ledger,
+                                 mk({ fiscalYearStart: SEP }), new Date(2024, 7, 14));
+    const endAug = monthlyIncome(base.ledger, noBudget, base.asOf);
+    eq('a month still running is left out', midAug.months.length, endAug.months.length - 1);
+    ok('and the last column shown is the month before it',
+       midAug.months.at(-1).label.startsWith('Jul'));
+    ok('a month ending exactly on the as-of date is in', endAug.months.at(-1).label.startsWith('Aug'));
+    ok('the total covers only what is shown',
+       Math.abs(midAug.netTotal.total - midAug.netTotal.cols.reduce((s, v) => s + v, 0)) < 0.005);
+  }
+
+  // Prior YTD is the same span one fiscal year earlier, and Change is the
+  // difference. Both are null without a fiscal year — there is no "same span
+  // last year" for a rolling window.
+  {
+    const fyMi = monthlyIncome(base.ledger, noBudget, base.asOf);
+    ok('a fiscal year gives a prior-year comparison', fyMi.hasPrior === true);
+    ok('every row carries a prior figure',
+       fyMi.sections.flatMap(s => s.funds).every(f => f.prior !== null && f.prior !== undefined));
+    eq('the prior total is the sum of its sections',
+       fyMi.netTotal.prior, fyMi.nets.reduce((s, n) => s + n.prior, 0));
+    const rolling = monthlyIncome(base.ledger, { ...mk({ fiscalYearStart: null }), budgets: {} }, base.asOf);
+    ok('a rolling window has no prior-year comparison',
+       rolling.hasPrior === false && rolling.netTotal.prior === null);
+  }
 
   // A budget on a category and on one fund inside it. The fund is whichever one
   // the export actually spent under; naming one would tie this to a chart.
@@ -579,6 +611,140 @@ console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
   ok('a hand-added fund does not disturb the reports',
      Math.abs(monthlyIncome(ledger, spare, resolveAsOf(ledger, spare.params)).netTotal.total
               - monthlyIncome(ledger, cfg, resolveAsOf(ledger, cfg.params)).netTotal.total) < 0.005);
+}
+
+console.log('\n== CLOSED BOOKS ==');
+{
+  // The comparison works on raw records rather than on the ledger, so it can be
+  // driven entirely from the fixture by mutating copies of it.
+  const clone = rows => rows.map(r => ({ ...r }));
+  const dated = s => { const [m, d, y] = s.split('/'); return new Date(+y, +m - 1, +d); };
+
+  // A cutoff late enough that every row in the fixture is inside the closed
+  // period, so a change anywhere is a change to closed books.
+  const late = { records: clone(records), importedOn: new Date(2100, 0, 1) };
+
+  eq('no previous export means nothing to say', compareImports(null, records), null);
+  eq('an empty previous export is the same',
+     compareImports({ records: [], importedOn: new Date(2100, 0, 1) }, records), null);
+
+  eq('the same export twice reports nothing',
+     compareImports(late, clone(records)).count, 0);
+
+  // Being ticked as reconciled is the normal course of business, not a
+  // restatement — the whole reason the reconcile columns are excluded.
+  {
+    const after = clone(records);
+    let touched = 0;
+    for (const r of after) {
+      if ('Reconcile Debit' in r && !r['Reconcile Debit']) { r['Reconcile Debit'] = 'Y'; touched++; }
+    }
+    ok('the fixture has rows to reconcile', touched > 0);
+    eq('reconciling old entries is not a change', compareImports(late, after).count, 0);
+  }
+
+  // An edit to an amount, on a row identified by its Ref.
+  {
+    const after = clone(records);
+    const row = after.find(r => r['Ref'] && Number(String(r['Amount']).replace(/[$,]/g, '')));
+    row['Amount'] = '999999.00';
+    const diff = compareImports(late, after);
+    eq('an edited amount is one change', diff.count, 1);
+    eq('and it is reported as an edit', diff.changed.length, 1);
+    ok('naming the column and both values',
+       diff.changed[0].fields.some(f => f.field === 'Amount' && f.to === '999999.00'));
+    eq('the entry keeps its Ref', diff.changed[0].ref, row['Ref']);
+  }
+
+  // A deletion.
+  {
+    const gone = records.find(r => r['Ref']);
+    const after = clone(records).filter(r => r['Ref'] !== gone['Ref']);
+    const diff = compareImports(late, after);
+    eq('a deleted entry is one change', diff.count, 1);
+    eq('and it is reported as a deletion', diff.removed.length, 1);
+    eq('naming the entry that went', diff.removed[0].ref, gone['Ref']);
+  }
+
+  // An entry back-dated into a period already reported.
+  {
+    const after = clone(records);
+    after.push({ ...after[0], Ref: 'ZZZ-NEW', Date: '01/02/2024', Amount: '5.00' });
+    const diff = compareImports(late, after);
+    eq('a back-dated entry is one change', diff.count, 1);
+    eq('and it is reported as an addition', diff.added.length, 1);
+  }
+
+  // The cutoff is what makes this a *closed books* check rather than a diff.
+  // Nothing dated after the previous import was closed, so editing it is
+  // ordinary bookkeeping and must be silent.
+  {
+    const early = { records: clone(records), importedOn: new Date(2000, 0, 1) };
+    const after = clone(records);
+    const row = after.find(r => r['Ref']);
+    row['Amount'] = '999999.00';
+    eq('a change after the cutoff is not reported', compareImports(early, after).count, 0);
+
+    // ... and a genuinely new entry dated after the cutoff is just activity.
+    const withNew = clone(records);
+    withNew.push({ ...withNew[0], Ref: 'ZZZ-NEW', Date: '01/02/2024', Amount: '5.00' });
+    eq('a new entry after the cutoff is not reported',
+       compareImports(early, withNew).count, 0);
+  }
+
+  // A row with no Ref cannot be recognised across an edit, so its edit reads as
+  // a deletion plus an addition. Both are flagged; only the wording is coarser.
+  {
+    const after = clone(records);
+    const row = after.find(r => !r['Ref']);
+    ok('the fixture has Ref-less rows', !!row);
+    row['Amount'] = '888888.00';
+    const diff = compareImports(late, after);
+    eq('an edited Ref-less row still surfaces, as two lines', diff.count, 2);
+    ok('one gone and one arrived', diff.removed.length === 1 && diff.added.length === 1);
+  }
+
+  // Rule 2, on the one structure built here that touches raw records: nothing
+  // this returns may carry a person's name. It reports *that* a scout account
+  // was on the entry, never which.
+  {
+    const after = clone(records);
+    const row = after.find(r => r['Ref'] && (r['Credit Person'] || r['Debit Person']));
+    row['Amount'] = '777777.00';
+    row['Description'] = 'edited';
+    const diff = compareImports(late, after);
+    // Troop-held accounts carry the person columns but are not people, and they
+    // are named freely elsewhere in the app; a leak means a real scout name.
+    const names = new Set();
+    for (const r of records) {
+      for (const c of ['Credit Person', 'Debit Person']) {
+        if (r[c] && !isPseudoAccount(r[c])) names.add(r[c]);
+      }
+    }
+    const blob = JSON.stringify(diff);
+    ok('the fixture has person names to leak', names.size > 0);
+    ok('and the comparison carries none of them', [...names].every(n => !blob.includes(n)));
+    ok('nor any free-text description', !blob.includes('edited'));
+    ok('but it does say a scout account was involved',
+       diff.changed.length === 1 && diff.changed[0].person === true);
+  }
+
+  // The cutoff is exclusive: the closed period ends the day *before* the
+  // previous import, because a day you are still in is not a day you closed.
+  // Import in the morning, post something dated today, import again after
+  // lunch, and that entry must not come back as back-dated.
+  {
+    const row = records.find(r => r['Ref'] && r['Date']);
+    const day = dated(row['Date']);
+    const bump = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    const edit = at => {
+      const after = clone(records);
+      after.find(r => r['Ref'] === row['Ref'])['Amount'] = '111111.00';
+      return compareImports({ records: clone(records), importedOn: at }, after).count;
+    };
+    eq('an entry dated on the cutoff day is still open', edit(day), 0);
+    eq('and closed once the cutoff moves past it', edit(bump(day, 1)), 1);
+  }
 }
 
 console.log('\n== CLASSIFICATION GUESSES ==');
@@ -887,7 +1053,7 @@ console.log('\n== GENERATED FILES ARE CURRENT ==');
     const bs = balanceSheet(ledger, sample.config, resolveAsOf(ledger, sample.config.params));
     const snap = snapshotFromReport(bs);
     eq('sample snapshot matches a fresh run',
-       sample.snapshots['2024-08-03'].unrestricted_net_assets, Math.round(snap.unrestricted_net_assets * 100) / 100);
+       sample.snapshots['2024-08-31'].unrestricted_net_assets, Math.round(snap.unrestricted_net_assets * 100) / 100);
 
     // A snapshot has to hold the account lines, or the historical columns on
     // the balance sheet are blank for every row except the subtotals — the
@@ -957,13 +1123,22 @@ if (isFixture) {
   eq('Arrears count', bs.arrearsCount, 8);
   eq('Arrears total', bs.arrearsTotal, -3871.40);
   eq('Net scout balances', bs.netScout, 12247.00);
-  eq('Other Future Events (Net)', bs.otherFutureEventsNet, 4889.50);
-  eq('Total Liabilities', bs.totalLiabilities, 11351.50);
-  eq('Unrestricted Net Assets', bs.unrestricted, 51380.54);
+  // These six moved when the fixture's as-of went from 2024-08-03 to the
+  // month end, 2024-08-31 — required because Monthly Income now reports only
+  // completed months, and a mid-month as-of would have dropped August from a
+  // window the golden values below assume is the full twelve. The move carries
+  // one event, Cedar Gap Biking Campout (08/16/24), across the boundary from
+  // future to past. That event nets -29.00, so dropping it out of the future
+  // block *raises* the block by 29.00: Other Future Events (Net) and Total
+  // Liabilities each go up 29.00 and Unrestricted Net Assets falls by the same.
+  // No money was created or lost — one event changed sides.
+  eq('Other Future Events (Net)', bs.otherFutureEventsNet, 4918.50);
+  eq('Total Liabilities', bs.totalLiabilities, 11380.50);
+  eq('Unrestricted Net Assets', bs.unrestricted, 51351.54);
 
-  eq('EI future columns', ei.futureCount, 3);
+  eq('EI future columns', ei.futureCount, 2);
   eq('EI past columns', ei.columns.length - ei.futureCount, 8);
-  eq('EI past events omitted', ei.pastOmitted, 3);
+  eq('EI past events omitted', ei.pastOmitted, 4);
   eq('EI Program Revenue', ei.sections.find(s => s.key === 'Program Revenue').subtotal.total, 35453.75);
   // 148.00 of what used to sit in Program Expenses is now reported as
   // Scout Program Expenses. Net Scouting Program is unchanged, which is the
@@ -974,7 +1149,7 @@ if (isFixture) {
   eq('EI Net Unit Fundraising', ei.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
   eq('EI Net Scout Fundraising', ei.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);
   eq('EI Net Total', ei.netTotal.total, 12061.60);
-  eq('EI Future total', ei.futureTotal, 4889.50);
+  eq('EI Future total', ei.futureTotal, 4918.50);
 
   eq('MI months', mi.months.length, 12);
   eq('MI Program Revenue', mi.sections.find(s => s.key === 'Program Revenue').subtotal.total, 19647.75);

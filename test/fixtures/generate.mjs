@@ -129,7 +129,7 @@ const PROGRAM_EVENTS = [
   { n: 'Marlowe Museum & Zoo Campout (05/17/24)',      d: '05/17/2024', fee: 31,  kind: 'weekend' },
   { n: 'Camp Wanderoak Summer Camp (06/16/24)',        d: '06/16/2024', fee: 315, kind: 'sc' },
   { n: 'Northern Waters Canoe Trek (07/07/24)',        d: '07/07/2024', fee: 410, kind: 'ha' },
-  // future relative to the pinned as-of date of 2024-08-03
+  // future relative to the pinned as-of date of 2024-08-31
   { n: 'Cedar Gap Biking Campout (08/16/24)',          d: '08/16/2024', fee: 19,  kind: 'weekend', future: true },
   { n: '"Try Backpacking" Troop Campout (09/27/24)',   d: '09/27/2024', fee: 17,  kind: 'weekend', future: true },
   { n: 'Coral Key Scuba Adventure (03/05/25)',         d: '03/05/2025', fee: 620, kind: 'ha', future: true },

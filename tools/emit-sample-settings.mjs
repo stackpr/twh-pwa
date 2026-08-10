@@ -25,7 +25,7 @@ const params = {
   ...DEFAULT_PARAMS,
   troopName: 'Example Troop',
   activitySince: '2023-09-01',
-  asOf: '2024-08-03',
+  asOf: '2024-08-31',
   // The synthetic year runs Sep 2023 - Aug 2024, so the sample shows the
   // fiscal-year statement and the budget columns without any setting up.
   fiscalYearStart: 9,
@@ -50,7 +50,7 @@ const budgets = {
 const base = { fundCategories: FUND_CATEGORIES, accountClass: DEFAULT_ACCOUNT_CLASS, params, budgets };
 
 const snapshots = {};
-for (const d of ['2024-03-01', '2024-06-01', '2024-08-03']) {
+for (const d of ['2024-03-01', '2024-06-01', '2024-08-31']) {
   const cfg = { ...base, params: { ...params, asOf: d } };
   const ledger = buildLedger(records, cfg);
   snapshots[d] = snapshotFromReport(balanceSheet(ledger, cfg, resolveAsOf(ledger, cfg.params)));
