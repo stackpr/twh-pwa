@@ -227,11 +227,11 @@ export function settingsFromText(text) {
   try {
     doc = parseYAML(text);
   } catch (e) {
-    if (e instanceof YamlError) return { errors: [`Could not read the settings file. ${e.message}`], warnings, config: null, snapshots: {} };
+    if (e instanceof YamlError) return { errors: [`Could not read the settings file. ${e.message}`], warnings, config: null, providedParams: [], snapshots: {} };
     throw e;
   }
   if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
-    return { errors: ['The settings file is empty or is not a set of "key: value" sections.'], warnings, config: null, snapshots: {} };
+    return { errors: ['The settings file is empty or is not a set of "key: value" sections.'], warnings, config: null, providedParams: [], snapshots: {} };
   }
   if (doc.version !== undefined && doc.version !== SETTINGS_VERSION) {
     warnings.push(`Settings file says version ${doc.version}; this app writes version ${SETTINGS_VERSION}. Reading it anyway.`);
@@ -240,11 +240,25 @@ export function settingsFromText(text) {
   const params = { ...DEFAULT_PARAMS };
   params.troopName = (doc.troop && typeof doc.troop === 'object' ? doc.troop.name : '') || '';
 
+  // Which parameters the file actually SET, as opposed to which ones `params`
+  // ends up carrying a value for. Every key is seeded from DEFAULT_PARAMS above
+  // so the rest of this module can read a complete object, but a caller
+  // applying the file to a live config must only apply what the file said.
+  //
+  // The difference is not academic. A settings file written before a parameter
+  // existed does not mention it, and treating the seeded default as though the
+  // file had asked for it silently resets the treasurer's choice every time
+  // they load their own file — which is exactly how "show cents" kept turning
+  // itself back on for anyone whose settings predated it.
+  const provided = new Set();
+  if (doc.troop && typeof doc.troop === 'object' && 'name' in doc.troop) provided.add('troopName');
+
   const p = doc.parameters;
   if (p && typeof p === 'object' && !Array.isArray(p)) {
     for (const [k, v] of Object.entries(p)) {
       if (k === 'troopName') continue; // lives under troop:
       if (!(k in DEFAULT_PARAMS)) { warnings.push(`Ignoring unknown parameter "${k}".`); continue; }
+      provided.add(k);
       // fiscalYearStart is a month number or nothing at all, so it fits neither
       // the numeric branch (null is legal) nor the string one (13 is not).
       // Null is a real value here — "every year" — so it cannot ride the generic
@@ -403,6 +417,8 @@ export function settingsFromText(text) {
   return {
     errors, warnings,
     config: errors.length ? null : { fundCategories, accountClass, params, budgets },
+    // The parameter names the file actually carried. See `provided` above.
+    providedParams: [...provided],
     snapshots,
   };
 }

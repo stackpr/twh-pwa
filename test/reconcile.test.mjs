@@ -620,6 +620,39 @@ console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
               - monthlyIncome(ledger, cfg, resolveAsOf(ledger, cfg.params)).netTotal.total) < 0.005);
 }
 
+console.log('\n== SETTINGS FILE APPLIES ONLY WHAT IT SAYS ==');
+{
+  const text = fs.readFileSync(path.join(here, 'fixtures', 'sample-settings.txt'), 'utf8');
+  const full = settingsFromText(text);
+  ok('the fixture settings file parses', full.errors.length === 0);
+  ok('and reports the parameters it carries', full.providedParams.includes('showCents'));
+
+  // A settings file written before a parameter existed simply has no line for
+  // it. The parsed config still carries a value — every key is seeded from the
+  // shipped defaults so the rest of the app can read a complete object — but
+  // the file did not ask for it, and a caller applying the file must be able to
+  // tell the difference. Without that, loading your own file silently resets
+  // every setting added since you wrote it.
+  const older = text.replace(/^\s*showCents:.*\r?$/m, '');
+  const old = settingsFromText(older);
+  ok('a file predating a parameter still loads', old.errors.length === 0);
+  ok('and does not claim to have set it', !old.providedParams.includes('showCents'));
+  ok('while still parsing to a complete params object', 'showCents' in old.config.params);
+
+  // The bug this pins: applying the whole parsed params block would turn the
+  // treasurer's choice back on every time they loaded their own file.
+  const live = { ...DEFAULT_PARAMS, showCents: false };
+  for (const k of old.providedParams) live[k] = old.config.params[k];
+  eq('a setting the file never mentions survives the load', live.showCents, false);
+  eq('and one it does mention is applied', live.pastEventsShown, old.config.params.pastEventsShown);
+
+  // Every parameter in a file the app itself wrote must come back as provided,
+  // or a round-trip would start losing settings.
+  const written = settingsFromText(settingsToText(mk({}), {}));
+  ok('a file this app wrote reports every parameter it holds',
+     Object.keys(DEFAULT_PARAMS).every(k => written.providedParams.includes(k)));
+}
+
 console.log('\n== HIDE FROM REPORTS ==');
 {
   const base = build({});

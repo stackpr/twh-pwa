@@ -607,7 +607,7 @@ function bind() {
   $('#settings-import').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
     e.target.value = '';
-    const { config, snapshots, errors, warnings } = settingsFromText(await f.text());
+    const { config, snapshots, errors, warnings, providedParams } = settingsFromText(await f.text());
     if (errors.length) {
       alert('Settings not loaded:\n\n' + errors.slice(0, 12).join('\n')
         + (errors.length > 12 ? `\n\n(+${errors.length - 12} more)` : ''));
@@ -624,7 +624,13 @@ function bind() {
     // startup, so the new values are copied INTO it. Swapping the object would
     // leave every control on the Settings tab writing to a config the reports
     // no longer read.
-    Object.assign(state.cfg.params, config.params);
+    //
+    // Only the parameters the file actually carried. config.params is a
+    // complete object — every key seeded from the shipped defaults — and
+    // assigning all of it would let a file written before a setting existed
+    // reset that setting on every load, without saying so. A settings file
+    // speaks for what it mentions.
+    for (const k of providedParams) state.cfg.params[k] = config.params[k];
     state.cfg.fundCategories = config.fundCategories;
     state.cfg.accountClass = config.accountClass;
     state.cfg.budgets = config.budgets;

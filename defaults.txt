@@ -44,7 +44,7 @@ troop:
 #   hashSalt                changes the anonymised scout identifiers. Leave
 #                           empty unless you have a reason.
 parameters:
-  activitySince: 2025-09-01
+  activitySince: 2020-01-01
   pastEventsShown: 8
   futureEventsShown: 4
   monthsShown: 12

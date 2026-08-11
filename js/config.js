@@ -188,7 +188,12 @@ export const CATEGORY_NAMES = CATEGORY_ORDER.map(c => c.key);
 
 export const DEFAULT_PARAMS = {
   troopName: '',               // optional label printed above each report
-  activitySince: '2025-09-01', // drives prior-period split and per-event columns
+  // Drives the prior-period split and which events get columns. A fixed date
+  // rather than a rolling window, and deliberately an early one: a default that
+  // sits after a troop's transactions produces an inverted period and an
+  // all-dash statement on a first run. Every treasurer sets this to their own
+  // reporting start; the shipped value only has to be harmless before they do.
+  activitySince: '2020-01-01',
   pastEventsShown: 8,          // most recent N past program events, for one-page fit
   // Soonest N future events. Like pastEventsShown this is page fit and nothing
   // more: the Future column is every event still to come whether or not it got
