@@ -42,10 +42,11 @@ which categories net together and whether an event is a program event.
 migrate and say so. *Adding* one does not — there is no old name to map from,
 and a saved chart is authoritative, so an existing user simply has no fund in
 the new category until they move one there. What an addition does need is a
-decision about `guessFundCategory`: a category that records how a unit is
-organised rather than what a fund is called (`Scout Program Expenses`, the
-`Crew` pair) must never be guessed, and the test's `NEVER_GUESSED` set is where
-that is enforced.
+decision about `guessFundCategory`: a category that records a decision rather
+than something a fund's name says must never be guessed, and the test's
+`NEVER_GUESSED` set is where that is enforced. Two qualify — `Scout Program
+Expenses`, which records who controls a fund, and `Hide from Reports`, where a
+guess would delete a line from a statement on the strength of a word.
 Everything else is configuration.
 
 ## Rule 2 — No personal data in the repo, and none on the wire
@@ -184,7 +185,29 @@ alternative rather than implementing it quietly.
    account was on the entry and never which, `Description` is omitted because a
    treasurer types names into it, and there is a test asserting no fixture name
    survives into the result.
-10. **Destructive actions live on the Cache tab.** Clearing configuration,
+10. **`Hide from Reports` omits, and says so.** A fund in `HIDDEN_CATEGORY` is
+   filtered out of the three income statements — in `reports.js`, as another
+   filter over `legs`, never by dropping anything from the ledger — and out of
+   `classifyEvents`, so a hidden fund cannot vote on whether an event is a
+   program event. Its group is in no `NET_LINES` entry and the statements
+   iterate `REPORTED_CATEGORIES`, so it has no section and nets into nothing.
+
+   Two boundaries hold it honest, and both have tests. It does not touch the
+   **balance sheet**: a reporting category cannot make money the troop holds
+   cease to exist, so `otherFutureEventsNet` still counts a hidden fund's
+   deferred revenue. And it is never **silent**: `hiddenInUse` returns the
+   hidden funds the export actually has legs for, and each statement prints
+   them. That disclosure is the entire reason invariant 3 tolerates this at
+   all — a reader who cannot see what was dropped cannot tell an omission from
+   a zero. If you add a report, it filters and it discloses, or it does
+   neither.
+
+   `eventIncome`'s prior-period line is the trap here: it used to be
+   `allTimeNet - current`, and `allTimeNet` is built in `ledger.js` before any
+   chart is consulted, so it still counts hidden funds. It is summed directly
+   from visible legs instead. Any new figure derived from `ledger.events` has
+   the same problem.
+11. **Destructive actions live on the Cache tab.** Clearing configuration,
    snapshots or the offline shell is irreversible and the settings file is the
    only backup, so those buttons stay together with the explanation of what is
    held in the browser. Do not scatter them back across the other panels.

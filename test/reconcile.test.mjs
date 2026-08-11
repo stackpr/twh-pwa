@@ -38,7 +38,7 @@ import { fileURLToPath } from 'node:url';
 import { parseCSV } from '../js/csv.js';
 import {
   FUND_CATEGORIES, DEFAULT_ACCOUNT_CLASS, DEFAULT_PARAMS, CATEGORY_NAMES,
-  CATEGORY_ORDER, NET_LINES, categoriesInGroup, RENAMED_CATEGORIES, migrateCategories,
+  CATEGORY_ORDER, REPORTED_CATEGORIES, HIDDEN_CATEGORY, NET_LINES, categoriesInGroup, RENAMED_CATEGORIES, migrateCategories,
   guessFundCategory, guessAccountClass, fiscalYearOf, fiscalYearLabel,
   budgetYearsFor, mergeBudgetLine,
 } from '../js/config.js';
@@ -229,8 +229,15 @@ console.log('== INVARIANTS ==');
          return s + (sec.isRevenue ? 1 : -1) * sec.subtotal.total;
        }, 0));
   }
-  eq('Event Income: every section belongs to exactly one net line',
-     NET_LINES.reduce((s, l) => s + categoriesInGroup(l.group).length, 0), CATEGORY_ORDER.length);
+  eq('Event Income: every reported section belongs to exactly one net line',
+     NET_LINES.reduce((s, l) => s + categoriesInGroup(l.group).length, 0), REPORTED_CATEGORIES.length);
+  // The hidden category is the one that belongs to NO net line, and it must
+  // stay that way: give it a group a net line names and it would start
+  // contributing to a figure while still having no section to show for it.
+  ok('the hidden category is in no net line',
+     NET_LINES.every(l => !categoriesInGroup(l.group).includes(HIDDEN_CATEGORY)));
+  ok('and has no section on any income statement',
+     ![ei, mi].some(r => r.sections.some(s => s.key === HIDDEN_CATEGORY)));
 
   eq('Monthly Income: net total == program + fundraising + other',
      mi.netTotal.total, mi.nets.reduce((s, n) => s + n.total, 0));
@@ -613,6 +620,92 @@ console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
               - monthlyIncome(ledger, cfg, resolveAsOf(ledger, cfg.params)).netTotal.total) < 0.005);
 }
 
+console.log('\n== HIDE FROM REPORTS ==');
+{
+  const base = build({});
+  const fund = Object.keys(base.cfg.fundCategories)
+    .find(f => base.ledger.legs.some(l => l.kind === 'fund' && l.key === f));
+  ok('the fixture has a fund with activity to hide', !!fund);
+
+  const hide = over => {
+    const cfg = { ...mk(over), fundCategories: { ...base.cfg.fundCategories, [fund]: HIDDEN_CATEGORY } };
+    const ledger = buildLedger(records, cfg);
+    if (ledger.errors.length) { console.error('hidden build halted:\n  ' + ledger.errors.join('\n  ')); process.exit(1); }
+    return { cfg, ledger, asOf: resolveAsOf(ledger, cfg.params) };
+  };
+  const h = hide({});
+
+  ok('hiding a fund does not halt the load', h.ledger.errors.length === 0);
+
+  const before = eventIncome(base.ledger, base.cfg, base.asOf);
+  const after = eventIncome(h.ledger, h.cfg, h.asOf);
+
+  // The fund's own figure is what leaves, and nothing else. Its sign decides
+  // which way the net moves, so the assertion is stated as an identity rather
+  // than a direction.
+  const wasRow = before.sections.flatMap(s => s.funds.map(r => ({ ...r, isRevenue: s.isRevenue })))
+    .find(r => r.label === fund);
+  ok('the fund was reported before hiding', !!wasRow);
+  ok('and is on no section after', !after.sections.some(s => s.funds.some(r => r.label === fund)));
+  eq('net moves by exactly the fund\'s own contribution',
+     Number((after.netTotal.total - before.netTotal.total).toFixed(2)),
+     Number((-(wasRow.isRevenue ? 1 : -1) * wasRow.total).toFixed(2)));
+
+  // The disclosure is the whole reason hiding is allowed. A hidden fund with
+  // activity is named on every statement that left it out.
+  const mAfter = monthlyIncome(h.ledger, h.cfg, h.asOf);
+  const fAfter = fiscalYearComparison(h.ledger, h.cfg, h.asOf);
+  ok('event income names what it excluded', after.hiddenFunds.includes(fund));
+  ok('monthly income names it too', mAfter.hiddenFunds.includes(fund));
+  ok('and the year comparison', fAfter.hiddenFunds.includes(fund));
+  eq('nothing else is claimed as hidden', after.hiddenFunds.length, 1);
+  eq('and nothing is claimed when nothing is hidden', before.hiddenFunds.length, 0);
+
+  // A hidden fund that the export never mentions is not worth a note.
+  {
+    const cfg = { ...mk({}), fundCategories: { ...base.cfg.fundCategories, 'Unused Hidden Fund': HIDDEN_CATEGORY } };
+    const led = buildLedger(records, cfg);
+    eq('an unused hidden fund is not named', eventIncome(led, cfg, resolveAsOf(led, cfg.params)).hiddenFunds.length, 0);
+  }
+
+  // THE BOUNDARY. Hiding a fund is a reporting decision about the income
+  // statements. It may not move the balance sheet: money the troop holds is
+  // money the troop holds, and a fund's category cannot make a liability cease
+  // to exist.
+  const bBefore = balanceSheet(base.ledger, base.cfg, base.asOf);
+  const bAfter = balanceSheet(h.ledger, h.cfg, h.asOf);
+  eq('Total Assets is unaffected by hiding a fund', bAfter.totalAssets, bBefore.totalAssets);
+  eq('Total Liabilities is unaffected', bAfter.totalLiabilities, bBefore.totalLiabilities);
+  eq('Other Future Events (Net) is unaffected', bAfter.otherFutureEventsNet, bBefore.otherFutureEventsNet);
+  eq('Net Scout Balances is unaffected', bAfter.netScout, bBefore.netScout);
+  eq('Unrestricted Net Assets is unaffected', bAfter.unrestricted, bBefore.unrestricted);
+
+  // Hiding every fund is the degenerate case, and it must produce an empty
+  // statement rather than a broken one.
+  {
+    const allHidden = Object.fromEntries(Object.keys(base.cfg.fundCategories).map(f => [f, HIDDEN_CATEGORY]));
+    const cfg = { ...mk({}), fundCategories: allHidden };
+    const led = buildLedger(records, cfg);
+    const ei2 = eventIncome(led, cfg, resolveAsOf(led, cfg.params));
+    eq('hiding everything nets to zero', Number(ei2.netTotal.total.toFixed(2)), 0);
+    eq('and the balance sheet still stands',
+       balanceSheet(led, cfg, resolveAsOf(led, cfg.params)).totalAssets, bBefore.totalAssets);
+  }
+
+  // A settings file written under the two versions that shipped the crew pair
+  // still loads, and says what it moved.
+  {
+    const { fundCategories, moved } = migrateCategories({
+      'A Fund': 'Crew Program Revenue', 'B Fund': 'Crew Program Expenses', 'C Fund': 'Program Expenses',
+    });
+    eq('both withdrawn crew categories migrate', moved.length, 2);
+    ok('to categories that still exist',
+       Object.values(fundCategories).every(c => CATEGORY_NAMES.includes(c)));
+    ok('and stay inside the program group',
+       ['A Fund', 'B Fund'].every(f => categoriesInGroup('program').includes(fundCategories[f])));
+  }
+}
+
 console.log('\n== CLOSED BOOKS ==');
 {
   // The comparison works on raw records rather than on the ledger, so it can be
@@ -754,11 +847,11 @@ console.log('\n== CLASSIFICATION GUESSES ==');
   // fund's name says. They divide in two, and the difference matters.
   //
   // Scout fundraising is guessable, but only from an explicit marker someone
-  // put in the name ("… (to Scout)"). The rest are not guessable at all: who
-  // controls a fund, and whether a crew exists to own one, are facts about how
-  // a unit is organised that no name can be read for.
+  // put in the name ("… (to Scout)"). The other two are not guessable at all:
+  // who controls a fund is a fact about how a unit is organised, and Hide from
+  // Reports would delete a fund from the statements on the strength of its name.
   const NEVER_GUESSED = new Set([
-    'Scout Program Expenses', 'Crew Program Revenue', 'Crew Program Expenses',
+    'Scout Program Expenses', HIDDEN_CATEGORY,
   ]);
   // Both kinds are excluded from the agreement rate below, which measures the
   // heuristic only against names it is actually given enough to read.
@@ -772,12 +865,13 @@ console.log('\n== CLASSIFICATION GUESSES ==');
   ok('proceeds named for the seller go to scout fundraising',
      g('Concessions Fundraising (to Scout)', -100) === 'Scout Fundraising Expenses');
   ok('and its revenue side too', g('Individual Fundraising', 100) === 'Scout Fundraising Revenue');
-  // Who decides what a fund is spent on is a fact about how a unit is organised,
-  // never something a name can be read for — a fund called "Crew Expense" in a
-  // troop with no crew is just an expense.
-  ok('the decide-who-spends categories are never guessed',
-     [['Crew Expense', -100], ['Crew Revenue', 100], ['Crew Program Expense', -100],
-      ['Scout Managed Expense', -100], ['Anything', -1], ['Anything', 1]]
+  // A name is never enough to reach either. "Hidden Fund" is the pointed case:
+  // a fund whose name says hidden must still be reported until someone says
+  // otherwise, because the alternative is a heuristic deleting a line.
+  ok('the never-guessed categories are never guessed',
+     [['Crew Expense', -100], ['Scout Managed Expense', -100],
+      ['Hidden Fund', -100], ['Hide This', 100], ['Suspense/Hidden Expense', -100],
+      ['Anything', -1], ['Anything', 1]]
        .every(([n, v]) => !NEVER_GUESSED.has(g(n, v))));
   ok('administrative words pick Other', g('Administrative Expenses') === 'Other Expenses');
   ok('interest is Other Income', g('Interest and Dividends', 12) === 'Other Income');
@@ -1152,18 +1246,12 @@ if (isFixture) {
   eq('EI future columns', ei.futureCount, 2);
   eq('EI past columns', ei.columns.length - ei.futureCount, 8);
   eq('EI past events omitted', ei.pastOmitted, 4);
-  eq('EI Program Revenue', ei.sections.find(s => s.key === 'Program Revenue').subtotal.total, 35453.75 - 148.00);
-  // The shipped example's three crew funds now sit in the Crew pair, which is
-  // where their own names said they belonged. They moved WITHIN the program
-  // group, so Net Scouting Program below is untouched — that is the whole point
-  // of a group: a separate budget line, the same total.
-  eq('EI Crew Program Revenue', ei.sections.find(s => s.key === 'Crew Program Revenue').subtotal.total, 148.00);
+  eq('EI Program Revenue', ei.sections.find(s => s.key === 'Program Revenue').subtotal.total, 35453.75);
+  // 148.00 of what used to sit in Program Expenses is reported as Scout Program
+  // Expenses. Net Scouting Program is unchanged, which is the whole point of the
+  // split: a separate budget line, the same total.
   eq('EI Program Expenses', ei.sections.find(s => s.key === 'Program Expenses').subtotal.total, 31119.15);
-  eq('EI Crew Program Expenses', ei.sections.find(s => s.key === 'Crew Program Expenses').subtotal.total, 148.00);
-  // Zero, and asserted at zero: no example fund claims to be scout-managed, so
-  // anything appearing here would be a leak from another section rather than a
-  // figure. Which funds the scouts control is a decision each troop makes.
-  eq('EI Scout Program Expenses', ei.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 0);
+  eq('EI Scout Program Expenses', ei.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 148.00);
   eq('EI Net Program', ei.nets.find(n => n.group === 'program').total, 4186.60);
   eq('EI Net Unit Fundraising', ei.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
   eq('EI Net Scout Fundraising', ei.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);
@@ -1171,11 +1259,9 @@ if (isFixture) {
   eq('EI Future total', ei.futureTotal, 4918.50);
 
   eq('MI months', mi.months.length, 12);
-  eq('MI Program Revenue', mi.sections.find(s => s.key === 'Program Revenue').subtotal.total, 19647.75 - 148.00);
-  eq('MI Crew Program Revenue', mi.sections.find(s => s.key === 'Crew Program Revenue').subtotal.total, 148.00);
+  eq('MI Program Revenue', mi.sections.find(s => s.key === 'Program Revenue').subtotal.total, 19647.75);
   eq('MI Program Expenses', mi.sections.find(s => s.key === 'Program Expenses').subtotal.total, 20231.65);
-  eq('MI Crew Program Expenses', mi.sections.find(s => s.key === 'Crew Program Expenses').subtotal.total, 148.00);
-  eq('MI Scout Program Expenses', mi.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 0);
+  eq('MI Scout Program Expenses', mi.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 148.00);
   eq('MI Net Program', mi.nets.find(n => n.group === 'program').total, -731.90);
   eq('MI Net Unit Fundraising', mi.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
   eq('MI Net Scout Fundraising', mi.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);

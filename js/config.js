@@ -28,9 +28,9 @@ export const FUND_CATEGORIES = {
   'Food Expense':                          'Program Expenses',
   'COH Expense':                           'Program Expenses',
   'Troop-Funded Program Expense':          'Program Expenses',
-  'Crew Revenue (from Scout)':             'Crew Program Revenue',
-  'Crew Funds Utilized':                   'Crew Program Revenue',
-  'Crew Expense':                          'Crew Program Expenses',
+  'Crew Revenue (from Scout)':             'Program Revenue',
+  'Crew Funds Utilized':                   'Program Revenue',
+  'Crew Expense':                          'Scout Program Expenses',
   'General Donation':                      'Unit Fundraising Revenue',
   'Campership Donation':                   'Unit Fundraising Revenue',
   // Proceeds credited to the participating scout's account rather than kept by
@@ -67,26 +67,52 @@ export const FUND_CATEGORIES = {
 // in:
 //
 //   program           Scout Program Expenses is spending the scouts themselves
-//                     direct, and the Crew pair is a sub-unit's own programme.
-//                     Each is budgeted and reported separately, and each still
-//                     nets into Net Income — Scouting Program: a crew's activity
-//                     is the unit's activity, it just answers for its own line.
+//                     direct. It is budgeted and reported separately, and still
+//                     nets into Net Income — Scouting Program.
 //   scoutFundraising  fundraising whose proceeds pass through to scout accounts.
 //                     It usually nets to about nothing, which is the point of
 //                     keeping it away from the unit's own fundraising.
+export const HIDDEN_CATEGORY = 'Hide from Reports';
+
 export const CATEGORY_ORDER = [
   { key: 'Program Revenue',            isRevenue: true,  group: 'program' },
-  { key: 'Crew Program Revenue',       isRevenue: true,  group: 'program' },
   { key: 'Program Expenses',           isRevenue: false, group: 'program' },
   { key: 'Scout Program Expenses',     isRevenue: false, group: 'program' },
-  { key: 'Crew Program Expenses',      isRevenue: false, group: 'program' },
   { key: 'Unit Fundraising Revenue',   isRevenue: true,  group: 'unitFundraising' },
   { key: 'Unit Fundraising Expenses',  isRevenue: false, group: 'unitFundraising' },
   { key: 'Scout Fundraising Revenue',  isRevenue: true,  group: 'scoutFundraising' },
   { key: 'Scout Fundraising Expenses', isRevenue: false, group: 'scoutFundraising' },
   { key: 'Other Income',               isRevenue: true,  group: 'other' },
   { key: 'Other Expenses',             isRevenue: false, group: 'other' },
+  { key: HIDDEN_CATEGORY,              isRevenue: false, group: 'hidden' },
 ];
+
+// The one category whose name is its whole specification: a fund filed here is
+// left out of the income statements. Its group belongs to no net line, so it
+// nets into nothing, and REPORTED_CATEGORIES is what the statements iterate.
+//
+// It exists because TroopWebHost carries funds that are not income in any
+// period sense — a transfer between the troop's own pots, a pass-through that
+// books in and straight back out, an artefact of how a unit was migrated. Left
+// in, each one inflates both a revenue and an expense line by the same amount
+// and makes every section total answer a question nobody asked.
+//
+// Two things it deliberately does NOT do:
+//
+//  - It does not touch the balance sheet. Money the troop holds is money the
+//    troop holds; a fund's reporting category cannot make a liability cease to
+//    exist. Deferred revenue on a future event still counts under Other Future
+//    Events (Net) whatever category its fund is in.
+//  - It does not go unsaid. A hidden fund with activity in the period is named
+//    on each statement that left it out. Dropping a fund silently is the exact
+//    failure this app exists to prevent; dropping one because the treasurer
+//    said to, and saying so, is a different act.
+/** The categories the income statements have sections for — everything but the hidden one. */
+export const REPORTED_CATEGORIES = CATEGORY_ORDER.filter(c => c.key !== HIDDEN_CATEGORY);
+
+/** The set of fund names a chart says to leave out of the income statements. */
+export const hiddenFundSet = cfg =>
+  new Set(Object.keys(cfg.fundCategories || {}).filter(f => cfg.fundCategories[f] === HIDDEN_CATEGORY));
 
 /** The categories that net into one Net Income line, in presentation order. */
 export const categoriesInGroup = group =>
@@ -110,6 +136,13 @@ export const NET_LINES = [
 export const RENAMED_CATEGORIES = {
   'Fundraising Revenue':  'Unit Fundraising Revenue',
   'Fundraising Expenses': 'Unit Fundraising Expenses',
+  // A crew pair shipped briefly and was withdrawn: a sub-unit's own programme
+  // turned out to be one chart of accounts too many, and what treasurers
+  // actually needed was a way to leave a fund out altogether. Both destinations
+  // are inside the program group the Crew pair was in, so a chart written under
+  // those two versions comes back with every net line where it was.
+  'Crew Program Revenue':  'Program Revenue',
+  'Crew Program Expenses': 'Scout Program Expenses',
 };
 
 /**
@@ -368,12 +401,12 @@ export function guessFundCategory(name, net = 0) {
     if (toScout) return isExpense ? 'Scout Fundraising Expenses' : 'Scout Fundraising Revenue';
     return isExpense ? 'Unit Fundraising Expenses' : 'Unit Fundraising Revenue';
   }
-  // Neither Scout Program Expenses nor the Crew pair is ever guessed. Each says
-  // who decides what a fund is spent on — a fact about how a unit is organised,
-  // not about a fund's name. A troop with no Venturing crew has no crew funds,
-  // and a troop with one may not name them "Crew"; inventing either would put
-  // spending under a budget line nobody set. A treasurer moves the fund there
-  // once, on the Settings tab.
+  // Scout Program Expenses is never guessed. It says who decides what a fund is
+  // spent on — a fact about how a troop runs, not about a fund's name — and
+  // inventing it would put spending under a budget line nobody set. Neither is
+  // Hide from Reports, for a stronger reason: guessing that would delete a fund
+  // from the statements on the strength of its name. A treasurer moves a fund
+  // into either one deliberately, on the Settings tab.
   return isExpense ? 'Program Expenses' : 'Program Revenue';
 }
 

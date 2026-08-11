@@ -7,6 +7,7 @@
 import { md5 } from './csv.js';
 import {
   guessFundCategory, guessAccountClass, budgetYearsFor, CATEGORY_NAMES, categoriesInGroup,
+  HIDDEN_CATEGORY,
 } from './config.js';
 
 // An event is a program event or a fundraiser, and nothing else — the event
@@ -170,6 +171,10 @@ export function classifyEvents(ledger, cfg) {
     for (const l of ledger.legs) {
       if (l.kind !== 'fund' || l.event !== e.name) continue;
       const cat = cfg.fundCategories[l.key] || '';
+      // A hidden fund does not get a vote. It is not reported as either kind of
+      // activity, so letting it decide which kind an event is would be the one
+      // way a fund nobody wanted to see still moved a figure.
+      if (cat === HIDDEN_CATEGORY) continue;
       if (PROGRAM_CATEGORIES.has(cat)) program++;
       else if (FUNDRAISING_CATEGORIES.has(cat)) fundraising++;
     }

@@ -4,7 +4,7 @@
 // Sign is flipped in exactly one place: sectionSign().
 
 import {
-  CATEGORY_ORDER, NET_LINES, categoriesInGroup,
+  REPORTED_CATEGORIES, NET_LINES, categoriesInGroup, hiddenFundSet,
   fiscalYearOf, fiscalYearStartDate, fiscalYearLabel, budgetFor, sectionBudget,
 } from './config.js';
 import { isPseudoAccount } from './ledger.js';
@@ -111,9 +111,9 @@ export function balanceSheet(ledger, cfg, asOf) {
 /* Event Income                                                        */
 /* ------------------------------------------------------------------ */
 
-export function selectEventColumns(ledger, cfg, asOf, since) {
+export function selectEventColumns(ledger, cfg, asOf, since, hidden = new Set()) {
   const active = since
-    ? new Set(ledger.legs.filter(l => l.kind === 'fund' && l.event && l.date >= since).map(l => l.event))
+    ? new Set(ledger.legs.filter(l => l.kind === 'fund' && !hidden.has(l.key) && l.event && l.date >= since).map(l => l.event))
     : null;
   const withActivity = ledger.events
     .filter(e => e.kind === 'program' && e.date)
@@ -131,7 +131,11 @@ export function selectEventColumns(ledger, cfg, asOf, since) {
 
 export function eventIncome(ledger, cfg, asOf) {
   const since = new Date(cfg.params.activitySince + 'T00:00:00');
-  const { future, past, futureAll, pastOmitted, futureOmitted } = selectEventColumns(ledger, cfg, asOf, since);
+  // Funds the chart says to leave out. Filtered here rather than in the ledger:
+  // `legs` stays the canonical record of what the export contained, and every
+  // displayed figure is a filtered sum over it. See config.js:HIDDEN_CATEGORY.
+  const hidden = hiddenFundSet(cfg);
+  const { future, past, futureAll, pastOmitted, futureOmitted } = selectEventColumns(ledger, cfg, asOf, since, hidden);
   const columns = [...future, ...past];
   const colIndex = new Map(columns.map((e, ix) => [e.name, ix]));
   // The Future column is every event still to come, whether or not it got a
@@ -151,7 +155,7 @@ export function eventIncome(ledger, cfg, asOf) {
   // including future-dated pre-charges. Anything earlier belongs to the prior
   // period and is reported on its own line, not folded into Total.
   for (const l of ledger.legs) {
-    if (l.kind !== 'fund') continue;
+    if (l.kind !== 'fund' || hidden.has(l.key)) continue;
     if (l.date < since) continue;
     const b = bucket(l.key);
     b.total += l.amount;
@@ -168,16 +172,22 @@ export function eventIncome(ledger, cfg, asOf) {
     b.other = b.total - b.future - shownPast;
   }
 
-  // Prior-period net income per column: all-time event net minus current-period net.
+  // Prior-period net income per column: the event's visible fund legs dated
+  // before the activity-since date. Summed directly rather than as
+  // `allTimeNet - current`, which was the same thing until a fund could be
+  // hidden — allTimeNet is built in the ledger, before any chart is consulted,
+  // so it still counts hidden funds and the subtraction would have quietly
+  // credited them to the prior period.
   const priorPeriod = columns.map(e => {
-    let current = 0;
+    let prior = 0;
     for (const l of ledger.legs) {
-      if (l.kind === 'fund' && l.event === e.name && l.date >= since) current += l.amount;
+      if (l.kind !== 'fund' || hidden.has(l.key)) continue;
+      if (l.event === e.name && l.date < since) prior += l.amount;
     }
-    return e.allTimeNet - current;
+    return prior;
   });
 
-  const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
+  const sections = REPORTED_CATEGORIES.map(({ key, isRevenue }) => {
     const sign = sectionSign(isRevenue);
     const funds = [...acc.entries()]
       .filter(([f]) => cfg.fundCategories[f] === key)
@@ -204,7 +214,7 @@ export function eventIncome(ledger, cfg, asOf) {
     return { total, other, future, cols };
   };
 
-  // One net line per group, in CATEGORY_ORDER's order, so adding a category to
+  // One net line per group, in REPORTED_CATEGORIES' order, so adding a category to
   // a group changes what nets without changing anything here.
   const nets = NET_LINES.map(({ group, label }) =>
     ({ group, label, ...netOf(...categoriesInGroup(group)) }));
@@ -219,9 +229,22 @@ export function eventIncome(ledger, cfg, asOf) {
 
   return {
     asOf, since, columns, futureCount, pastOmitted, futureOmitted, priorPeriod,
-    sections, nets, netTotal,
+    sections, nets, netTotal, hiddenFunds: hiddenInUse(ledger, hidden),
     futureTotal: netTotal.future, exclFuture: netTotal.total - netTotal.future,
   };
+}
+
+/**
+ * The hidden funds this export actually has legs for, in name order.
+ *
+ * A fund set to Hide from Reports and never used is not worth a note; one with
+ * activity is, on every statement that left it out. That disclosure is the
+ * whole reason hiding a fund is allowed at all — see config.js:HIDDEN_CATEGORY.
+ */
+function hiddenInUse(ledger, hidden) {
+  const seen = new Set();
+  for (const l of ledger.legs) if (l.kind === 'fund' && hidden.has(l.key)) seen.add(l.key);
+  return [...seen].sort();
 }
 
 function sumRows(rows, ncols) {
@@ -284,13 +307,14 @@ export function monthlyIncome(ledger, cfg, asOf) {
   const budget = fiscalYear === null ? null : (cfg.budgets || {})[String(fiscalYear)] || null;
   const hasBudget = !!budget && Object.values(budget).some(v => Number.isFinite(v) && v !== 0);
 
+  const hidden = hiddenFundSet(cfg);
   const acc = new Map();
   const bucket = fund => {
     if (!acc.has(fund)) acc.set(fund, { cols: new Array(months.length).fill(0), allTime: 0, prior: 0 });
     return acc.get(fund);
   };
   for (const l of ledger.legs) {
-    if (l.kind !== 'fund') continue;
+    if (l.kind !== 'fund' || hidden.has(l.key)) continue;
     const b = bucket(l.key);
     b.allTime += l.amount;
     const key = monthKey(l.date);
@@ -299,7 +323,7 @@ export function monthlyIncome(ledger, cfg, asOf) {
     if (priorKeys.has(key)) b.prior += l.amount;
   }
 
-  const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
+  const sections = REPORTED_CATEGORIES.map(({ key, isRevenue }) => {
     const sign = sectionSign(isRevenue);
     const inCategory = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === key);
     // A budgeted fund with nothing spent against it yet still belongs on the
@@ -367,6 +391,7 @@ export function monthlyIncome(ledger, cfg, asOf) {
 
   return {
     asOf, months, sections, nets, netTotal, allTimeNet, hasPrior,
+    hiddenFunds: hiddenInUse(ledger, hidden),
     // Fiscal-year framing, null when no fiscal year is configured.
     fiscalYear,
     fiscalYearLabel: fiscalYear === null ? null : fiscalYearLabel(fiscalYear, startMonth),
@@ -398,16 +423,18 @@ export function monthlyIncome(ledger, cfg, asOf) {
  */
 export function fiscalYearComparison(ledger, cfg, asOf) {
   const startMonth = cfg.params.fiscalYearStart;
-  if (!startMonth) return { years: [], sections: [], nets: [], netTotal: null, omitted: 0, startMonth: null };
+  if (!startMonth) return { years: [], sections: [], nets: [], netTotal: null, omitted: 0, startMonth: null, hiddenFunds: [] };
 
   const current = fiscalYearOf(asOf, startMonth);
   const earliest = Number.isFinite(cfg.params.earliestFiscalYear) ? cfg.params.earliestFiscalYear : null;
+
+  const hidden = hiddenFundSet(cfg);
 
   // Only years the export actually has fund activity in: an empty column is a
   // year the troop did not exist, not a year it earned nothing.
   const present = new Set();
   for (const l of ledger.legs) {
-    if (l.kind !== 'fund') continue;
+    if (l.kind !== 'fund' || hidden.has(l.key)) continue;
     const y = fiscalYearOf(l.date, startMonth);
     if (y !== null && y <= current) present.add(y);
   }
@@ -418,7 +445,7 @@ export function fiscalYearComparison(ledger, cfg, asOf) {
 
   const acc = new Map();
   for (const l of ledger.legs) {
-    if (l.kind !== 'fund') continue;
+    if (l.kind !== 'fund' || hidden.has(l.key)) continue;
     const ix = yIndex.get(fiscalYearOf(l.date, startMonth));
     if (ix === undefined) continue;
     if (!acc.has(l.key)) acc.set(l.key, new Array(years.length).fill(0));
@@ -432,7 +459,7 @@ export function fiscalYearComparison(ledger, cfg, asOf) {
   const budgetYears = budgets.map(b =>
     !!b && Object.values(b).some(v => Number.isFinite(v) && v !== 0));
 
-  const sections = CATEGORY_ORDER.map(({ key, isRevenue }) => {
+  const sections = REPORTED_CATEGORIES.map(({ key, isRevenue }) => {
     const sign = sectionSign(isRevenue);
     const inCategory = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === key);
     const funds = [...acc.entries()]
@@ -476,6 +503,7 @@ export function fiscalYearComparison(ledger, cfg, asOf) {
 
   return {
     asOf, years, startMonth, omitted, sections, nets, netTotal, budgetYears,
+    hiddenFunds: hiddenInUse(ledger, hidden),
     labels: years.map(y => fiscalYearLabel(y, startMonth)),
     partialYear: years.length ? years[0] === current : false,
   };

@@ -1,7 +1,9 @@
 // render.js — DOM rendering. Produces the printable tables.
 
 import { fmtMoney, fmtInt, fmtDate, fmtShortDate } from './snapshots.js';
-import { CATEGORY_NAMES, ACCOUNT_CLASSES, fiscalYearLabel, budgetYearsFor } from './config.js';
+import {
+  CATEGORY_NAMES, REPORTED_CATEGORIES, ACCOUNT_CLASSES, fiscalYearLabel, budgetYearsFor,
+} from './config.js';
 
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -59,6 +61,19 @@ function roundingWatch() {
 }
 
 const th = (v, cls = '', scope = 'col') => el('th', { class: cls, scope, text: v });
+
+/**
+ * The note that names what a statement deliberately left out.
+ *
+ * A fund set to Hide from Reports is excluded from every figure on the report
+ * above this line, and that exclusion is printed rather than assumed. A reader
+ * who cannot see which funds were dropped cannot tell an omission from a zero,
+ * which is the failure the whole app is built against. Kept brief and on one
+ * line, like every other note here.
+ */
+const hiddenNote = names => (names && names.length
+  ? `Excluded, set to Hide from Reports: ${names.join(', ')}.`
+  : null);
 
 /* ------------------------------------------------------------------ */
 
@@ -301,6 +316,7 @@ export function renderEventIncome(ei, mount, troopName = '') {
     ei.futureOmitted > 0
       ? `${ei.futureOmitted} later event${ei.futureOmitted === 1 ? '' : 's'} counted in Future but not shown as columns.`
       : null,
+    hiddenNote(ei.hiddenFunds),
     round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
@@ -395,6 +411,7 @@ export function renderMonthlyIncome(mi, mount, troopName = '') {
     `Total is the ${mi.months.length} completed month${mi.months.length === 1 ? '' : 's'} shown; the month in progress is excluded so Prior YTD compares like with like`
       + (mi.hasBudget ? `. Budget is ${mi.fiscalYearLabel} in full, held in this app only; a blank is no budget set.` : '.'),
     mi.hasBudget && partial ? '\u2020 Budgeted on one side only; the other side is not treated as zero.' : null,
+    hiddenNote(mi.hiddenFunds),
     round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
@@ -461,6 +478,7 @@ export function renderFiscalYearComparison(fy, mount, troopName = '') {
     fy.omitted > 0
       ? `${fy.omitted} earlier year${fy.omitted === 1 ? '' : 's'} not shown; change "Earliest year compared" under Parameters.`
       : null,
+    hiddenNote(fy.hiddenFunds),
     round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
 }
@@ -734,7 +752,11 @@ export function renderBudget(cfg, { year, years, label }, mount, { onSetYear, on
     return box;
   };
 
-  for (const cat of CATEGORY_NAMES) {
+  // Hide from Reports is not offered a budget line. A budget is a plan measured
+  // against a statement, and a fund that appears on no statement has nothing to
+  // measure it against — a figure typed there would sit in the settings file
+  // forever, counting toward nothing.
+  for (const { key: cat } of REPORTED_CATEGORIES) {
     const funds = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === cat).sort();
     const cell = el('td', { class: 'num' });
     totalCells.set(cat, cell);

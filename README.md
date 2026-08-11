@@ -182,37 +182,48 @@ listed for you to confirm.
 
 **Troop accounts** are classified as `cash` (a bank account), `noncash`
 (something owned but not spendable, like inventory) or `liability` (a credit
-card). **Funds** map to one of eleven fixed categories:
+card). **Funds** map to one of ten fixed categories:
 
 | category | nets into |
 |---|---|
 | Program Revenue | Net Income — Scouting Program |
-| Crew Program Revenue | Net Income — Scouting Program |
 | Program Expenses | Net Income — Scouting Program |
 | Scout Program Expenses | Net Income — Scouting Program |
-| Crew Program Expenses | Net Income — Scouting Program |
 | Unit Fundraising Revenue | Net Income — Unit Fundraising |
 | Unit Fundraising Expenses | Net Income — Unit Fundraising |
 | Scout Fundraising Revenue | Net Income — Scout Fundraising |
 | Scout Fundraising Expenses | Net Income — Scout Fundraising |
 | Other Income | Net Income — Other |
 | Other Expenses | Net Income — Other |
+| Hide from Reports | *nothing — see below* |
 
 **Scout Program Expenses** is for funds the scouts themselves decide how to
 spend. It gets its own budget line so you can see their spend against it, and
 still counts inside Net Income — Scouting Program.
 
-**Crew Program Revenue / Expenses** does the same for a Venturing crew or any
-other sub-unit that runs its own money: its own two budget lines, its own two
-rows on the income statements, and still inside Net Income — Scouting Program,
-because a crew's activity is the unit's activity. It just answers for its own
-line.
+**Hide from Reports** is the category whose name is its whole meaning: a fund
+filed here is left out of all three income statements. It exists for the funds
+that are not income in any period sense — a transfer between the troop's own
+pots, a pass-through that books in and straight back out, an artefact of how
+your unit was migrated into TroopWebHost. Left in, each one inflates a revenue
+line and an expense line by the same amount and makes every section total answer
+a question nobody asked.
 
-None of these three is ever guessed from a fund's name. Which funds a crew or
-the scouts control is a fact about how your unit is organised, not something
-"Crew" in a name can be read for — a troop with no crew that happens to have a
-fund called Crew Expense would get a budget line nobody set. Move those funds
-across once on the Settings tab and the settings file remembers.
+Two things it deliberately does not do:
+
+- **It does not touch the balance sheet.** Money the troop holds is money the
+  troop holds; where a fund is filed cannot make a liability disappear. Deferred
+  revenue on a future event still counts under *Other Future Events (Net)*.
+- **It does not go unsaid.** A hidden fund that your export actually uses is
+  named in the notes of every statement that left it out, so a reader can always
+  tell an omission from a zero. It gets no budget line either — a budget is a
+  plan measured against a statement, and this fund appears on none.
+
+Neither this nor **Scout Program Expenses** is ever guessed from a fund's name.
+Which funds the scouts control is a fact about how your unit is organised, and
+guessing *Hide from Reports* would delete a line from your statements on the
+strength of a word. Move funds into either one deliberately, on the Settings tab;
+the settings file remembers.
 
 **Scout Fundraising** is fundraising whose proceeds are credited to the selling
 scout's account rather than kept by the unit — popcorn and product sales,
