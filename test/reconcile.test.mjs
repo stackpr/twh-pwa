@@ -750,6 +750,21 @@ console.log('\n== CLOSED BOOKS ==');
 console.log('\n== CLASSIFICATION GUESSES ==');
 {
   const g = (name, net = 0) => guessFundCategory(name, net);
+  // Categories that record a decision a troop made rather than something a
+  // fund's name says. They divide in two, and the difference matters.
+  //
+  // Scout fundraising is guessable, but only from an explicit marker someone
+  // put in the name ("… (to Scout)"). The rest are not guessable at all: who
+  // controls a fund, and whether a crew exists to own one, are facts about how
+  // a unit is organised that no name can be read for.
+  const NEVER_GUESSED = new Set([
+    'Scout Program Expenses', 'Crew Program Revenue', 'Crew Program Expenses',
+  ]);
+  // Both kinds are excluded from the agreement rate below, which measures the
+  // heuristic only against names it is actually given enough to read.
+  const POLICY_CATEGORIES = new Set([
+    ...NEVER_GUESSED, 'Scout Fundraising Revenue', 'Scout Fundraising Expenses',
+  ]);
   ok('"Expense" in the name means an expense', g('Camping (Weekend) Expense', 500) === 'Program Expenses');
   ok('"Revenue" in the name means revenue', g('Registration Revenue', -20) === 'Program Revenue');
   ok('a fundraiser word picks the fundraising section', g('Popcorn Revenue') === 'Unit Fundraising Revenue');
@@ -757,10 +772,13 @@ console.log('\n== CLASSIFICATION GUESSES ==');
   ok('proceeds named for the seller go to scout fundraising',
      g('Concessions Fundraising (to Scout)', -100) === 'Scout Fundraising Expenses');
   ok('and its revenue side too', g('Individual Fundraising', 100) === 'Scout Fundraising Revenue');
-  ok('Scout Program Expenses is never guessed',
-     CATEGORY_NAMES.every(c => c !== 'Scout Program Expenses'
-       || ![['Crew Expense', -100], ['Scout Managed Expense', -100], ['Anything', -1]]
-            .some(([n, v]) => g(n, v) === 'Scout Program Expenses')));
+  // Who decides what a fund is spent on is a fact about how a unit is organised,
+  // never something a name can be read for — a fund called "Crew Expense" in a
+  // troop with no crew is just an expense.
+  ok('the decide-who-spends categories are never guessed',
+     [['Crew Expense', -100], ['Crew Revenue', 100], ['Crew Program Expense', -100],
+      ['Scout Managed Expense', -100], ['Anything', -1], ['Anything', 1]]
+       .every(([n, v]) => !NEVER_GUESSED.has(g(n, v))));
   ok('administrative words pick Other', g('Administrative Expenses') === 'Other Expenses');
   ok('interest is Other Income', g('Interest and Dividends', 12) === 'Other Income');
   // With no word to go on, the sign of the fund's net in the export decides.
@@ -784,15 +802,10 @@ console.log('\n== CLASSIFICATION GUESSES ==');
 
   // The shipped example chart is the closest thing to a labelled set: the guess
   // should agree with most of it. Pinned low — this is a heuristic, not a rule.
-  // Two categories record a decision a troop made, not something a fund's name
-  // says: which fundraisers pass their proceeds to the sellers, and which funds
-  // the scouts themselves control. Measuring the heuristic against those would
-  // be measuring it against information it is never given, so the agreement
-  // rate is taken over the names it can actually read. The policy categories
-  // get their own assertions below, which is the stronger claim anyway.
-  const POLICY_CATEGORIES = new Set([
-    'Scout Program Expenses', 'Scout Fundraising Revenue', 'Scout Fundraising Expenses',
-  ]);
+  // Measuring the heuristic against POLICY_CATEGORIES would be measuring it
+  // against information it is never given, so the agreement rate is taken over
+  // the names it can actually read. Those categories get their own assertion
+  // above, which is the stronger claim anyway.
   const guessOf = ([n, c]) => g(n, c.includes('Expense') ? -100 : 100);
   const shipped = Object.entries(FUND_CATEGORIES);
   const readable = shipped.filter(([, c]) => !POLICY_CATEGORIES.has(c));
@@ -800,8 +813,8 @@ console.log('\n== CLASSIFICATION GUESSES ==');
   ok(`guess agrees with ${agree}/${readable.length} of the names it can read`,
      agree >= readable.length * 0.8);
 
-  ok('Scout Program Expenses is never guessed',
-     shipped.every(e => guessOf(e) !== 'Scout Program Expenses'));
+  ok('no shipped example name guesses its way into an unguessable category',
+     shipped.every(e => !NEVER_GUESSED.has(guessOf(e))));
   ok('scout fundraising is guessed only from an explicit marker in the name',
      shipped.filter(e => guessOf(e).startsWith('Scout Fundraising'))
        .every(([n]) => /to scout|scout share|scout portion|scout credit|scout account|individual/i.test(n)));
@@ -1139,12 +1152,18 @@ if (isFixture) {
   eq('EI future columns', ei.futureCount, 2);
   eq('EI past columns', ei.columns.length - ei.futureCount, 8);
   eq('EI past events omitted', ei.pastOmitted, 4);
-  eq('EI Program Revenue', ei.sections.find(s => s.key === 'Program Revenue').subtotal.total, 35453.75);
-  // 148.00 of what used to sit in Program Expenses is now reported as
-  // Scout Program Expenses. Net Scouting Program is unchanged, which is the
-  // whole point of the split: a separate budget line, the same total.
+  eq('EI Program Revenue', ei.sections.find(s => s.key === 'Program Revenue').subtotal.total, 35453.75 - 148.00);
+  // The shipped example's three crew funds now sit in the Crew pair, which is
+  // where their own names said they belonged. They moved WITHIN the program
+  // group, so Net Scouting Program below is untouched — that is the whole point
+  // of a group: a separate budget line, the same total.
+  eq('EI Crew Program Revenue', ei.sections.find(s => s.key === 'Crew Program Revenue').subtotal.total, 148.00);
   eq('EI Program Expenses', ei.sections.find(s => s.key === 'Program Expenses').subtotal.total, 31119.15);
-  eq('EI Scout Program Expenses', ei.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 148.00);
+  eq('EI Crew Program Expenses', ei.sections.find(s => s.key === 'Crew Program Expenses').subtotal.total, 148.00);
+  // Zero, and asserted at zero: no example fund claims to be scout-managed, so
+  // anything appearing here would be a leak from another section rather than a
+  // figure. Which funds the scouts control is a decision each troop makes.
+  eq('EI Scout Program Expenses', ei.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 0);
   eq('EI Net Program', ei.nets.find(n => n.group === 'program').total, 4186.60);
   eq('EI Net Unit Fundraising', ei.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
   eq('EI Net Scout Fundraising', ei.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);
@@ -1152,9 +1171,11 @@ if (isFixture) {
   eq('EI Future total', ei.futureTotal, 4918.50);
 
   eq('MI months', mi.months.length, 12);
-  eq('MI Program Revenue', mi.sections.find(s => s.key === 'Program Revenue').subtotal.total, 19647.75);
+  eq('MI Program Revenue', mi.sections.find(s => s.key === 'Program Revenue').subtotal.total, 19647.75 - 148.00);
+  eq('MI Crew Program Revenue', mi.sections.find(s => s.key === 'Crew Program Revenue').subtotal.total, 148.00);
   eq('MI Program Expenses', mi.sections.find(s => s.key === 'Program Expenses').subtotal.total, 20231.65);
-  eq('MI Scout Program Expenses', mi.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 148.00);
+  eq('MI Crew Program Expenses', mi.sections.find(s => s.key === 'Crew Program Expenses').subtotal.total, 148.00);
+  eq('MI Scout Program Expenses', mi.sections.find(s => s.key === 'Scout Program Expenses').subtotal.total, 0);
   eq('MI Net Program', mi.nets.find(n => n.group === 'program').total, -731.90);
   eq('MI Net Unit Fundraising', mi.nets.find(n => n.group === 'unitFundraising').total, 3211.50);
   eq('MI Net Scout Fundraising', mi.nets.find(n => n.group === 'scoutFundraising').total, 6639.50);

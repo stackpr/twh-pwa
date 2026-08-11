@@ -26,6 +26,13 @@ export const setShowCents = on => { showCents = on !== false; };
 const num = (v, cls = '') =>
   el('td', { class: 'num ' + cls + (v < -0.005 ? ' neg' : ''), text: fmtMoney(v, showCents) });
 
+// A figure under the current display setting, for the panels that write money
+// into a sentence rather than a table cell. Those used to call fmtMoney direct,
+// whose `cents` argument defaults to true — so "Show cents" turned the reports
+// to whole dollars and left the reconciliation panel and the drift note showing
+// cents beside them. One page, one setting.
+export const money = v => fmtMoney(v, showCents);
+
 /**
  * Do these parts still add to this total once every one of them is rounded?
  *
@@ -472,8 +479,8 @@ export function renderReconciliation(rec, ledger, mount) {
   add('Scout accounts', fmtInt(rec.scoutAccounts));
   add('Troop-held (pseudo) accounts', rec.pseudoAccounts.length
     ? rec.pseudoAccounts.map(p => prettyPseudo(p)).join(', ') : 'none');
-  add('Asset legs net', fmtMoney(rec.assetTotal));
-  add('Person legs net', fmtMoney(rec.personTotal));
+  add('Asset legs net', money(rec.assetTotal));
+  add('Person legs net', money(rec.personTotal));
   add('Single-leg entries', `${fmtInt(rec.singleLegCount)}${rec.singleLegCount ? ' \u2014 ' + rec.singleLegTypes.join(', ') : ''}`);
 
   mount.append(dl);

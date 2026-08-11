@@ -36,9 +36,16 @@ That includes places it is easy to let one slip:
 The category names in `CATEGORY_ORDER` are the one fixed vocabulary, because
 they drive the income-statement sections and the program/fundraising split. Each
 carries a `group`, and the group — never a prefix on the name — is what decides
-which categories net together and whether an event is a program event. Renaming
-or adding one means adding to `RENAMED_CATEGORIES` so existing settings files
-migrate and say so.
+which categories net together and whether an event is a program event.
+
+*Renaming* one means adding to `RENAMED_CATEGORIES` so existing settings files
+migrate and say so. *Adding* one does not — there is no old name to map from,
+and a saved chart is authoritative, so an existing user simply has no fund in
+the new category until they move one there. What an addition does need is a
+decision about `guessFundCategory`: a category that records how a unit is
+organised rather than what a fund is called (`Scout Program Expenses`, the
+`Crew` pair) must never be guessed, and the test's `NEVER_GUESSED` set is where
+that is enforced.
 Everything else is configuration.
 
 ## Rule 2 — No personal data in the repo, and none on the wire

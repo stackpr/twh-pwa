@@ -81,8 +81,10 @@ accounts:
 #
 # Allowed categories (this list is fixed):
 #   Program Revenue
+#   Crew Program Revenue
 #   Program Expenses
 #   Scout Program Expenses
+#   Crew Program Expenses
 #   Unit Fundraising Revenue
 #   Unit Fundraising Expenses
 #   Scout Fundraising Revenue
@@ -113,9 +115,9 @@ funds:
   Camping (Weekend) Expense: Program Expenses
   Concessions Fundraising (from Venue): Scout Fundraising Revenue
   Concessions Fundraising (to Scout): Scout Fundraising Expenses
-  Crew Expense: Scout Program Expenses
-  Crew Funds Utilized: Program Revenue
-  Crew Revenue (from Scout): Program Revenue
+  Crew Expense: Crew Program Expenses
+  Crew Funds Utilized: Crew Program Revenue
+  Crew Revenue (from Scout): Crew Program Revenue
   Custom Order (Passthru): Other Expenses
   Donations by Troop: Other Expenses
   Equipment/Merch Expense: Program Expenses

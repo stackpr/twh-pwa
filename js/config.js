@@ -28,9 +28,9 @@ export const FUND_CATEGORIES = {
   'Food Expense':                          'Program Expenses',
   'COH Expense':                           'Program Expenses',
   'Troop-Funded Program Expense':          'Program Expenses',
-  'Crew Revenue (from Scout)':             'Program Revenue',
-  'Crew Funds Utilized':                   'Program Revenue',
-  'Crew Expense':                          'Scout Program Expenses',
+  'Crew Revenue (from Scout)':             'Crew Program Revenue',
+  'Crew Funds Utilized':                   'Crew Program Revenue',
+  'Crew Expense':                          'Crew Program Expenses',
   'General Donation':                      'Unit Fundraising Revenue',
   'Campership Donation':                   'Unit Fundraising Revenue',
   // Proceeds credited to the participating scout's account rather than kept by
@@ -67,15 +67,19 @@ export const FUND_CATEGORIES = {
 // in:
 //
 //   program           Scout Program Expenses is spending the scouts themselves
-//                     direct. It is budgeted and reported separately, and still
-//                     nets into Net Income — Scouting Program.
+//                     direct, and the Crew pair is a sub-unit's own programme.
+//                     Each is budgeted and reported separately, and each still
+//                     nets into Net Income — Scouting Program: a crew's activity
+//                     is the unit's activity, it just answers for its own line.
 //   scoutFundraising  fundraising whose proceeds pass through to scout accounts.
 //                     It usually nets to about nothing, which is the point of
 //                     keeping it away from the unit's own fundraising.
 export const CATEGORY_ORDER = [
   { key: 'Program Revenue',            isRevenue: true,  group: 'program' },
+  { key: 'Crew Program Revenue',       isRevenue: true,  group: 'program' },
   { key: 'Program Expenses',           isRevenue: false, group: 'program' },
   { key: 'Scout Program Expenses',     isRevenue: false, group: 'program' },
+  { key: 'Crew Program Expenses',      isRevenue: false, group: 'program' },
   { key: 'Unit Fundraising Revenue',   isRevenue: true,  group: 'unitFundraising' },
   { key: 'Unit Fundraising Expenses',  isRevenue: false, group: 'unitFundraising' },
   { key: 'Scout Fundraising Revenue',  isRevenue: true,  group: 'scoutFundraising' },
@@ -364,10 +368,12 @@ export function guessFundCategory(name, net = 0) {
     if (toScout) return isExpense ? 'Scout Fundraising Expenses' : 'Scout Fundraising Revenue';
     return isExpense ? 'Unit Fundraising Expenses' : 'Unit Fundraising Revenue';
   }
-  // Scout Program Expenses is never guessed. It means "the scouts decide what
-  // this is spent on", which is a fact about how a troop runs, not about a
-  // fund's name — inventing it would put spending under a budget line nobody
-  // set. A treasurer moves the fund there once, on the Settings tab.
+  // Neither Scout Program Expenses nor the Crew pair is ever guessed. Each says
+  // who decides what a fund is spent on — a fact about how a unit is organised,
+  // not about a fund's name. A troop with no Venturing crew has no crew funds,
+  // and a troop with one may not name them "Crew"; inventing either would put
+  // spending under a budget line nobody set. A treasurer moves the fund there
+  // once, on the Settings tab.
   return isExpense ? 'Program Expenses' : 'Program Revenue';
 }
 

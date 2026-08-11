@@ -11,13 +11,13 @@ import {
 import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from './reports.js';
 import {
   loadSnapshots, saveSnapshots, clearSnapshots, snapshotFromReport,
-  driftReport, isoDate, fmtMoney, download,
+  driftReport, isoDate, download,
 } from './snapshots.js';
 import { settingsToText, settingsFromText, SETTINGS_FILENAME } from './settings.js';
 import {
   renderBalanceSheet, renderEventIncome, renderMonthlyIncome, renderFiscalYearComparison, setShowCents,
   renderReconciliation, renderErrors, renderConfig, renderChartReview, renderBudget,
-  renderPriorBooks,
+  renderPriorBooks, money,
 } from './render.js';
 import { initInstall, purgeAppCache } from './install.js';
 
@@ -464,7 +464,7 @@ function renderDrift(bs) {
   const ul = document.createElement('ul');
   for (const d of drift) {
     const li = document.createElement('li');
-    li.textContent = `${d.key}: published ${fmtMoney(d.was)}, now ${fmtMoney(d.now)} (${fmtMoney(d.delta)})`;
+    li.textContent = `${d.key}: published ${money(d.was)}, now ${money(d.now)} (${money(d.delta)})`;
     ul.append(li);
   }
   mount.append(Object.assign(document.createElement('p'), {

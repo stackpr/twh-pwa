@@ -182,13 +182,15 @@ listed for you to confirm.
 
 **Troop accounts** are classified as `cash` (a bank account), `noncash`
 (something owned but not spendable, like inventory) or `liability` (a credit
-card). **Funds** map to one of nine fixed categories:
+card). **Funds** map to one of eleven fixed categories:
 
 | category | nets into |
 |---|---|
 | Program Revenue | Net Income — Scouting Program |
+| Crew Program Revenue | Net Income — Scouting Program |
 | Program Expenses | Net Income — Scouting Program |
 | Scout Program Expenses | Net Income — Scouting Program |
+| Crew Program Expenses | Net Income — Scouting Program |
 | Unit Fundraising Revenue | Net Income — Unit Fundraising |
 | Unit Fundraising Expenses | Net Income — Unit Fundraising |
 | Scout Fundraising Revenue | Net Income — Scout Fundraising |
@@ -199,6 +201,18 @@ card). **Funds** map to one of nine fixed categories:
 **Scout Program Expenses** is for funds the scouts themselves decide how to
 spend. It gets its own budget line so you can see their spend against it, and
 still counts inside Net Income — Scouting Program.
+
+**Crew Program Revenue / Expenses** does the same for a Venturing crew or any
+other sub-unit that runs its own money: its own two budget lines, its own two
+rows on the income statements, and still inside Net Income — Scouting Program,
+because a crew's activity is the unit's activity. It just answers for its own
+line.
+
+None of these three is ever guessed from a fund's name. Which funds a crew or
+the scouts control is a fact about how your unit is organised, not something
+"Crew" in a name can be read for — a troop with no crew that happens to have a
+fund called Crew Expense would get a budget line nobody set. Move those funds
+across once on the Settings tab and the settings file remembers.
 
 **Scout Fundraising** is fundraising whose proceeds are credited to the selling
 scout's account rather than kept by the unit — popcorn and product sales,
