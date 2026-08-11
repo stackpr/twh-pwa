@@ -104,8 +104,7 @@ function loadRecords(records) {
   $('#import-done').textContent =
     `Loaded ${records.length} transactions. The reports are on the Reports tab.`;
   $('#import-done').hidden = false;
-  renderReconciliation(reconcile(ledger, state.cfg), ledger, $('#reconciliation'));
-  rerender();
+  rerender();   // draws the reconciliation panel too
   renderSettingsPanel();   // the as-of date is now known, and with it the fiscal year
   renderReview();
   // A review, or a restated entry, is worth reading before the figures. With
@@ -310,9 +309,8 @@ function afterChartEdit() {
       return errors;
     }
     classifyEvents(state.ledger, state.cfg);
-    renderReconciliation(reconcile(state.ledger, state.cfg), state.ledger, $('#reconciliation'));
   }
-  rerender();
+  rerender();   // draws the reconciliation panel too
   renderGuessNote();
   // The chart changed, so both tables on the Settings tab did. Deferred because
   // this can be reached from a control's own change event.
@@ -327,6 +325,13 @@ function rerender() {
 
   const org = cfg.params.troopName || '';
   setShowCents(cfg.params.showCents);   // display only; every figure is computed to the cent
+  // The reconciliation panel renders here rather than at its two former call
+  // sites, because it prints money and so is subject to the display setting
+  // like everything else. Rendering it only at import time left "Show cents"
+  // turning the reports to whole dollars while the panel above them kept its
+  // cents — which is not a formatting nit: two figures on one screen in two
+  // conventions is exactly the disagreement this app exists to remove.
+  renderReconciliation(reconcile(state.ledger, cfg), state.ledger, $('#reconciliation'));
   const bs = balanceSheet(state.ledger, cfg, state.asOf);
   renderBalanceSheet(bs, state.snapshots, $('#report-balance'), org);
   renderEventIncome(eventIncome(state.ledger, cfg, state.asOf), $('#report-event'), org);
