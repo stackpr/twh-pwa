@@ -120,7 +120,7 @@ neither and can go wherever the PDFs go.
 
 **Balance Sheet** — what the troop holds, what it owes, and what is genuinely
 free to spend. Assets by account, then scout balances, then liabilities, ending
-at **Unrestricted Net Assets**.
+at **Available Unit Funds**.
 
 Two things surprise people, both deliberate:
 
@@ -131,6 +131,18 @@ Two things surprise people, both deliberate:
 - **Money for events that have not happened** is shown as a liability, on the
   *Other Future Events (Net)* line. It is collected, but it is not yours to
   spend.
+- **An Emergency Fund, if you set one**, is shown as a liability too. It is not
+  owed to anyone, so that is not standard accounting — which is exactly why the
+  bottom line is called *Available Unit Funds* and not *Unrestricted Net Assets*.
+  What the line answers is "what could we spend tomorrow", and money you have
+  resolved not to spend is not part of that answer. Set it beside the budget on
+  the Settings tab; zero prints no line.
+
+Below the bottom line sits **Budgeted Expenses (Reminder)** — what this fiscal
+year's budget commits of the figure above it. It is a memo and is deliberately
+not subtracted: a budget is a plan, not an obligation. It is absent entirely when
+no budget covers the year, because a nil reminder would read as "nothing
+planned".
 
 **Event Income** — a column per event, so you can see which trips paid for
 themselves. Covers activity since the date you set, with anything earlier on the

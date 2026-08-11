@@ -439,6 +439,7 @@ function syncParamInputs() {
   const cents = $('#showCents');
   if (cents) cents.checked = p.showCents !== false;
   set('#months', p.monthsShown);
+  set('#emergencyFund', p.emergencyFund || '');
   set('#asOf', p.asOf);
   set('#fiscalYearStart', p.fiscalYearStart);
   set('#earliestFY', p.earliestFiscalYear);
@@ -568,6 +569,10 @@ function bind() {
     rerender();
   });
   bindParam('#months', 'monthsShown');
+  // Blank means no reserve, which is the same as zero here: there is no
+  // difference between "we hold nothing back" and "we have not decided to",
+  // as far as what is available to spend.
+  bindParam('#emergencyFund', 'emergencyFund', v => (v === '' ? 0 : Number(v)));
   // Blank means every year in the export; a year means start there.
   bindParam('#earliestFY', 'earliestFiscalYear', v => (v === '' ? null : Number(v)));
   // The as-of date decides which fiscal year the reports cover, so the budget

@@ -88,21 +88,56 @@ export function balanceSheet(ledger, cfg, asOf) {
   const futureEvents = ledger.events.filter(e => e.date && e.date > asOf);
   const otherFutureEventsNet = futureEvents.reduce((s, e) => s + e.allTimeNet, 0);
 
+  // A reserve the troop set aside for itself. It is not owed to anyone, so
+  // calling it a liability is not standard accounting — which is exactly why
+  // the bottom line below is Available Unit Funds and not Unrestricted Net
+  // Assets. What a treasurer wants from that line is "what could we spend
+  // tomorrow", and money the troop has resolved not to spend does not belong
+  // in the answer.
+  const emergencyFund = Math.max(0, Number(cfg.params.emergencyFund) || 0);
+
   const totalLiabilities =
     liabilityAccounts.reduce((s, [, v]) => s + v, 0) +
     otherFutureEventsNet +
-    pseudo.reduce((s, [, v]) => s + v, 0);
+    pseudo.reduce((s, [, v]) => s + v, 0) +
+    emergencyFund;
 
-  const unrestricted = totalAssets - netScout - totalLiabilities - totalNoncash;
-  const twhComparison = unrestricted + otherFutureEventsNet + arrearsTotal;
+  const available = totalAssets - netScout - totalLiabilities - totalNoncash;
+  const twhComparison = available + otherFutureEventsNet + arrearsTotal + emergencyFund;
+
+  // A memo line, not part of the arithmetic above: what the budget says this
+  // fiscal year's expenses come to. It sits under Available Unit Funds because
+  // the two together are the question actually being asked — we can spend this
+  // much, and we have already planned to spend that much. Summed from the
+  // expense categories only, by section, so a category figure and the fund
+  // figures inside it are counted once each and never spread.
+  //
+  // Null, not zero, when no budget covers the year: "we planned nothing" and
+  // "there is no budget here" are different, and the line is simply absent for
+  // the second.
+  const fiscalYear = fiscalYearOf(asOf, cfg.params.fiscalYearStart);
+  const budget = fiscalYear === null ? null : (cfg.budgets || {})[String(fiscalYear)];
+  let budgetedExpenses = null;
+  if (budget) {
+    for (const { key, isRevenue } of REPORTED_CATEGORIES) {
+      if (isRevenue) continue;
+      const funds = Object.keys(cfg.fundCategories).filter(f => cfg.fundCategories[f] === key);
+      const v = sectionBudget(budget, key, funds);
+      if (v !== null) budgetedExpenses = (budgetedExpenses || 0) + v;
+    }
+  }
 
   return {
     asOf,
     assets, totalAssets,
     noncash, totalNoncash,
     prepaid, arrearsCount, arrearsTotal, netScout,
-    liabilityAccounts, otherFutureEventsNet, pseudo, totalLiabilities,
-    unrestricted, twhComparison,
+    liabilityAccounts, otherFutureEventsNet, pseudo, emergencyFund, totalLiabilities,
+    // `unrestricted` is kept as an alias: it is the snapshot key, the drift
+    // report's name for this row, and what every settings file already written
+    // calls it. Renaming the label on the page is not a reason to invalidate
+    // every capture a treasurer has taken.
+    available, unrestricted: available, twhComparison, budgetedExpenses,
     futureEventNames: futureEvents.map(e => e.name).sort(),
   };
 }

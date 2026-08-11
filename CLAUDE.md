@@ -416,7 +416,24 @@ keep serving the old shell. Adding or renaming a shell file means updating the
   reports and are allowed to drift when back-dated entries land. Do not add them
   to `BS_ROW_KEYS` or the drift report.
 - **Assets are one section.** `noncash` does not split a line out of Total
-  Assets; it marks the amount for deduction from unrestricted net assets.
+  Assets; it marks the amount for deduction from the bottom line.
+- **The bottom line prints as `Available Unit Funds` but is keyed
+  `unrestricted_net_assets`** in every snapshot and in `driftReport`, and
+  `balanceSheet` returns it under both `available` and `unrestricted`. The label
+  changed because `emergencyFund` — a reserve the troop sets for itself, which
+  is not an obligation to anyone — is reported as a liability so it comes off
+  the line. Renaming the key would orphan every capture a treasurer has taken;
+  do not.
+- **`budgetedExpenses` is a memo, not a term.** It is the fiscal year's budgeted
+  expense sections summed via `sectionBudget`, printed under the bottom line and
+  subtracted from nothing. `null` when no budget covers the year, because a nil
+  reminder reads as "nothing planned". The as-of date picks the year.
+- **The TWH comparison is a current figure in the notes, not a row.** It answers
+  "why does TroopWebHost show something else", which is a question about today's
+  screen rather than a series, so it has no history columns. It is still
+  captured in snapshots — the display changed, the record did not — and it adds
+  `emergencyFund` back, since TWH knows nothing about a reserve this app
+  invented.
 - **Event Income `Total` is period-scoped** to the activity-since date, not all
   time. Earlier activity is the Prior Period line.
 - **Event dates come from the trailing `(MM/DD/YY)` in the event name.** Nothing

@@ -41,6 +41,9 @@ troop:
 #   showCents               true prints cents, false rounds to whole dollars.
 #                           Display only — every figure is computed to the
 #                           cent either way.
+#   emergencyFund           a reserve you have decided not to treat as
+#                           spendable. Reported under Liabilities so it comes
+#                           off Available Unit Funds. 0 prints no line.
 #   hashSalt                changes the anonymised scout identifiers. Leave
 #                           empty unless you have a reason.
 parameters:
@@ -52,6 +55,7 @@ parameters:
   asOf: 2024-08-31
   earliestFiscalYear: null
   showCents: true
+  emergencyFund: 0
   hashSalt: ""
 
 # Troop accounts, and where each belongs on the balance sheet.
@@ -191,6 +195,7 @@ snapshots:
     liability_accounts: 642.75
     other_future_events: 13232.50
     pseudo_accounts: 5819.25
+    emergency_fund: 0.00
     total_liabilities: 19694.50
     unrestricted_net_assets: 43037.54
     twh_comparison: 52398.64
@@ -221,6 +226,7 @@ snapshots:
     liability_accounts: 642.75
     other_future_events: 12243.50
     pseudo_accounts: 5819.25
+    emergency_fund: 0.00
     total_liabilities: 18705.50
     unrestricted_net_assets: 44026.54
     twh_comparison: 52398.64
@@ -251,6 +257,7 @@ snapshots:
     liability_accounts: 642.75
     other_future_events: 4918.50
     pseudo_accounts: 5819.25
+    emergency_fund: 0.00
     total_liabilities: 11380.50
     unrestricted_net_assets: 51351.54
     twh_comparison: 52398.64

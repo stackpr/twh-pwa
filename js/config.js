@@ -194,6 +194,12 @@ export const DEFAULT_PARAMS = {
   // all-dash statement on a first run. Every treasurer sets this to their own
   // reporting start; the shipped value only has to be harmless before they do.
   activitySince: '2020-01-01',
+  // A reserve the troop has decided not to treat as spendable. Reported as a
+  // liability so it comes off Available Unit Funds, which is a deliberate
+  // departure from standard accounting — a self-imposed reserve is not an
+  // obligation to anyone — and the reason that line is not called Unrestricted
+  // Net Assets. Zero means no reserve is held back and the line is not printed.
+  emergencyFund: 0,
   pastEventsShown: 8,          // most recent N past program events, for one-page fit
   // Soonest N future events. Like pastEventsShown this is page fit and nothing
   // more: the Future column is every event still to come whether or not it got

@@ -44,7 +44,7 @@ import {
 } from '../js/config.js';
 import { parseYAML, stringifyYAML, YamlError } from '../js/yaml.js';
 import { settingsToText, settingsFromText } from '../js/settings.js';
-import { snapshotFromReport, driftReport, fmtMoney, fmtShortDate } from '../js/snapshots.js';
+import { snapshotFromReport, driftReport, fmtMoney, fmtShortDate, BS_ROW_KEYS } from '../js/snapshots.js';
 import { execFileSync } from 'node:child_process';
 import { buildLedger, reconcile, resolveAsOf, isPseudoAccount, chartReview, classifyEvents, validateChart, compareImports } from '../js/ledger.js';
 import { balanceSheet, eventIncome, monthlyIncome, fiscalYearComparison } from '../js/reports.js';
@@ -618,6 +618,80 @@ console.log('\n== EDITING THE CHART AFTER AN IMPORT ==');
   ok('a hand-added fund does not disturb the reports',
      Math.abs(monthlyIncome(ledger, spare, resolveAsOf(ledger, spare.params)).netTotal.total
               - monthlyIncome(ledger, cfg, resolveAsOf(ledger, cfg.params)).netTotal.total) < 0.005);
+}
+
+console.log('\n== EMERGENCY FUND AND THE BUDGET REMINDER ==');
+{
+  const plain = build({});
+  const bs0 = balanceSheet(plain.ledger, plain.cfg, plain.asOf);
+  eq('no reserve by default', bs0.emergencyFund, 0);
+
+  const RESERVE = 5000;
+  const res = build({ emergencyFund: RESERVE });
+  const bs1 = balanceSheet(res.ledger, res.cfg, res.asOf);
+
+  eq('the reserve is carried on the report', bs1.emergencyFund, RESERVE);
+  eq('it raises Total Liabilities by exactly itself',
+     bs1.totalLiabilities, bs0.totalLiabilities + RESERVE);
+  eq('and lowers Available Unit Funds by exactly itself',
+     bs1.available, bs0.available - RESERVE);
+
+  // It is a presentation decision about what counts as spendable, so it must
+  // not touch what the troop actually holds or owes anyone else.
+  eq('Total Assets is untouched', bs1.totalAssets, bs0.totalAssets);
+  eq('Net Scout Balances is untouched', bs1.netScout, bs0.netScout);
+  eq('Other Future Events (Net) is untouched', bs1.otherFutureEventsNet, bs0.otherFutureEventsNet);
+
+  // The TWH comparison answers "why does TroopWebHost show something else".
+  // A reserve this app invented is not something TWH knows about, so it has to
+  // be added back or the comparison would stop reconciling the moment one is set.
+  eq('the TWH comparison is unmoved by a reserve', bs1.twhComparison, bs0.twhComparison);
+
+  // The one identity the bottom line has to keep.
+  eq('Available == assets - scouts - liabilities - non-cash',
+     bs1.available, bs1.totalAssets - bs1.netScout - bs1.totalLiabilities - bs1.totalNoncash);
+
+  eq('a negative reserve is refused rather than credited',
+     balanceSheet(plain.ledger, mk({ emergencyFund: -900 }), plain.asOf).emergencyFund, 0);
+
+  // The snapshot carries it, so a historical column can say what was held back
+  // at the time rather than implying the reserve was always what it is today.
+  const snap = snapshotFromReport(bs1);
+  eq('a snapshot records the reserve', snap.emergency_fund, RESERVE);
+  ok('and the drift report watches it', BS_ROW_KEYS.includes('emergency_fund'));
+  // The row is still keyed unrestricted_net_assets though it prints as
+  // Available Unit Funds: renaming a label must not orphan a capture.
+  eq('the bottom line keeps its snapshot key', snap.unrestricted_net_assets, bs1.available);
+
+  // --- the budget reminder ---
+  eq('no budget means no reminder line', bs0.budgetedExpenses, null);
+
+  const year = fiscalYearOf(plain.asOf, plain.cfg.params.fiscalYearStart);
+  const withBudget = {
+    ...mk({}),
+    budgets: { [String(year)]: { 'Program Expenses': 1000, 'Other Income': 400, 'Program Revenue': 250 } },
+  };
+  const bs2 = balanceSheet(plain.ledger, withBudget, plain.asOf);
+  eq('the reminder sums the expense side only', bs2.budgetedExpenses, 1000);
+  eq('and does not move Available Unit Funds', bs2.available, bs0.available);
+  eq('nor Total Liabilities', bs2.totalLiabilities, bs0.totalLiabilities);
+
+  // A category figure covers what was not budgeted by fund, so a section's
+  // budget is the category figure plus the funds inside it — never spread.
+  const someExpenseFund = Object.keys(plain.cfg.fundCategories)
+    .find(f => plain.cfg.fundCategories[f] === 'Program Expenses');
+  ok('the fixture chart has a program expense fund', !!someExpenseFund);
+  const bs3 = balanceSheet(plain.ledger, {
+    ...mk({}),
+    budgets: { [String(year)]: { 'Program Expenses': 1000, [someExpenseFund]: 250 } },
+  }, plain.asOf);
+  eq('a fund figure adds to its category figure', bs3.budgetedExpenses, 1250);
+
+  // A budget for a different year says nothing about this one.
+  const bs4 = balanceSheet(plain.ledger, {
+    ...mk({}), budgets: { [String(year + 5)]: { 'Program Expenses': 9999 } },
+  }, plain.asOf);
+  eq('another year\'s budget is not borrowed', bs4.budgetedExpenses, null);
 }
 
 console.log('\n== SETTINGS FILE APPLIES ONLY WHAT IT SAYS ==');

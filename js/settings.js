@@ -87,6 +87,9 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     '  showCents               true prints cents, false rounds to whole dollars.',
     '                          Display only \u2014 every figure is computed to the',
     '                          cent either way.',
+    '  emergencyFund           a reserve you have decided not to treat as',
+    '                          spendable. Reported under Liabilities so it comes',
+    '                          off Available Unit Funds. 0 prints no line.',
     '  hashSalt                changes the anonymised scout identifiers. Leave',
     '                          empty unless you have a reason.',
   ], 'parameters', {
@@ -98,6 +101,7 @@ export function settingsToText(cfg, snapshots = {}, budgets = cfg.budgets || {})
     asOf: params.asOf ?? null,
     earliestFiscalYear: params.earliestFiscalYear ?? null,
     showCents: params.showCents !== false,
+    emergencyFund: Number(params.emergencyFund) || 0,
     hashSalt: params.hashSalt || '',
   }));
 

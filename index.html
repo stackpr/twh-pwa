@@ -237,6 +237,17 @@
         spending as spending.
       </p>
       <div id="budget"></div>
+
+      <label class="standalone">Emergency Fund
+        <input type="number" id="emergencyFund" min="0" step="0.01" placeholder="0.00">
+        <span class="hint">
+          A reserve you have decided not to treat as spendable. Shown on the balance sheet
+          under Liabilities so it comes off <strong>Available Unit Funds</strong>. Blank or
+          zero prints no line. This is not standard accounting &mdash; a reserve you set for
+          yourself is owed to nobody &mdash; which is why that line is not called
+          Unrestricted Net Assets.
+        </span>
+      </label>
     </section>
 
     <section>
@@ -415,6 +426,16 @@
         dated to the event, so a fee for a future event has already moved a scout's balance.
         Filtering it out would understate what the troop owes. The deferred position appears
         instead on the <em>Other Future Events (Net)</em> line.
+      </p>
+      <p class="hint">
+        <strong>The bottom line is <em>Available Unit Funds</em>, not Unrestricted Net
+        Assets.</strong> If you set an Emergency Fund it is reported under Liabilities, which
+        no accountant would call one &mdash; a reserve you set for yourself is owed to
+        nobody. But the question that line exists to answer is what the troop could spend
+        tomorrow, and money you have resolved not to spend is not part of the answer. The
+        name says which question is being answered. Below it, <em>Budgeted Expenses
+        (Reminder)</em> shows what the year's budget already commits; it is a memo and is
+        not subtracted, because a plan is not an obligation.
       </p>
       <p class="hint">
         <strong>Only the balance sheet is snapshotted.</strong> The income statements are

@@ -9,7 +9,10 @@ const LS_KEY = 'troopfin.snapshots.v1';
 export const BS_ROW_KEYS = [
   'total_assets', 'total_noncash_assets',
   'scout_prepaid', 'scout_arrears_count', 'scout_arrears_total', 'scout_net',
-  'liability_accounts', 'other_future_events', 'pseudo_accounts', 'total_liabilities',
+  'liability_accounts', 'other_future_events', 'pseudo_accounts', 'emergency_fund', 'total_liabilities',
+  // Still `unrestricted_net_assets`, though the row now prints as Available
+  // Unit Funds. The key is what every capture already written is keyed by, and
+  // renaming a label on the page is no reason to orphan a treasurer's history.
   'unrestricted_net_assets', 'twh_comparison',
 ];
 
@@ -47,6 +50,7 @@ export function snapshotFromReport(bs) {
     liability_accounts:      bs.liabilityAccounts.reduce((s, [, v]) => s + v, 0),
     other_future_events:     bs.otherFutureEventsNet,
     pseudo_accounts:         bs.pseudo.reduce((s, [, v]) => s + v, 0),
+    emergency_fund:          bs.emergencyFund,
     total_liabilities:       bs.totalLiabilities,
     unrestricted_net_assets: bs.unrestricted,
     twh_comparison:          bs.twhComparison,

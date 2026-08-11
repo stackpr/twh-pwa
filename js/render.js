@@ -147,7 +147,7 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   round.check(bs.assets.map(([, v]) => v), bs.totalAssets);
   round.check([bs.prepaid, bs.arrearsTotal], bs.netScout);
   round.check([...bs.liabilityAccounts.map(([, v]) => v), bs.otherFutureEventsNet,
-               ...bs.pseudo.map(([, v]) => v)], bs.totalLiabilities);
+               ...bs.pseudo.map(([, v]) => v), bs.emergencyFund], bs.totalLiabilities);
 
   const noncashNames = new Set(bs.noncash.map(([k]) => k));
   section('Assets');
@@ -171,12 +171,22 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   // snapshot is keyed the way the export names the account, not the way the
   // balance sheet prints it.
   for (const [name, v] of bs.pseudo) acctRow(prettyPseudo(name), name, v);
+  // Only when one is held. A zero reserve is not a decision worth a row, and an
+  // Emergency Fund line reading nil invites the reader to wonder where it went.
+  if (Math.abs(bs.emergencyFund) >= 0.005) {
+    row('Emergency Fund', [bs.emergencyFund, ...snapVal('emergency_fund')], 'detail');
+  }
   row('Total Liabilities', [bs.totalLiabilities, ...snapVal('total_liabilities')], 'subtotal');
 
   body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols.length + 1 })));
-  row('Unrestricted Net Assets', [bs.unrestricted, ...snapVal('unrestricted_net_assets')], 'total');
-  body.append(el('tr', { class: 'spacer' }, el('td', { colspan: cols.length + 1 })));
-  row('Assets reported in TWH (for comparison)', [bs.twhComparison, ...snapVal('twh_comparison')], 'detail');
+  row('Available Unit Funds', [bs.available, ...snapVal('unrestricted_net_assets')], 'total');
+  // A reminder, not a subtraction: what the year's budget already commits of
+  // the figure above. It is deliberately not netted against it — a budget is a
+  // plan, and a plan is not a liability. Absent entirely when no budget covers
+  // the year, because a nil reminder reads as "nothing planned".
+  if (bs.budgetedExpenses !== null && bs.budgetedExpenses !== undefined) {
+    row('Budgeted Expenses (Reminder)', [bs.budgetedExpenses, ...cols.slice(1).map(() => null)], 'detail memo');
+  }
 
   table.append(body);
   mount.append(scroller(table));
@@ -186,8 +196,20 @@ export function renderBalanceSheet(bs, snapshots, mount, troopName = '') {
   // reasoning lives; a report is not the place to explain itself at length, and
   // every line here is a line the table does not get.
   mount.append(el('footer', { class: 'notes' }, [
-    bs.noncash.length ? '\u2020 Non-cash: in Total Assets, deducted from Unrestricted.' : null,
-    'TWH omits future events and arrears; the comparison line adds both back.',
+    bs.noncash.length ? '\u2020 Non-cash: in Total Assets, deducted from Available.' : null,
+    // The TWH comparison is a reconciliation aid, not a position: it answers
+    // "why does TroopWebHost show a different number", which is a question
+    // about today's screen and not about any date in the history. So it is one
+    // current figure in the notes rather than a row with a column per snapshot,
+    // where the dated cells only invited the reader to compare two things that
+    // were never meant to be a series.
+    `Assets reported in TWH, for comparison: ${money(bs.twhComparison)} \u2014 TWH omits future events and arrears; this adds both back.`,
+    Math.abs(bs.emergencyFund) >= 0.005
+      ? 'Emergency Fund is a reserve the troop set aside, shown as a liability so it is not counted as available.'
+      : null,
+    bs.budgetedExpenses !== null && bs.budgetedExpenses !== undefined
+      ? 'Budgeted Expenses is a reminder of what the year\'s budget commits; it is not deducted above.'
+      : null,
     snapDates.length ? 'Dated columns are figures as published; blanks were not captured.' : null,
     round.note,
   ].filter(Boolean).map(t => el('p', { text: t }))));
